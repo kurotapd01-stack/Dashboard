@@ -166,7 +166,7 @@ details summary{cursor:pointer}
    ทางเลือกเดิม: Publish to web เป็น CSV แล้ววางลิงก์ในหน้า "ข้อมูลและเป้าหมาย" (ช้ากว่า ~5 นาที)
    ===================================================================== */
 const CONFIG = {
-  scriptUrl: 'https://script.google.com/macros/s/AKfycbzhRcRvc6z2Ka779ElFeNyUn6M3J-UJ6FhFy05N8LL32XnjQOrdm6b2xDhiUmXGwQi45Q/exec',              // ลิงก์เว็บแอป Apps Script (ลงท้าย /exec) — ไม่ต้องใช้ API Key และไม่ต้องแชร์ชีตเป็นสาธารณะ ถ้าใส่ช่องนี้จะใช้ช่องทางนี้ก่อน
+  scriptUrl: 'https://script.google.com/macros/s/AKfycbzhRcRvc6z2Ka779ElFeNyUn6M3J-UJ6FhFy05N8LL32XnjQOrdm6b2xDhiUmXGwQi45Q/exec?api=dashboard&product=SOP&token=mironu-oee-dashboard-3009',              // ลิงก์เว็บแอป Apps Script (ลงท้าย /exec) — ไม่ต้องใช้ API Key และไม่ต้องแชร์ชีตเป็นสาธารณะ ถ้าใส่ช่องนี้จะใช้ช่องทางนี้ก่อน
   scriptToken: 'mironu-oee-dashboard-3009',            // รหัสผ่านที่ตั้งไว้ใน Script properties (DASH_TOKEN) ของ Apps Script
   apiKey: '',                 // Google API Key (ว่างไว้ได้ ถ้าจะกรอกในหน้า "ข้อมูลและเป้าหมาย")
   refreshSec: 30,             // ดึงข้อมูลผลิตภัณฑ์ที่เปิดอยู่ทุกกี่วินาที (0 = ปิด, ต่ำสุด 10)
