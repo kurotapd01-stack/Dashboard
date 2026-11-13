@@ -1155,6 +1155,7 @@ function pageOverview(){
   const ratio=plan?actual/plan:null; const noPlanCmp=shiftFiltered();
   const status = noPlanCmp||ratio==null ? {t:'–',c:'',l:'Plan ไม่แยกกะ จึงเทียบไม่ได้'} : ratio>=1 ? {t:'▲ Over Plan',c:'up'} : {t:'▼ Under Plan',c:'down'};
   const gA=gapOf(a.A,T.a), gP=gapOf(a.P,T.p), gQ=gapOf(a.Q,T.q), gO=gapOf(a.oee,T.oee);
+  /* ลำดับ: Scoreboard แถวที่ 1 (% ตามแผน / Actual / Plan / NG) → กราฟผลิตจริงเทียบแผนรายวัน → Scoreboard แถวที่ 2 (OEE / A / P / Q) → กราฟ OEE รายวัน */
   $('#view').innerHTML = titleHTML('ภาพรวม') +
    (noPlanCmp?`<div class="warn">ตัวกรองกะ หรือ กลางวัน/กลางคืน ทำงานกับข้อมูลผลิตจริงเท่านั้น แผน (Plan) ไม่แยกกะ จึงไม่นำมาเทียบ</div>`:'') +
    `<div class="grid g4 kpis exec-kpis">
@@ -1162,6 +1163,9 @@ function pageOverview(){
      ${kpiHTML('Actual · ผลิตจริง (ชิ้น)', nf(actual), `${a.n} รายการบันทึก`)}
      ${kpiHTML('Plan · แผนผลิต (ชิ้น)', noPlanCmp?'–':nf(plan), '')}
      ${kpiHTML('NG · งานเสีย', nf(a.ng), `${pct(a.ngp,2)} ของยอดผลิต`, a.ngp>0?'down':'')}
+   </div>
+   <div class="grid g1" style="margin-bottom:25px">
+     ${card('avp','ผลิตจริงเทียบกับแผนรายวัน','ชิ้น',340)}
    </div>
    <div class="grid g4 kpis component-kpis">
      ${kpiHTML('OEE · ประสิทธิภาพโดยรวม', pct(a.oee), gO.t, gO.c, statusOf(a.oee,T.oee))}
@@ -1171,7 +1175,6 @@ function pageOverview(){
    </div>
    <div class="grid g1">
      ${card('daily','OEE รายวัน','',380)}
-     ${card('avp','ผลิตจริงเทียบกับแผนรายวัน','ชิ้น',340)}
    </div>
    <div class="grid g2" style="margin-top:14px">
      ${card('mix','เวลาสูญเสียแยกตามหมวด','นาที',300)}
