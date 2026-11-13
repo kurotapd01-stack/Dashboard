@@ -1,19 +1,20 @@
 <!doctype html>
 <html lang="th">
 <head>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMwQjJFNUMiLz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSg2LjQgNi40KSBzY2FsZSguOCkiPjxnIGZpbGw9IiNmZmYiPjxyZWN0IHg9IjI5IiB5PSI0IiB3aWR0aD0iNiIgaGVpZ2h0PSIxMCIgcng9IjIiIHRyYW5zZm9ybT0icm90YXRlKDAgMzIgMzIpIi8+PHJlY3QgeD0iMjkiIHk9IjQiIHdpZHRoPSI2IiBoZWlnaHQ9IjEwIiByeD0iMiIgdHJhbnNmb3JtPSJyb3RhdGUoNDUgMzIgMzIpIi8+PHJlY3QgeD0iMjkiIHk9IjQiIHdpZHRoPSI2IiBoZWlnaHQ9IjEwIiByeD0iMiIgdHJhbnNmb3JtPSJyb3RhdGUoOTAgMzIgMzIpIi8+PHJlY3QgeD0iMjkiIHk9IjQiIHdpZHRoPSI2IiBoZWlnaHQ9IjEwIiByeD0iMiIgdHJhbnNmb3JtPSJyb3RhdGUoMTM1IDMyIDMyKSIvPjxyZWN0IHg9IjI5IiB5PSI0IiB3aWR0aD0iNiIgaGVpZ2h0PSIxMCIgcng9IjIiIHRyYW5zZm9ybT0icm90YXRlKDE4MCAzMiAzMikiLz48cmVjdCB4PSIyOSIgeT0iNCIgd2lkdGg9IjYiIGhlaWdodD0iMTAiIHJ4PSIyIiB0cmFuc2Zvcm09InJvdGF0ZSgyMjUgMzIgMzIpIi8+PHJlY3QgeD0iMjkiIHk9IjQiIHdpZHRoPSI2IiBoZWlnaHQ9IjEwIiByeD0iMiIgdHJhbnNmb3JtPSJyb3RhdGUoMjcwIDMyIDMyKSIvPjxyZWN0IHg9IjI5IiB5PSI0IiB3aWR0aD0iNiIgaGVpZ2h0PSIxMCIgcng9IjIiIHRyYW5zZm9ybT0icm90YXRlKDMxNSAzMiAzMikiLz48L2c+PGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMTkuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjciLz48cmVjdCB4PSIyMiIgeT0iMzUiIHdpZHRoPSI1IiBoZWlnaHQ9IjciIHJ4PSIxLjUiIGZpbGw9IiM3RkIyRjAiLz48cmVjdCB4PSIyOSIgeT0iMjkiIHdpZHRoPSI1IiBoZWlnaHQ9IjEzIiByeD0iMS41IiBmaWxsPSIjN0ZCMkYwIi8+PHJlY3QgeD0iMzYiIHk9IjIzIiB3aWR0aD0iNSIgaGVpZ2h0PSIxOSIgcng9IjEuNSIgZmlsbD0iI0Y1ODQxRiIvPjwvZz48L3N2Zz4=">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>แผงติดตามการผลิต OEE</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
   color-scheme: light;
   --plane:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
   --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10); --wash:rgba(11,11,11,.045);
   --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#898781; --plan:#b9b8b0;
-  --good:#006300; --crit:#c23030; --pos:#2a78d6; --neg:#e34948;
+  --good:#006300; --crit:#c23030; --yel:#d99a00; --pos:#2a78d6; --neg:#e34948;
   --rail:#0d366b; --rail-ink:#e8eefb; --rail-dim:#9fb4d8; --rail-hi:#1c5cab;
 }
 @media (prefers-color-scheme: dark){
@@ -22,7 +23,7 @@
     --plane:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
     --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10); --wash:rgba(255,255,255,.06);
     --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --plan:#5d5c57;
-    --good:#0ca30c; --crit:#e66767; --pos:#3987e5; --neg:#e66767;
+    --good:#0ca30c; --crit:#e66767; --yel:#f0b429; --pos:#3987e5; --neg:#e66767;
     --rail:#11161c; --rail-hi:#1f2a38;
   }
 }
@@ -31,7 +32,7 @@
   --plane:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
   --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10); --wash:rgba(255,255,255,.06);
   --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --plan:#5d5c57;
-  --good:#0ca30c; --crit:#e66767; --pos:#3987e5; --neg:#e66767;
+  --good:#0ca30c; --crit:#e66767; --yel:#f0b429; --pos:#3987e5; --neg:#e66767;
   --rail:#11161c; --rail-hi:#1f2a38;
 }
 *{box-sizing:border-box}
@@ -65,6 +66,7 @@ button,input,select{font:inherit;color:inherit}
 .page-title h1{font-size:20px;margin:0;font-weight:700}
 .page-title span{color:var(--ink2);font-size:13px}
 .grid{display:grid;gap:14px}
+.g1{grid-template-columns:minmax(0,1fr)}
 .g2{grid-template-columns:repeat(2,minmax(0,1fr))}
 .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
 .g4{grid-template-columns:repeat(4,minmax(0,1fr))}
@@ -80,6 +82,8 @@ button,input,select{font:inherit;color:inherit}
 .kpi .lbl{font-size:12px;color:var(--ink2)}
 .kpi .val{font-size:30px;font-weight:700;line-height:1.15;margin-top:2px}
 .kpi .gap{font-size:12px;margin-top:4px;color:var(--ink2)}
+.kpi .val.st-red{color:var(--crit)} .kpi .val.st-green{color:var(--good)} .kpi .val.st-yellow{color:var(--yel)}
+.kpi .gap.st-red{color:var(--crit);font-weight:600} .kpi .gap.st-green{color:var(--good);font-weight:600} .kpi .gap.st-yellow{color:var(--yel);font-weight:600}
 .up{color:var(--good);font-weight:600}
 .down{color:var(--crit);font-weight:600}
 .kpis{margin-bottom:14px}
@@ -106,6 +110,43 @@ td.num{font-variant-numeric:tabular-nums}
 .status{font-size:12px;color:var(--ink2)}
 .status.ok{color:var(--good)} .status.bad{color:var(--crit)}
 code{background:var(--wash);padding:1px 5px;border-radius:4px;font-size:12px}
+
+/* Executive dashboard refresh */
+.main{padding:24px clamp(16px,2.4vw,38px) 52px;max-width:1900px;margin:0 auto;width:100%}
+.app{grid-template-columns:248px minmax(0,1fr)}
+.rail{padding:24px 16px;gap:8px;box-shadow:8px 0 28px rgba(10,25,48,.06)}
+.brand{font-size:18px;padding:4px 10px 18px;letter-spacing:-.2px}
+.rail h2{margin:18px 10px 6px;text-transform:uppercase;letter-spacing:.08em;font-size:10px}
+.rail button{padding:10px 12px;border-radius:10px;transition:background .18s ease,transform .18s ease}
+.rail button:hover{transform:translateX(2px)}
+.rail .nav button{font-weight:500}
+.page-title{margin:2px 0 18px;align-items:center}
+.page-title h1{font-size:26px;letter-spacing:-.6px}
+.page-title span{font-size:12px}
+.filters{border-radius:14px;padding:14px 16px;box-shadow:0 4px 18px rgba(20,35,55,.035);margin-bottom:18px}
+.card{border-radius:16px;padding:17px 18px;box-shadow:0 4px 18px rgba(20,35,55,.035);transition:box-shadow .18s ease,border-color .18s ease}
+.card:hover{box-shadow:0 8px 26px rgba(20,35,55,.07);border-color:rgba(42,120,214,.22)}
+.card h3{font-size:14px;letter-spacing:-.1px}
+.card .sub{line-height:1.55;min-height:18px}
+.kpi{padding:17px 18px;position:relative;overflow:hidden}
+.kpi:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--s1);opacity:.72}
+.kpi .lbl{font-size:12px;font-weight:500}
+.kpi .val{font-size:clamp(25px,2vw,34px);letter-spacing:-.8px;font-variant-numeric:tabular-nums}
+.kpi .gap{font-size:11px;line-height:1.5}
+.exec-kpis{margin-bottom:10px}
+.exec-kpis .kpi:first-child{background:linear-gradient(135deg,var(--surface),color-mix(in srgb,var(--s1) 7%,var(--surface)));border-color:color-mix(in srgb,var(--s1) 28%,var(--border))}
+.exec-kpis .kpi:first-child:before{width:4px}
+.component-kpis .kpi:first-child{background:linear-gradient(135deg,var(--surface),color-mix(in srgb,var(--s1) 7%,var(--surface)));border-color:color-mix(in srgb,var(--s1) 28%,var(--border))}
+.component-kpis .kpi:first-child:before{width:4px}
+.component-kpis{margin-bottom:25px}
+.component-kpis .kpi{padding:12px 16px}
+.component-kpis .kpi .val{font-size:24px}
+#xfbar .xf{border-radius:12px;box-shadow:0 4px 14px rgba(20,35,55,.04)}
+.btn{transition:background .15s ease,border-color .15s ease}
+@media(max-width:900px){.main{padding:16px 16px 40px}.app{grid-template-columns:1fr}.rail{box-shadow:none}.page-title h1{font-size:22px}}
+@media(max-width:520px){.card{padding:14px}}
+@media(prefers-reduced-motion:reduce){.card,.rail button,.btn{transition:none}}
+
 /* cross-filter */
 #xfbar .xf{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 14px;padding:8px 12px;background:var(--surface);border:1px solid var(--s1);border-radius:12px;position:sticky;top:8px;z-index:20}
 #xfbar .xf-l{font-size:12px;color:var(--ink2);font-weight:600}
@@ -123,23 +164,107 @@ details summary{cursor:pointer}
 @media (max-width:1100px){.g4,.g5{grid-template-columns:repeat(2,minmax(0,1fr))}.g-hero,.g3{grid-template-columns:1fr}}
 @media (max-width:900px){
   .app{grid-template-columns:1fr}
-  .rail{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;padding:10px}
-  .rail h2,.rail .foot,.rail .spacer,.rail .full{display:none}
-  .rail .live{padding:0 8px}
-  #themeBtn{margin-left:auto}
-  .brand{padding:0 8px;flex-basis:100%}
-  .rail button{width:auto}
-  .main{padding:14px 16px 40px}
+  .rail{position:fixed;left:0;top:0;bottom:0;height:100%;width:272px;max-width:84vw;z-index:60;transform:translateX(-102%);transition:transform .25s ease;box-shadow:none}
+  body.drawer-open .rail{transform:none;box-shadow:12px 0 40px rgba(0,0,0,.35)}
+  .rail-tgl{display:none!important}
+  body .drawer-fab{display:flex}
+  body.drawer-open .scrim{opacity:1;pointer-events:auto}
+  .main{padding:60px 16px 40px}
   .g2{grid-template-columns:1fr}
   .fld input,.fld select{min-width:110px}
 }
 @media (max-width:520px){.g4,.g5{grid-template-columns:1fr}}
+
+/* ===== Motion layer: odometer scoreboard + entrance animations ===== */
+.od{display:inline-flex;align-items:flex-start;font-variant-numeric:tabular-nums}
+.od-d{display:inline-block;height:1.15em;overflow:hidden;
+  -webkit-mask-image:linear-gradient(transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(transparent,#000 14%,#000 86%,transparent)}
+.od-r{display:block;will-change:transform;transition:transform var(--od-dur,1.4s) cubic-bezier(.12,.8,.2,1) var(--od-delay,0s)}
+.od-r i{display:block;font-style:normal;height:1.15em;line-height:1.15em;text-align:center}
+@keyframes odflash{0%{text-shadow:0 0 0 transparent}25%{text-shadow:0 0 16px currentColor}100%{text-shadow:0 0 0 transparent}}
+.kpi .val.od-flash{animation:odflash 1.1s ease-out}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes barGrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.view-enter .card{animation:rise .55s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0)*55ms)}
+.view-enter .kpi:before{transform-origin:top;animation:barGrow .7s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0)*55ms + .15s)}
+.view-enter .kpi .gap{animation:rise .5s ease both;animation-delay:calc(var(--i,0)*55ms + .45s)}
+.kpi{transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.kpi:hover{transform:translateY(-2px)}
+@media(prefers-reduced-motion:reduce){.view-enter .card,.view-enter .kpi:before,.view-enter .kpi .gap,.kpi .val.od-flash{animation:none}.od-r{transition:none}.kpi{transition:none}.kpi:hover{transform:none}}
+
+/* ===== Drawer (side bar ย่อ/ขยายได้) ===== */
+.app{transition:grid-template-columns .25s ease}
+.rail-top{display:flex;align-items:flex-start;justify-content:space-between;gap:6px}
+.rail-top .brand{flex:1;min-width:0}
+.rail .rail-tgl{width:34px;height:34px;flex:none;padding:0;align-items:center;justify-content:center;font-size:18px;line-height:1;border:1px solid rgba(255,255,255,.18);border-radius:9px;display:flex}
+.rail .nav button .ic,.rail #refreshBtn .ic,.rail #themeBtn .ic{width:20px;text-align:center;flex:none}
+.rail #refreshBtn,.rail #themeBtn{flex-direction:row;align-items:center;gap:8px}
+.scrim{position:fixed;inset:0;background:rgba(8,16,30,.5);z-index:55;opacity:0;pointer-events:none;transition:opacity .25s ease}
+.drawer-fab{display:none;position:fixed;top:10px;left:10px;z-index:50;width:40px;height:40px;align-items:center;justify-content:center;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-size:20px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.drawer-fab:focus-visible{outline:2px solid var(--s4);outline-offset:2px}
+@media (min-width:901px){
+  body.rail-mini .app{grid-template-columns:68px minmax(0,1fr)}
+  body.rail-mini .rail{padding:20px 10px;align-items:center;overflow-x:hidden}
+  body.rail-mini .rail-top{flex-direction:column;align-items:center}
+  body.rail-mini .rail .brand .bt,body.rail-mini .rail h2,body.rail-mini .rail .full,body.rail-mini .rail .nl,body.rail-mini .rail .tx,body.rail-mini .rail .live span:last-child{display:none}
+  body.rail-mini .rail button{align-items:center;justify-content:center;padding:10px 6px}
+  body.rail-mini .rail #refreshBtn,body.rail-mini .rail #themeBtn,body.rail-mini .rail .nav button{gap:0}
+  body.rail-mini .rail .live{justify-content:center;padding:6px 0}
+  body.rail-mini .rail button:hover{transform:none}
+}
+@media(prefers-reduced-motion:reduce){.app,.rail,.scrim{transition:none}}
+
+/* ===== Product bar (เลือกผลิตภัณฑ์ด้านบนสุด · ย่อ/ขยายได้) ===== */
+.prodbar{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 4px 18px rgba(20,35,55,.035);margin-bottom:16px;padding:10px 12px}
+.pb-head{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.pb-label{font-size:12px;font-weight:600;color:var(--ink2);letter-spacing:.02em}
+.pb-cur{display:none;font-size:13px;color:var(--ink2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pb-cur b{color:var(--ink);font-weight:700}
+.lang-sw{margin-left:auto;display:inline-flex;border:1px solid var(--axis);border-radius:8px;overflow:hidden;flex:none}
+.lang-sw button{background:var(--plane);border:0;padding:4px 10px;cursor:pointer;font-size:12px;color:var(--ink2)}
+.lang-sw button+button{border-left:1px solid var(--axis)}
+.lang-sw button:hover:not([aria-pressed="true"]){background:var(--wash)}
+.lang-sw button[aria-pressed="true"]{background:var(--rail-hi);color:#fff;font-weight:600}
+.lang-sw button:focus-visible{outline:2px solid var(--s4);outline-offset:-2px}
+.pb-tgl{display:inline-flex;align-items:center;gap:6px;background:var(--plane);border:1px solid var(--axis);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:12px;color:var(--ink);flex:none}
+.pb-tgl:hover{background:var(--wash)}
+.pb-list{order:5;flex:1 0 100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.pb{background:var(--plane);border:1px solid var(--border);border-radius:12px;padding:10px 14px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:0;min-width:0;transition:background .15s ease,border-color .15s ease}
+.pb:hover{background:var(--wash);border-color:var(--axis)}
+.pb .code{font-weight:700;font-size:15px}
+.pb .full{font-size:12px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pb[aria-current="true"]{background:var(--rail-hi);border-color:var(--rail-hi);color:#fff}
+.pb[aria-current="true"] .full{color:rgba(255,255,255,.82)}
+.pb:focus-visible,.pb-tgl:focus-visible{outline:2px solid var(--s4);outline-offset:2px}
+/* โหมดย่อ: เหลือแถบเล็กบรรทัดเดียว */
+.prodbar.collapsed{padding:6px 10px}
+.prodbar.collapsed .pb-head{flex-wrap:nowrap}
+.prodbar.collapsed .pb-cur{display:block;flex:1 1 auto}
+.prodbar.collapsed .pb-list{order:2;flex:0 0 auto;display:flex;gap:6px}
+.prodbar.collapsed .lang-sw{order:3;margin-left:0}
+.prodbar.collapsed .pb-tgl{order:4}
+.prodbar.collapsed .pb{padding:4px 12px;border-radius:999px;flex-direction:row}
+.prodbar.collapsed .pb .code{font-size:13px}
+.prodbar.collapsed .pb .full{display:none}
+@media(max-width:900px){
+  .pb-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .prodbar.collapsed .pb-head{flex-wrap:wrap}
+  .prodbar.collapsed .pb-cur{flex:1 0 100%;order:5}
+}
+.rail .brand{display:flex;align-items:center;gap:10px}
+.rail .brand .logo{width:34px;height:34px;flex:none}
+body.rail-mini .rail .brand{padding:4px 0 10px;justify-content:center}
+:root:lang(ja) body{font-family:"IBM Plex Sans Thai","Noto Sans JP","Hiragino Sans","Yu Gothic UI",Meiryo,system-ui,sans-serif}
+@media(prefers-reduced-motion:reduce){.pb{transition:none}}
 </style>
 </head>
 <body>
+<button class="drawer-fab" id="drawerOpen" aria-label="เปิดเมนู" aria-controls="rail" aria-expanded="false">☰</button>
+<div class="scrim" id="scrim"></div>
 <div class="app">
   <aside class="rail" id="rail" aria-label="เมนูหลัก"></aside>
   <main class="main">
+    <div id="prodbar"></div>
     <div id="banner"></div>
     <div id="filters"></div>
     <div id="xfbar"></div>
@@ -166,11 +291,11 @@ details summary{cursor:pointer}
    ทางเลือกเดิม: Publish to web เป็น CSV แล้ววางลิงก์ในหน้า "ข้อมูลและเป้าหมาย" (ช้ากว่า ~5 นาที)
    ===================================================================== */
 const CONFIG = {
-  scriptUrl: 'https://script.google.com/macros/s/AKfycbzhRcRvc6z2Ka779ElFeNyUn6M3J-UJ6FhFy05N8LL32XnjQOrdm6b2xDhiUmXGwQi45Q/exec?api=dashboard&product=SOP&token=mironu-oee-dashboard-3009',              // ลิงก์เว็บแอป Apps Script (ลงท้าย /exec) — ไม่ต้องใช้ API Key และไม่ต้องแชร์ชีตเป็นสาธารณะ ถ้าใส่ช่องนี้จะใช้ช่องทางนี้ก่อน
+  scriptUrl: 'https://script.google.com/macros/s/AKfycbzhRcRvc6z2Ka779ElFeNyUn6M3J-UJ6FhFy05N8LL32XnjQOrdm6b2xDhiUmXGwQi45Q/exec',              // ลิงก์เว็บแอป Apps Script (ลงท้าย /exec) — ไม่ต้องใช้ API Key และไม่ต้องแชร์ชีตเป็นสาธารณะ ถ้าใส่ช่องนี้จะใช้ช่องทางนี้ก่อน
   scriptToken: 'mironu-oee-dashboard-3009',            // รหัสผ่านที่ตั้งไว้ใน Script properties (DASH_TOKEN) ของ Apps Script
   apiKey: '',                 // Google API Key (ว่างไว้ได้ ถ้าจะกรอกในหน้า "ข้อมูลและเป้าหมาย")
-  refreshSec: 30,             // ดึงข้อมูลผลิตภัณฑ์ที่เปิดอยู่ทุกกี่วินาที (0 = ปิด, ต่ำสุด 10)
-  bgRefreshSec: 300,          // ดึงข้อมูลผลิตภัณฑ์อื่นที่ไม่ได้เปิดอยู่ทุกกี่วินาที (0 = ปิด)
+  refreshSec: 3600,           // ดึงข้อมูลผลิตภัณฑ์ที่เปิดอยู่ทุกกี่วินาที (3600 = ทุก 1 ชั่วโมง, 0 = ปิด) · ปุ่ม "รีเฟรชตอนนี้" ยังกดดึงเองได้ตลอด
+  bgRefreshSec: 3600,         // ดึงข้อมูลผลิตภัณฑ์อื่นที่ไม่ได้เปิดอยู่ทุกกี่วินาที (0 = ปิด)
   sheetNames: { combined: 'Combined', plan: 'Input plan' },   // ชื่อแท็บในแต่ละไฟล์ Sheets
   targets: { oee: 85, a: 90, p: 95, q: 99 },   // เป้าหมาย % (แก้ได้ในหน้า "ข้อมูล")
   products: {
@@ -190,13 +315,248 @@ const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const TH_M = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 const EN_M = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
-const fmtD = (iso, y=false) => { const [Y,M,D]=iso.split('-').map(Number); return `${D} ${TH_M[M-1]}${y?' '+Y:''}`; };
+const EN_MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fmtD = (iso, y=false) => { const [Y,M,D]=iso.split('-').map(Number);
+  if (LANG==='ja') return y ? `${Y}年${M}月${D}日` : `${M}月${D}日`;
+  return `${D} ${(LANG==='en'?EN_MON:TH_M)[M-1]}${y?' '+Y:''}`; };
 const nf = (v, d=0) => v==null || !isFinite(v) ? '–' : Number(v).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
 const pct = (v, d=2) => v==null || !isFinite(v) ? '–' : (v*100).toFixed(d)+'%';
 const store = {
   get(k, d){ try{ const v=localStorage.getItem(k); return v==null? d : JSON.parse(v);}catch(e){return d;} },
   set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
 };
+/*I18N-START*/
+/* ---------------- ภาษา: ไทย (ต้นฉบับ) · English · 日本語 ----------------
+   แปลเฉพาะข้อความที่เป็นส่วนติดต่อผู้ใช้ (เมนู ปุ่ม หัวข้อ ป้ายกำกับ ข้อความแจ้งเตือน)
+   ไม่แปล: ชื่อผลิตภัณฑ์ ชื่อ Process/Part หมวด Loss และเหตุผลที่มาจากชีต ศัพท์ที่เป็นอังกฤษอยู่แล้ว (OEE, Availability, NG ฯลฯ)
+   ต้นฉบับยังเป็นภาษาไทย ระบบแปลตอนแสดงผล จึงเพิ่ม/แก้คำแปลได้ที่ตาราง I18N_EXACT และ I18N_PATS ด้านล่าง */
+let LANG = store.get('oee.lang','th'); if (!['th','en','ja'].includes(LANG)) LANG='th';
+const THRE = /[\u0e00-\u0e7f]/;
+/* ข้อความทั้งก้อน: 'ไทย': [English, 日本語] */
+const I18N_EXACT = {
+  /* เมนู */
+  'แผงติดตามการผลิต':['Production Dashboard','生産モニタリング'],
+  'ภาพรวม':['Overview','概要'],
+  'OEE รายเครื่อง':['OEE by Machine','設備別OEE'],
+  'เวลาสูญเสีย':['Time Loss','ロス時間'],
+  'งานเสีย (NG)':['Defects (NG)','不良 (NG)'],
+  'แผน vs ผลิตจริง':['Plan vs Actual','計画 vs 実績'],
+  'ข้อมูลและเป้าหมาย':['Data & Targets','データと目標'],
+  'หน้า':['Pages','ページ'],
+  'เมนูหลัก':['Main menu','メインメニュー'],
+  'เปิดเมนู':['Open menu','メニューを開く'],
+  'ขยายเมนู':['Expand menu','メニューを展開'],
+  'ย่อเมนู':['Collapse menu','メニューを折りたたむ'],
+  'รีเฟรชตอนนี้':['Refresh now','今すぐ更新'],
+  'เปลี่ยนธีม':['Change theme','テーマを変更'],
+  'ธีม: ตามเครื่อง':['Theme: System','テーマ: システム設定'],
+  'ธีม: สว่าง':['Theme: Light','テーマ: ライト'],
+  'ธีม: มืด':['Theme: Dark','テーマ: ダーク'],
+  /* แถบผลิตภัณฑ์ */
+  'ผลิตภัณฑ์':['Product','製品'],
+  'เลือกผลิตภัณฑ์':['Select product','製品を選択'],
+  'ขยาย ▾':['Expand ▾','展開 ▾'],
+  'ย่อ ▴':['Collapse ▴','折りたたむ ▴'],
+  'ขยายแถบผลิตภัณฑ์':['Expand product bar','製品バーを展開'],
+  'ย่อแถบผลิตภัณฑ์':['Collapse product bar','製品バーを折りたたむ'],
+  /* ตัวกรอง */
+  'ตั้งแต่':['From','開始'],
+  'ถึง':['To','終了'],
+  'ช่วงเวลาลัด':['Quick ranges','期間プリセット'],
+  'เดือนล่าสุด':['Latest month','直近の月'],
+  '7 วันล่าสุด':['Last 7 days','直近7日間'],
+  'ทั้งหมด':['All','すべて'],
+  'กะ':['Shift','シフト'],
+  'ทุกกะ':['All shifts','全シフト'],
+  'กลางวัน/กลางคืน':['Day/Night','昼勤/夜勤'],
+  'ทุก Process':['All processes','全工程'],
+  'กรองจากกราฟ':['Filtered from chart','グラフからの絞り込み'],
+  'ล้างทั้งหมด':['Clear all','すべて解除'],
+  'คลิกเพื่อยกเลิก':['Click to remove','クリックで解除'],
+  'วันที่':['Date','日付'],
+  'หมวด Loss':['Loss category','ロスカテゴリ'],
+  'ดูเป็นตาราง':['View as table','表で見る'],
+  'ดูเป็นกราฟ':['View as chart','グラフで見る'],
+  /* ภาพรวม */
+  'Plan ไม่แยกกะ จึงเทียบไม่ได้':['Plan is not split by shift, so no comparison','計画はシフト別ではないため比較できません'],
+  'ตัวกรองกะ หรือ กลางวัน/กลางคืน ทำงานกับข้อมูลผลิตจริงเท่านั้น แผน (Plan) ไม่แยกกะ จึงไม่นำมาเทียบ':['The shift and day/night filters apply to actual production data only. The plan is not split by shift, so it is not compared.','シフトおよび昼勤/夜勤フィルターは実績データにのみ適用されます。計画(Plan)はシフト別ではないため、比較に含めていません。'],
+  '% ผลิตได้ตามแผน':['% Produced vs Plan','計画達成率'],
+  'Actual · ผลิตจริง (ชิ้น)':['Actual · Production (pcs)','Actual · 実績生産数 (個)'],
+  'Plan · แผนผลิต (ชิ้น)':['Plan · Production plan (pcs)','Plan · 生産計画 (個)'],
+  'NG · งานเสีย':['NG · Defects','NG · 不良'],
+  'OEE · ประสิทธิภาพโดยรวม':['OEE · Overall Equipment Effectiveness','OEE · 設備総合効率'],
+  'OEE รายวัน':['Daily OEE','日別OEE'],
+  'ผลิตจริงเทียบกับแผนรายวัน':['Daily Actual vs Plan','日別 実績と計画の比較'],
+  'เวลาสูญเสียแยกตามหมวด':['Time Loss by Category','カテゴリ別ロス時間'],
+  'วิเคราะห์องค์ประกอบ OEE':['OEE Breakdown','OEEの構成分析'],
+  'เวลาตามแผน':['Planned time','計画時間'],
+  'ขั้น':['Step','ステップ'],
+  'ค่า (จุด %)':['Value (% pts)','値 (%ポイント)'],
+  'จุด':['pts','pt'],
+  'หมวด':['Category','カテゴリ'],
+  'ชิ้น':['pcs','個'],
+  'นาที':['min','分'],
+  /* OEE รายเครื่อง */
+  'Pcs/Hr ต่อ Process':['Pcs/Hr by Process','工程別 Pcs/Hr'],
+  'ตารางรายเครื่อง':['Machine Table','設備別テーブル'],
+  'เวลาแผน (นาที)':['Planned time (min)','計画時間 (分)'],
+  'เดินเครื่อง (นาที)':['Run time (min)','稼働時間 (分)'],
+  'ผลิต (ชิ้น)':['Produced (pcs)','生産数 (個)'],
+  /* Loss */
+  'เวลาสูญเสีย (Loss)':['Time Loss','ロス時間 (Loss)'],
+  'กรองหมวด Loss':['Filter by Loss category','ロスカテゴリで絞り込み'],
+  'ทุกหมวด':['All categories','全カテゴリ'],
+  'รวม Plan (ไม่มีแผน/อบรม/ประชุม)':['Include Plan (no plan / training / meeting)','Plan(計画なし・教育・会議)を含める'],
+  'Plan (ไม่มีแผน/อบรม/ประชุม)':['Plan (no plan / training / meeting)','Plan(計画なし・教育・会議)'],
+  'Loss รายวัน แยกหมวด':['Daily Loss by Category','日別ロス (カテゴリ別)'],
+  'Loss รายเครื่อง แยกหมวด':['Loss by Machine and Category','設備別ロス (カテゴリ別)'],
+  'เหตุผลที่ทำให้เสียเวลามากที่สุด':['Top Reasons for Lost Time','ロス時間の主な要因'],
+  'เหตุผล':['Reason','要因'],
+  /* NG */
+  'ไม่นับ NG ของ Induction':['Exclude Induction NG','InductionのNGを除外'],
+  'NG (ชิ้น)':['NG (pcs)','NG (個)'],
+  'NG รายวัน':['Daily NG','日別NG'],
+  '% NG รายเครื่อง':['% NG by Machine','設備別NG率'],
+  'ประเภท NG ที่พบมากที่สุด':['Most Common NG Types','主なNG種別'],
+  'ประเภท':['Type','種別'],
+  /* แผน vs ผลิตจริง */
+  'ยังไม่มีข้อมูลแผน':['No plan data yet','計画データがまだありません'],
+  'ตัวกรองกะ หรือ กลางวัน/กลางคืน ทำให้ยอดผลิตจริงน้อยลง แต่ Plan ไม่แยกกะ ผลต่างจึงไม่ตรงความจริง ให้ตั้งเป็น “ทุกกะ” ก่อนอ่านหน้านี้':['The shift or day/night filter reduces actual production, but the Plan is not split by shift, so the variance is not accurate. Set the filter to “All shifts” before reading this page.','シフトまたは昼勤/夜勤フィルターにより実績数が減りますが、計画はシフト別ではないため、差異が実態と一致しません。このページを見る前に「全シフト」に設定してください。'],
+  'Plan รวม':['Total Plan','計画合計'],
+  'Actual รวม':['Total Actual','実績合計'],
+  'ผลต่างรวม':['Total Variance','差異合計'],
+  'ผลต่างรายวัน (ผลิตจริง − แผน)':['Daily Variance (Actual − Plan)','日別差異 (実績 − 計画)'],
+  'ผลต่างแยกตาม Process และ Part':['Variance by Process and Part','工程・品番別差異'],
+  'ซ่อนแถวที่เป็น 0':['Hide rows with 0','0の行を非表示'],
+  'ผลต่าง':['Variance','差異'],
+  '% ตามแผน':['% of Plan','計画比'],
+  'ไม่มีแผน':['No plan','計画なし'],
+  /* ข้อมูลและเป้าหมาย */
+  'เป้า':['Target','目標'],
+  'เป้าหมาย (%)':['Targets (%)','目標 (%)'],
+  'การเชื่อมต่อข้อมูล':['Data Connection','データ接続'],
+  'รหัสผ่านเข้าถึง':['Access password','アクセス用パスワード'],
+  'เชื่อมต่อและโหลดทั้งหมด':['Connect and load all','接続してすべて読み込む'],
+  'โหลดตอนนี้':['Load now','今すぐ読み込む'],
+  'เลือกไฟล์ .xlsx / .csv':['Choose .xlsx / .csv file','.xlsx / .csv ファイルを選択'],
+  'ลิงก์ CSV (ทางเลือก)':['CSV link (optional)','CSVリンク (任意)'],
+  'ลิงก์ CSV ของชีต Combined':['CSV link for the Combined sheet','Combinedシートの CSVリンク'],
+  'ลิงก์ CSV ของชีต Input plan':['CSV link for the Input plan sheet','Input planシートの CSVリンク'],
+  'ยังไม่มีข้อมูล':['No data yet','データがまだありません'],
+  'ไปหน้าตั้งค่าข้อมูล':['Go to data settings','データ設定へ'],
+  'กำลังโหลด…':['Loading…','読み込み中…'],
+  'กำลังซิงก์…':['Syncing…','同期中…'],
+  'ยังไม่ได้เชื่อมต่อ':['Not connected','未接続'],
+  'เชื่อมต่อไม่ได้ ใช้ข้อมูลเดิม':['Connection failed · using previous data','接続できません · 以前のデータを使用中'],
+  'เชื่อมต่อแล้ว':['Connected','接続済み'],
+  'โหลดไลบรารีกราฟ (Chart.js) ไม่สำเร็จ ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต':['Failed to load the chart library (Chart.js). Check your internet connection.','グラフライブラリ (Chart.js) を読み込めませんでした。インターネット接続を確認してください。']
+};
+/* รูปแบบที่มีตัวเลข/ข้อความแทรก: [regex, English, 日本語] ใช้ตามลำดับ */
+const I18N_PATS = [
+  [/ผิดพลาด: /g,'Error: ','エラー: '],
+  [/โหลดแล้ว (\S+) รายการ/g,'Loaded $1 records','$1 件を読み込み済み'],
+  [/ข้อมูลถึง /g,'data up to ','データ最終日 '],
+  [/แผน (\d[\d,]*) แถว/g,'plan $1 rows','計画 $1 行'],
+  [/แผน ยังไม่มี/g,'plan: none yet','計画: なし'],
+  [/แท็บ Input plan: /g,'Input plan tab: ','Input planタブ: '],
+  [/ข้าม (\d+) รายการที่ช่อง Date ใน Combined ว่าง \(รวม (\S+) ชิ้น\) ตรวจสูตรคอลัมน์ Date/g,'Skipped $1 records with an empty Date cell in Combined ($2 pcs in total). Check the Date column formula.','CombinedでDateが空の$1件をスキップしました (合計$2個)。Date列の数式を確認してください。'],
+  [/^จากยอดผลิต (\S+) ชิ้น$/g,'of $1 pcs produced','生産数 $1 個中'],
+  [/^(\S+) รายการบันทึก$/g,'$1 records','$1 件の記録'],
+  [/^(\S+) ของยอดผลิต$/g,'$1 of production','生産数の$1'],
+  [/^(\S+) ของทั้งหมด$/g,'$1 of total','全体の$1'],
+  [/^(\S+) ของแผน$/g,'$1 of plan','計画の$1'],
+  [/^(\d+) วัน$/g,'$1 days','$1日分'],
+  [/^(\d+) รายการ$/g,'$1 items','$1 件'],
+  [/^(\S+) นาที$/g,'$1 min','$1 分'],
+  [/^(\S+) ชิ้น$/g,'$1 pcs','$1 個'],
+  [/จุด จากเป้า (\S+)%/g,'pts vs target $1%','pt (目標 $1%)'],
+  [/มี (\d+) คอลัมน์ใน Input plan ที่ยังไม่ได้จับคู่กับ Process \(ยอดแผนยังนับรวม แต่ผลิตจริงเป็น 0\): /g,'$1 column(s) in Input plan are not yet mapped to a Process (planned quantity is still counted, but actual production is 0): ','Input planの$1列がProcessに未対応です (計画数は集計に含まれますが、実績は0です): '],
+  [/^Google Sheets ของ (\S+)$/g,'Google Sheets for $1','$1 の Google Sheets'],
+  [/^(\S+) ยังไม่มีข้อมูล$/g,'$1: no data yet','$1: データがまだありません'],
+  [/\(ยังไม่จับคู่\) /g,'(unmapped) ','(未対応) '],
+  /* สถานะการเชื่อมต่อ */
+  [/ข้อมูลจากไฟล์/g,'Data from file','ファイルのデータ'],
+  [/ไม่ได้ต่อสด/g,'Not live','ライブ接続なし'],
+  [/\(ล่าสุด (\S+)\)/g,'(last $1)','(最終 $1)'],
+  [/อัปเดต /g,'Updated ','更新 '],
+  [/ลิงก์ CSV(?! ของ| \()/g,'CSV link','CSVリンク'],
+  /* ข้อความผิดพลาดจากการดึงข้อมูล */
+  [/ชีต Combined ว่างเปล่า/g,'The Combined sheet is empty','Combinedシートが空です'],
+  [/ไม่พบคอลัมน์: (.*?) \(ต้องเป็นชีต Combined\)/g,'Columns not found: $1 (must be the Combined sheet)','列が見つかりません: $1 (Combinedシートである必要があります)'],
+  [/โหลดไม่สำเร็จ \((\d+)\)/g,'Load failed ($1)','読み込みに失敗しました ($1)'],
+  [/เชื่อมต่อ Apps Script ไม่ได้ — ตรวจลิงก์ และตั้งสิทธิ์เข้าถึงเป็น “Anyone”/g,'Cannot connect to Apps Script — check the link and set access to “Anyone”','Apps Scriptに接続できません — リンクを確認し、アクセス権を「Anyone」に設定してください'],
+  [/Apps Script ตอบกลับ (\d+)/g,'Apps Script responded with $1','Apps Scriptの応答: $1'],
+  [/Apps Script ไม่ได้ตอบเป็นข้อมูล — ตรวจว่าใช้ลิงก์ที่ลงท้าย \/exec และตั้งสิทธิ์เป็น “Anyone”/g,'Apps Script did not return data — check that the link ends with /exec and access is set to “Anyone”','Apps Scriptがデータを返しませんでした — リンクが /exec で終わっているか、アクセス権が「Anyone」になっているか確認してください'],
+  [/เชื่อมต่ออินเทอร์เน็ตไม่ได้/g,'Cannot connect to the internet','インターネットに接続できません'],
+  [/403 ไม่มีสิทธิ์อ่าน — ตรวจว่าแชร์ไฟล์เป็น “ทุกคนที่มีลิงก์ \(ผู้ดู\)” และ API Key เปิดใช้ Sheets API ไว้/g,'403 No permission to read — check that the file is shared as “Anyone with the link (Viewer)” and the API key has the Sheets API enabled','403 閲覧権限がありません — ファイルが「リンクを知っている全員 (閲覧者)」で共有され、APIキーでSheets APIが有効になっているか確認してください'],
+  [/404 ไม่พบไฟล์ — ตรวจ Spreadsheet ID/g,'404 File not found — check the Spreadsheet ID','404 ファイルが見つかりません — スプレッドシートIDを確認してください'],
+  [/ไม่พบแท็บชื่อ “(.*?)” ในไฟล์/g,'Tab “$1” not found in the file','ファイルにタブ「$1」が見つかりません'],
+  [/API Key ไม่ถูกต้อง/g,'Invalid API key','APIキーが正しくありません'],
+  [/429 เกินโควตาของ Google — ลองเพิ่มค่า refreshSec/g,'429 Google quota exceeded — try increasing refreshSec','429 Googleのクォータを超過しました — refreshSecの値を増やしてください'],
+  [/ไม่พบไลบรารีอ่าน \.xlsx \(ต้องออนไลน์ครั้งแรก\)/g,'The .xlsx reader library was not found (internet is required the first time)','.xlsx 読み取りライブラリが見つかりません (初回はオンライン接続が必要です)'],
+  [/ไม่พบชีต Combined ในไฟล์/g,'No Combined sheet found in the file','ファイルにCombinedシートが見つかりません'],
+  [/โหลดไม่สำเร็จ/g,'Load failed','読み込みに失敗しました'],
+  [/ไฟล์ (?=\S+\.(?:xlsx|xlsm|csv))/gi,'File ','ファイル ']
+];
+function trl(s){
+  if (LANG==='th' || typeof s!=='string' || !THRE.test(s)) return s;
+  const k = LANG==='en' ? 0 : 1;
+  const m = s.match(/^(\s*)([\s\S]*?)(\s*)$/);
+  const e = I18N_EXACT[m[2]];
+  if (e) return m[1]+e[k]+m[3];
+  let out = s;
+  for (const [re,en,ja] of I18N_PATS) out = out.replace(re, k===0 ? en : ja);
+  return out;
+}
+/* แปลข้อความที่ถูกวาดลงหน้าเว็บ (ข้อความ + title / aria-label / placeholder) แล้วคอยตามดูการเปลี่ยนแปลง */
+const I18N_ATTRS = ['title','aria-label','placeholder'];
+const trSkip = el => !!(el && el.closest && el.closest('.lang-sw,[translate="no"],script,style,textarea'));
+function trText(n){
+  if (LANG==='th') return; const v=n.nodeValue; if (!v || !THRE.test(v) || trSkip(n.parentElement)) return;
+  const t=trl(v); if (t!==v) n.nodeValue=t;
+}
+function trAttrs(el){
+  if (LANG==='th' || !el.getAttribute) return;
+  for (const a of I18N_ATTRS){ const v=el.getAttribute(a); if (v && THRE.test(v)){ const t=trl(v); if (t!==v) el.setAttribute(a,t); } }
+}
+function trTree(root){
+  if (LANG==='th' || !root) return;
+  if (root.nodeType===3){ trText(root); return; }
+  if (root.nodeType!==1 || trSkip(root)) return;
+  trAttrs(root);
+  root.querySelectorAll('[title],[aria-label],[placeholder]').forEach(el=>{ if (!trSkip(el)) trAttrs(el); });
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT); let n; while ((n=w.nextNode())) trText(n);
+}
+let _trBusy=false;
+const _trMO = new MutationObserver(ms=>{
+  if (LANG==='th' || _trBusy) return; _trBusy=true;
+  try{ for (const m of ms){
+    if (m.type==='childList') m.addedNodes.forEach(trTree);
+    else if (m.type==='characterData') trText(m.target);
+    else if (m.type==='attributes') trAttrs(m.target);
+  } } finally { _trMO.takeRecords(); _trBusy=false; }
+});
+/* องค์ประกอบที่เขียนไว้ใน HTML ตรง ๆ (ไม่ได้ถูกวาดใหม่ทุกครั้ง) */
+const I18N_STATIC=[['#drawerOpen','aria-label'],['#rail','aria-label']];
+function applyStaticLang(){
+  I18N_STATIC.forEach(([sel,a])=>{ const el=$(sel); if (!el) return;
+    const k='data-th-'+a;
+    if (!el.hasAttribute(k)) el.setAttribute(k, el.getAttribute(a)||'');
+    el.setAttribute(a, trl(el.getAttribute(k))); });
+}
+function i18nStart(){
+  _trMO.observe(document.body,{childList:true,characterData:true,subtree:true,attributes:true,attributeFilter:I18N_ATTRS});
+  trTree(document.body);
+}
+function setLang(l){
+  if (!['th','en','ja'].includes(l) || l===LANG) return;
+  LANG=l; store.set('oee.lang',l); document.documentElement.lang=l;
+  applyStaticLang();
+  if (typeof Chart!=='undefined') Chart.defaults.font.family=FONT;
+  render();
+}
+/*I18N-END*/
+
 function num(v){
   if (v==null || v==='') return 0;
   if (typeof v==='number') return isFinite(v)? v : 0;
@@ -237,7 +597,7 @@ const CATS = [
   {k:'QC', name:'QC Quality Control', col:'--s2'},
   {k:'MT', name:'MT Maintenance', col:'--s3'},
   {k:'PC', name:'PC Production Control', col:'--s4'},
-  {k:'Plan', name:'Plan (ไม่มีแผน/อบรม/ประชุม)', col:'--s5'}
+  {k:'Plan', get name(){ return trl('Plan (ไม่มีแผน/อบรม/ประชุม)'); }, col:'--s5'}
 ];
 
 /* ---------------------------------------------------------------- data model */
@@ -292,11 +652,17 @@ const groupOf = (product, proc) => {
   for (const ps of Object.values(map)) if (ps.includes(proc)) return ps[0];
   return proc;
 };
+/* กระบวนการ Screen (Screening 1 / Screening 100 / Screen 1 / Screen 100 ...) ไม่นำมาคิด OEE (A, P, Q, OEE, Pcs/Hr) */
+const isScreen = p => /screen/i.test(String(p||''));
 function agg(rs){
-  let planned=0,run=0,down=0,ideal=0,total=0,good=0,ng=0;
-  for (const r of rs){ planned+=r.planned; run+=r.run; down+=r.down; ideal+=r.total*r.ct/60; total+=r.total; good+=r.good; ng+=r.ng; }
-  const A=planned?run/planned:null, P=run?ideal/run:null, Q=total?good/total:null;
-  return {n:rs.length,planned,run,down,ideal,total,good,ng,A,P,Q,oee:(A!=null&&P!=null&&Q!=null)?A*P*Q:null,pph:run?total/(run/60):null,ngp:total?ng/total:null};
+  let planned=0,run=0,down=0,ideal=0,total=0,good=0,ng=0, oTotal=0,oGood=0;   // total/good/ng = ทุก Process ; oTotal/oGood = เฉพาะที่ไม่ใช่ Screen (ใช้คิด OEE)
+  for (const r of rs){
+    total+=r.total; good+=r.good; ng+=r.ng;
+    if (isScreen(r.proc)) continue;
+    planned+=r.planned; run+=r.run; down+=r.down; ideal+=r.total*r.ct/60; oTotal+=r.total; oGood+=r.good;
+  }
+  const A=planned?run/planned:null, P=run?ideal/run:null, Q=oTotal?oGood/oTotal:null;
+  return {n:rs.length,planned,run,down,ideal,total,good,ng,A,P,Q,oee:(A!=null&&P!=null&&Q!=null)?A*P*Q:null,pph:run?oTotal/(run/60):null,ngp:total?ng/total:null};
 }
 const groupBy = (arr, f) => { const m=new Map(); for (const x of arr){ const k=f(x); if(!m.has(k)) m.set(k,[]); m.get(k).push(x);} return m; };
 function dateRange(from,to){
@@ -385,7 +751,7 @@ async function fetchCSV(url){
   return parseCSV(await res.text());
 }
 async function fetchScript(src, p){
-  const u = src.url + (src.url.includes('?')?'&':'?') + 'api=dashboard&product=' + encodeURIComponent(p) + (src.token ? '&token=' + encodeURIComponent(src.token) : '');
+  const u = src.url.split('?')[0] + '?api=dashboard&product=' + encodeURIComponent(p) + (src.token ? '&token=' + encodeURIComponent(src.token) : '');
   let res;
   try{ res = await fetch(u, {cache:'no-store'}); }catch(e){ throw new Error('เชื่อมต่อ Apps Script ไม่ได้ — ตรวจลิงก์ และตั้งสิทธิ์เข้าถึงเป็น “Anyone”'); }
   if (!res.ok) throw new Error('Apps Script ตอบกลับ '+res.status);
@@ -454,7 +820,7 @@ async function _loadProduct(p, slot){
       slot.rows = rows; slot.plan = pl; slot.sig = sig;
     }
     slot.error = ''; slot.planNote = planNote; slot.at = new Date(); slot.changed = changed;
-    slot.source = src.type==='script' ? 'Apps Script (เรียลไทม์)' : src.type==='api' ? 'Google Sheets (เรียลไทม์)' : 'ลิงก์ CSV';
+    slot.source = src.type==='script' ? 'Apps Script' : src.type==='api' ? 'Google Sheets' : 'ลิงก์ CSV';
     if (changed) syncFilters(p);
     return true;
   }catch(e){ slot.error = String(e.message||e); return false; }   // ถ้าพลาด คงข้อมูลเดิมไว้ แล้วลองใหม่รอบหน้า
@@ -467,7 +833,7 @@ function liveHTML(){
   if (LIVE.syncing) return '<span class="dot sync"></span><span>กำลังซิงก์…</span>';
   if (!src) return has ? `<span class="dot"></span><span>ข้อมูลจากไฟล์${d.at?' · '+hms(d.at):''}<br>ไม่ได้ต่อสด</span>` : '<span class="dot"></span><span>ยังไม่ได้เชื่อมต่อ</span>';
   if (d&&d.error) return `<span class="dot bad"></span><span>เชื่อมต่อไม่ได้ ใช้ข้อมูลเดิม${d.at?'<br>(ล่าสุด '+hms(d.at)+')':''}</span>`;
-  if (d&&d.at) return `<span class="dot ok"></span><span>${src.type!=='csv'?'เชื่อมต่อสด':'ลิงก์ CSV (ช้าได้ ~5 นาที)'}<br>อัปเดต ${hms(d.at)}</span>`;
+  if (d&&d.at) return `<span class="dot ok"></span><span>${src.type!=='csv'?'เชื่อมต่อแล้ว':'ลิงก์ CSV'}<br>อัปเดต ${hms(d.at)}</span>`;
   return '<span class="dot sync"></span><span>กำลังโหลด…</span>';
 }
 function updateLive(){ const el=$('#liveInd'); if (el) el.innerHTML=liveHTML(); }
@@ -495,7 +861,7 @@ function startLive(){
   const sec=refreshSec();
   if (sec>0) LIVE.t1=setInterval(()=>liveTick(false), sec*1000);
   if (sec>0 && CONFIG.bgRefreshSec>0) LIVE.t2=setInterval(()=>liveTick(true), Math.max(30,CONFIG.bgRefreshSec)*1000);
-  document.addEventListener('visibilitychange',()=>{ if (!document.hidden){ const d=D(); if (!d||!d.at||Date.now()-d.at>10000) liveTick(false); } });
+  document.addEventListener('visibilitychange',()=>{ if (!document.hidden){ const d=D(), lim=(refreshSec()||3600)*1000; if (!d||!d.at||Date.now()-d.at>lim) liveTick(false); } });
 }
 function sheetAoa(wb, wanted){
   const name = wb.SheetNames.find(n=>n.trim().toLowerCase()===wanted.toLowerCase());
@@ -528,14 +894,14 @@ async function loadFile(p, file){
 /* ---------------------------------------------------------------- chart plumbing */
 let charts=[]; const tables={};
 const cv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-const FONT = '"IBM Plex Sans Thai",system-ui,sans-serif';
+const FONT = '"IBM Plex Sans Thai","Noto Sans JP","Hiragino Sans","Yu Gothic UI",Meiryo,system-ui,sans-serif';
 const targetPlugin = { id:'target', afterDatasetsDraw(chart,a,opt){
   if (!opt || opt.value==null) return;
   const {ctx,chartArea:ca,scales}=chart; const horiz=chart.options.indexAxis==='y'; const sc=horiz?scales.x:scales.y; if(!sc) return;
   const pos=sc.getPixelForValue(opt.value); if (horiz ? (pos<ca.left||pos>ca.right) : (pos<ca.top||pos>ca.bottom)) return;
   ctx.save(); ctx.strokeStyle=cv('--ink2'); ctx.fillStyle=cv('--ink2'); ctx.lineWidth=1.5; ctx.setLineDash([6,4]); ctx.beginPath();
   if (horiz){ ctx.moveTo(pos,ca.top); ctx.lineTo(pos,ca.bottom);} else { ctx.moveTo(ca.left,pos); ctx.lineTo(ca.right,pos);} ctx.stroke(); ctx.setLineDash([]);
-  ctx.font='600 11px '+FONT; const t='เป้า '+opt.value+'%';
+  ctx.font='600 11px '+FONT; const t=trl('เป้า')+' '+opt.value+'%';
   if (horiz){ ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillText(t,pos,ca.top-2);} else { ctx.textAlign='right'; ctx.textBaseline='bottom'; ctx.fillText(t,ca.right,pos-3);}
   ctx.restore(); } };
 const labelPlugin = { id:'barLabels', afterDatasetsDraw(chart,a,opt){
@@ -545,15 +911,73 @@ const labelPlugin = { id:'barLabels', afterDatasetsDraw(chart,a,opt){
     const txt = opt.text ? opt.text(i) : null; if (txt==null) return;
     if (horiz){ ctx.textAlign='left'; ctx.fillText(txt, bar.x+6, bar.y); } else { ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillText(txt, bar.x, bar.y-4); }
   }); ctx.restore(); } };
+/* แสดงค่าบนทุกกราฟอัตโนมัติ (แท่งเดี่ยว/แท่งคู่/แท่งซ้อน/เส้น) — กราฟที่มี barLabels เฉพาะของตัวเองอยู่แล้วจะไม่ถูกวาดซ้ำ */
+const autoLabelPlugin = { id:'autoLabels', afterDatasetsDraw(chart,a,opt){
+  if (opt===false || (opt&&opt.off)) return;
+  const bl=chart.options.plugins&&chart.options.plugins.barLabels; if (bl&&bl.on) return;
+  const horiz=chart.options.indexAxis==='y', ca=chart.chartArea, ctx=chart.ctx;
+  const vs=chart.scales[horiz?'x':'y']; if (!vs||!ca) return;
+  const stacked=!!vs.options.stacked;
+  const fmt=(opt&&typeof opt.fmt==='function')?opt.fmt:(v=>nf(v));
+  const FS=11, ink=cv('--ink'), halo=cv('--surface');
+  const bars=[], lines=[];
+  chart.data.datasets.forEach((ds,di)=>{ if(!chart.isDatasetVisible(di)) return; const m=chart.getDatasetMeta(di); (m.type==='line'?lines:bars).push({ds,m}); });
+  const n=(chart.data.labels||[]).length||1, pitch=(horiz?ca.height:ca.width)/n, nb=Math.max(bars.length,1);
+  const tw=(t,bold)=>{ ctx.font=(bold?'700 ':'600 ')+FS+'px '+FONT; return ctx.measureText(t).width; };
+  const inkOn=bg=>{ const m=typeof bg==='string' && /^(?:#([0-9a-f]{6})|rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([\d.]+))?)/i.exec(bg.trim()); if(!m) return ink;
+    let r,g,b,al=1; if(m[1]){ const k=parseInt(m[1],16); r=k>>16; g=(k>>8)&255; b=k&255; } else { r=+m[2]; g=+m[3]; b=+m[4]; if(m[5]!=null) al=+m[5]; }
+    if (al<.9) return ink; return (0.299*r+0.587*g+0.114*b)>150?'#0b0b0b':'#ffffff'; };
+  const put=(t,x,y,o)=>{ ctx.save(); ctx.font=(o.bold?'700 ':'600 ')+FS+'px '+FONT; ctx.translate(x,y); if(o.rot) ctx.rotate(-Math.PI/2);
+    ctx.textAlign=o.align||'center'; ctx.textBaseline=o.base||'middle';
+    if (o.halo){ ctx.lineWidth=3; ctx.lineJoin='round'; ctx.strokeStyle=o.halo; ctx.strokeText(t,0,0); }
+    ctx.fillStyle=o.color||ink; ctx.fillText(t,0,0); ctx.restore(); };
+  ctx.save();
+  bars.forEach(({ds,m})=>{ m.data.forEach((el,i)=>{
+    const v=ds.data[i]; if (v==null||Array.isArray(v)||!isFinite(v)) return; if (stacked && !v) return;
+    const t=fmt(v), w=tw(t), p=el.getProps(['x','y','base','width','height'],true), col=inkOn(el.options&&el.options.backgroundColor);
+    if (!horiz){
+      const end=p.y, base=p.base, len=Math.abs(base-end), up=end<=base;
+      if (stacked){ if (len<FS+3) return; const mid=(end+base)/2;
+        if (w+2<=p.width) put(t,p.x,mid,{color:col}); else if (len>=w+6 && p.width>=FS+2) put(t,p.x,mid,{color:col,rot:true}); return; }
+      const fit=w+4<=pitch/nb, inside=(lines.length>0||!fit) && len>=(fit?FS+8:w+10);
+      if (inside){ if (fit) put(t,p.x,end+(up?4:-4),{color:col,base:up?'top':'bottom'}); else put(t,p.x,end+(up?4:-4),{color:col,rot:true,align:up?'right':'left'}); }
+      else if (fit) put(t,p.x,end+(up?-4:4),{base:up?'bottom':'top'});
+      else put(t,p.x,end+(up?-4:4),{rot:true,align:up?'left':'right'});
+    } else {
+      const end=p.x, base=p.base, len=Math.abs(end-base), right=end>=base;
+      if (stacked){ if (p.height<FS+2||len<w+6) return; put(t,(end+base)/2,p.y,{color:col}); return; }
+      put(t,end+(right?6:-6),p.y,{align:right?'left':'right'});
+    }
+  }); });
+  if (stacked && bars.length){            // ยอดรวมของแท่งซ้อน
+    for (let i=0;i<n;i++){ let sum=0, ext=null, pos=null;
+      bars.forEach(({ds,m})=>{ const v=ds.data[i]; if(v==null||!isFinite(v)||v<=0) return; sum+=+v; const el=m.data[i]; if(!el) return; const q=el.getProps(['x','y'],true); pos=horiz?q.y:q.x; ext = ext==null ? (horiz?q.x:q.y) : (horiz?Math.max(ext,q.x):Math.min(ext,q.y)); });
+      if (!sum||ext==null) continue; const t=fmt(sum), w=tw(t,true);
+      if (horiz) put(t,ext+6,pos,{bold:true,align:'left'});
+      else if (w+4<=pitch) put(t,pos,ext-4,{bold:true,base:'bottom'});
+      else put(t,pos,ext-4,{bold:true,rot:true,align:'left'});
+    }
+  }
+  if (lines.length){                       // เส้น: ค่าอยู่เหนือจุด เรียงกันไม่ให้ซ้อน
+    let mw=0; lines.forEach(({ds})=>ds.data.forEach(v=>{ if(v!=null&&isFinite(v)) mw=Math.max(mw,tw(fmt(v),true)); }));
+    const k=Math.max(1,Math.ceil((mw+6)/pitch));      // ถ้าวันที่เยอะมากจนตัวเลขชนกัน แสดงเว้นช่วง
+    for (let i=0;i<n;i+=k){ const pts=[];
+      lines.forEach(({ds,m})=>{ const v=ds.data[i], el=m.data[i]; if(v==null||!isFinite(v)||!el||el.skip) return; pts.push({x:el.x,y:el.y,t:fmt(v),c:ds.borderColor}); });
+      pts.sort((a,b)=>a.y-b.y); let prev=-1e9;
+      pts.forEach(q=>{ const y=Math.max(q.y-9,prev+12); prev=y; put(q.t,q.x,y,{color:q.c,bold:true,halo}); });
+    }
+  }
+  ctx.restore(); } };
+if (typeof Chart!=='undefined') Chart.register(autoLabelPlugin);
 function wrapLabel(s,n=30){ s=String(s); if (s.length<=n) return s; const out=[]; for (let i=0;i<s.length && out.length<2;i+=n) out.push(s.slice(i,i+n)); if (s.length>n*2) out[1]=out[1].slice(0,-1)+'…'; return out; }
 function baseOpts({horiz=false,stacked=false,fmt=v=>v,min,max,legend=true,ytitle,xtitle}={}){
   const grid=cv('--grid'), axis=cv('--axis'), mut=cv('--muted');
-  const val = { stacked, beginAtZero:true, min, max, grid:{color:grid}, border:{color:axis}, ticks:{color:mut,callback:v=>fmt(v)}, title: ytitle?{display:true,text:ytitle,color:mut}:undefined };
+  const val = { stacked, beginAtZero:true, min, max, grace:(!horiz&&max==null)?'18%':undefined, grid:{color:grid}, border:{color:axis}, ticks:{color:mut,callback:v=>fmt(v)}, title: ytitle?{display:true,text:ytitle,color:mut}:undefined };
   const cat = { stacked, grid:{display:false}, border:{color:axis}, ticks:{color:cv('--ink2'),autoSkip:true,maxRotation:horiz?0:60}, title: xtitle?{display:true,text:xtitle,color:mut}:undefined };
   return { responsive:true, maintainAspectRatio:false, indexAxis:horiz?'y':'x',
     interaction:{mode:'index',intersect:false, axis: horiz?'y':'x'},
-    layout:{padding:{top:horiz?16:6,right:horiz?44:6}},
-    plugins:{ legend:{display:legend,position:'bottom',labels:{color:cv('--ink2'),boxWidth:10,boxHeight:10,usePointStyle:true,pointStyle:'rectRounded',font:{family:FONT,size:12}}},
+    layout:{padding:{top:horiz?16:18,right:horiz?52:6}},
+    plugins:{ autoLabels:{fmt}, legend:{display:legend,position:'bottom',labels:{color:cv('--ink2'),boxWidth:10,boxHeight:10,usePointStyle:true,pointStyle:'rectRounded',font:{family:FONT,size:12}}},
       tooltip:{backgroundColor:cv('--ink'),titleColor:cv('--surface'),bodyColor:cv('--surface'),padding:10,cornerRadius:8,titleFont:{family:FONT},bodyFont:{family:FONT},
         callbacks:{ label: c => ` ${c.dataset.label?c.dataset.label+': ':''}${fmt(c.parsed[horiz?'x':'y'])}` }} },
     scales: horiz ? { x: val, y: cat } : { x: cat, y: val } };
@@ -612,7 +1036,7 @@ function renderXF(){
   if (S.lossCat!=='all') chips.push(['cat','หมวด Loss ',S.lossCat]);
   box.innerHTML = chips.length
     ? `<div class="xf"><span class="xf-l">กรองจากกราฟ</span>${chips.map(([k,l,t])=>`<button class="chip" data-xfclear="${k}" title="คลิกเพื่อยกเลิก">${l}<b>${esc(t)}</b> ✕</button>`).join('')}<button class="btn sm" id="xfAll">ล้างทั้งหมด</button></div>`
-    : `<p class="note hint">คลิกที่แท่งกราฟเพื่อกรองกราฟอื่น ๆ (คลิกซ้ำเพื่อยกเลิก · เลือกได้หลายรายการ)</p>`;
+    : '';
   const redraw=()=>{ const y=window.scrollY; render(); window.scrollTo(0,y); };
   $$('[data-xfclear]').forEach(b=>b.onclick=()=>{ const k=b.dataset.xfclear; if (k==='date') x.dates.clear(); else if (k==='proc') x.procs.clear(); else S.lossCat='all'; redraw(); });
   const all=$('#xfAll'); if (all) all.onclick=()=>{ x.dates.clear(); x.procs.clear(); S.lossCat='all'; redraw(); };
@@ -634,26 +1058,55 @@ function bindCards(){
     if (on && tables[id]) $('#t-'+id).innerHTML=tableHTML(tables[id]);
   }));
 }
-const kpiHTML=(lbl,val,gap,cls='')=>`<div class="card kpi"><div class="lbl">${lbl}</div><div class="val">${val}</div><div class="gap ${cls}">${gap}</div></div>`;
+const kpiHTML=(lbl,val,gap,cls='',st='')=>`<div class="card kpi"><div class="lbl">${lbl}</div><div class="val ${st}">${val}</div><div class="gap ${st||cls}">${gap}</div></div>`;
+/* สีสถานะ scoreboard: ต่ำกว่าเป้า = แดง, เป้า–100% = เขียว, มากกว่า 100% = เหลือง (เป้า OEE 85 / A 90 / P 95 / Q 99 ตั้งได้ในหน้า "ข้อมูลและเป้าหมาย") */
+function statusOf(v,target){ if(v==null||!isFinite(v)) return ''; const x=Math.round(v*10000)/100; return x<target?'st-red':(x>100?'st-yellow':'st-green'); }
+/* สี % ผลิตได้ตามแผน: ≤95 แดง · มากกว่า 95 ถึงน้อยกว่า 105 เขียว (96–104) · ≥105 เหลือง */
+function planStatusOf(ratio){ if(ratio==null||!isFinite(ratio)) return ''; const x=Math.round(ratio*10000)/100; return x<=95?'st-red':(x>=105?'st-yellow':'st-green'); }
 function gapOf(v,target){ if (v==null) return {t:'–',c:''}; const d=(v*100-target); return {t:`${d>=0?'▲ +':'▼ '}${d.toFixed(2)} จุด จากเป้า ${target}%`, c:d>=0?'up':'down'}; }
 
 /* ---------------------------------------------------------------- shell: rail + filters */
 const PAGES=[['overview','ภาพรวม','▦'],['oee','OEE รายเครื่อง','◧'],['loss','เวลาสูญเสีย','▤'],['ng','งานเสีย (NG)','◇'],['plan','แผน vs ผลิตจริง','☰'],['data','ข้อมูลและเป้าหมาย','⚙']];
 function renderRail(){
-  const prods=Object.entries(CONFIG.products);
-  $('#rail').innerHTML = `<div class="brand">แผงติดตามการผลิต<small>OEE · Loss · NG · Plan</small></div>
-  <h2>ผลิตภัณฑ์</h2>
-  ${prods.map(([k,v])=>`<button data-prod="${k}" aria-current="${k===S.product}"><span class="code">${k}</span><span class="full">${esc(v.name)}</span></button>`).join('')}
+  const mini=document.body.classList.contains('rail-mini');
+  $('#rail').innerHTML = `<div class="rail-top"><div class="brand"><svg class="logo" viewBox="0 0 64 64" role="img" aria-label="Logo"><g fill="#fff"><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(0 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(45 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(90 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(135 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(180 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(225 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(270 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(315 32 32)"/></g><circle cx="32" cy="32" r="19.5" fill="none" stroke="#fff" stroke-width="7"/><rect x="22" y="35" width="5" height="7" rx="1.5" fill="#7FB2F0"/><rect x="29" y="29" width="5" height="13" rx="1.5" fill="#7FB2F0"/><rect x="36" y="23" width="5" height="19" rx="1.5" fill="#F5841F"/></svg><span class="bt">แผงติดตามการผลิต</span></div><button class="rail-tgl" id="railToggle" aria-expanded="${!mini}" aria-controls="rail" aria-label="${mini?'ขยายเมนู':'ย่อเมนู'}" title="${mini?'ขยายเมนู':'ย่อเมนู'}">${mini?'›':'‹'}</button></div>
   <h2>หน้า</h2>
-  <div class="nav">${PAGES.map(([k,t,i])=>`<button data-page="${k}" aria-current="${k===S.page}"><span aria-hidden="true">${i}</span>${t}</button>`).join('')}</div>
+  <div class="nav">${PAGES.map(([k,t,i])=>`<button data-page="${k}" title="${t}" aria-current="${k===S.page}"><span class="ic" aria-hidden="true">${i}</span><span class="nl">${t}</span></button>`).join('')}</div>
   <div class="spacer"></div>
-  <button id="refreshBtn"><span class="code">↻ รีเฟรชตอนนี้</span></button>
-  <button id="themeBtn"><span class="code">ธีม: ${({auto:'ตามเครื่อง',light:'สว่าง',dark:'มืด'})[themePref()]}</span></button>
+  <button id="refreshBtn" title="รีเฟรชตอนนี้"><span class="ic code" aria-hidden="true">↻</span><span class="code tx">รีเฟรชตอนนี้</span></button>
+  <button id="themeBtn" title="เปลี่ยนธีม"><span class="ic code" aria-hidden="true">◐</span><span class="code tx">ธีม: ${({auto:'ตามเครื่อง',light:'สว่าง',dark:'มืด'})[themePref()]}</span></button>
   <div class="live" id="liveInd">${liveHTML()}</div>`;
-  $$('[data-prod]').forEach(b=>b.onclick=()=>{S.product=b.dataset.prod; store.set('oee.product',S.product); S.xf.dates.clear(); S.xf.procs.clear(); S.lossCat='all'; render(); liveTick(false);});
+  $('#railToggle').onclick=()=>setRailMini(!document.body.classList.contains('rail-mini'));
+  renderProdBar();
   $$('[data-page]').forEach(b=>b.onclick=()=>{S.page=b.dataset.page; render();});
   $('#themeBtn').onclick=()=>{ const order=['auto','light','dark']; const n=order[(order.indexOf(themePref())+1)%3]; store.set('oee.theme',n); applyTheme(); render(); };
   $('#refreshBtn').onclick=async()=>{ if (!sourceOf(S.product)){ S.page='data'; render(); return; } await liveTick(false); if (S.data[S.product]&&!S.data[S.product].error) { LIVE.dirty=true; tryRender(); } };
+}
+/* ---- แถบเลือกผลิตภัณฑ์ด้านบนสุด (ย่อ/ขยายได้ · จำสถานะไว้ในเบราว์เซอร์) ---- */
+const pbCollapsed=()=>!!store.get('oee.prodBarCollapsed',false);
+function selectProduct(p){
+  if (!CONFIG.products[p]) return;
+  const changed = p!==S.product;
+  S.product=p; store.set('oee.product',S.product);
+  store.set('oee.prodBarCollapsed',true);          // เลือกแล้ว → ย่อแถบอัตโนมัติ
+  if (changed){ S.xf.dates.clear(); S.xf.procs.clear(); S.lossCat='all'; }
+  render(); if (changed) liveTick(false);
+}
+function renderProdBar(){
+  const box=$('#prodbar'); if (!box) return;
+  const col=pbCollapsed(), cur=CONFIG.products[S.product];
+  box.innerHTML=`<div class="prodbar${col?' collapsed':''}" id="pbWrap">
+    <div class="pb-head">
+      <span class="pb-label">ผลิตภัณฑ์</span>
+      <span class="pb-cur"><b>${esc(S.product)}</b>${cur?` · ${esc(cur.name)}`:''}</span>
+      <div class="pb-list" role="group" aria-label="เลือกผลิตภัณฑ์">${Object.entries(CONFIG.products).map(([k,v])=>`<button class="pb" data-prod="${k}" title="${esc(v.name)}" aria-current="${k===S.product}"><span class="code">${k}</span><span class="full">${esc(v.name)}</span></button>`).join('')}</div>
+      <div class="lang-sw" role="group" aria-label="Language" translate="no">${[['th','ไทย'],['en','EN'],['ja','日本語']].map(([k,t])=>`<button data-lang="${k}" lang="${k}" aria-pressed="${k===LANG}">${t}</button>`).join('')}</div>
+      <button class="pb-tgl" id="pbToggle" aria-expanded="${!col}" title="${col?'ขยายแถบผลิตภัณฑ์':'ย่อแถบผลิตภัณฑ์'}">${col?'ขยาย ▾':'ย่อ ▴'}</button>
+    </div>
+  </div>`;
+  $$('#prodbar [data-prod]').forEach(b=>b.onclick=()=>selectProduct(b.dataset.prod));
+  $$('#prodbar [data-lang]').forEach(b=>b.onclick=()=>setLang(b.dataset.lang));
+  $('#pbToggle').onclick=()=>{ store.set('oee.prodBarCollapsed',!pbCollapsed()); renderProdBar(); };
 }
 const themePref=()=>store.get('oee.theme','auto');
 function applyTheme(){ const t=themePref(); if (t==='auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme',t); }
@@ -697,33 +1150,32 @@ function pageOverview(){
   const gA=gapOf(a.A,T.a), gP=gapOf(a.P,T.p), gQ=gapOf(a.Q,T.q), gO=gapOf(a.oee,T.oee);
   $('#view').innerHTML = titleHTML('ภาพรวม') +
    (noPlanCmp?`<div class="warn">ตัวกรองกะ หรือ กลางวัน/กลางคืน ทำงานกับข้อมูลผลิตจริงเท่านั้น แผน (Plan) ไม่แยกกะ จึงไม่นำมาเทียบ</div>`:'') +
-   `<div class="grid g4 kpis">
-     ${kpiHTML('Plan (ชิ้น)', noPlanCmp?'–':nf(plan),'ตามแผนรายวันในช่วงที่เลือก')}
-     ${kpiHTML('Actual (ชิ้น)', nf(actual), `${a.n} รายการบันทึก`)}
-     ${kpiHTML('% ผลิตได้ตามแผน', noPlanCmp||ratio==null?'–':pct(ratio,2), status.t||status.l, status.c)}
-     ${kpiHTML('NG', nf(a.ng), `${pct(a.ngp,2)} ของยอดผลิต`)}
+   `<div class="grid g4 kpis exec-kpis">
+     ${kpiHTML('% ผลิตได้ตามแผน', noPlanCmp||ratio==null?'–':pct(ratio,2), status.t||status.l, status.c, noPlanCmp?'':planStatusOf(ratio))}
+     ${kpiHTML('Actual · ผลิตจริง (ชิ้น)', nf(actual), `${a.n} รายการบันทึก`)}
+     ${kpiHTML('Plan · แผนผลิต (ชิ้น)', noPlanCmp?'–':nf(plan), '')}
+     ${kpiHTML('NG · งานเสีย', nf(a.ng), `${pct(a.ngp,2)} ของยอดผลิต`, a.ngp>0?'down':'')}
    </div>
-   <div class="grid g4 kpis">
-     ${kpiHTML('OEE', pct(a.oee), gO.t, gO.c)}
-     ${kpiHTML('Availability', pct(a.A), gA.t, gA.c)}
-     ${kpiHTML('Performance', pct(a.P), gP.t, gP.c)}
-     ${kpiHTML('Quality', pct(a.Q), gQ.t, gQ.c)}
+   <div class="grid g4 kpis component-kpis">
+     ${kpiHTML('OEE · ประสิทธิภาพโดยรวม', pct(a.oee), gO.t, gO.c, statusOf(a.oee,T.oee))}
+     ${kpiHTML('Availability', pct(a.A), gA.t, gA.c, statusOf(a.A,T.a))}
+     ${kpiHTML('Performance', pct(a.P), gP.t, gP.c, statusOf(a.P,T.p))}
+     ${kpiHTML('Quality', pct(a.Q), gQ.t, gQ.c, statusOf(a.Q,T.q))}
    </div>
-   <div class="grid g-hero">
-     ${card('bridge','OEE หายไปที่ไหน','จากเวลาตามแผน 100% ลดลงด้วย Availability → Performance → Quality จนเหลือ OEE',330)}
-     ${card('daily','OEE รายวัน','แท่ง = OEE · เส้น = Availability / Performance / Quality · วันที่ไม่มีข้อมูลเว้นว่างไว้',330)}
+   <div class="grid g1">
+     ${card('daily','OEE รายวัน','',380)}
+     ${card('avp','ผลิตจริงเทียบกับแผนรายวัน','ชิ้น',340)}
    </div>
-   <div style="height:14px"></div>
-   <div class="grid g2">
-     ${card('avp','ผลิตจริง vs แผน รายวัน','ชิ้นงานต่อวัน',300)}
-     ${card('mix','Loss ตามหมวด','นาที ในช่วงที่เลือก',300)}
+   <div class="grid g2" style="margin-top:14px">
+     ${card('mix','เวลาสูญเสียแยกตามหมวด','นาที',300)}
+     ${card('bridge','วิเคราะห์องค์ประกอบ OEE','',300)}
    </div>`;
   bindCards();
   // bridge
   const A=a.A??0,P=a.P??0,Q=a.Q??0; const v1=A*100, v2=A*P*100, v3=A*P*Q*100;
-  const steps=[['เวลาตามแผน',[0,100],100,'--plan'],['Availability loss',[Math.min(v1,100),Math.max(v1,100)],v1-100,'--s2'],['Performance loss',[Math.min(v2,v1),Math.max(v2,v1)],v2-v1,'--s2'],['Quality loss',[Math.min(v3,v2),Math.max(v3,v2)],v3-v2,'--s2'],['OEE',[0,v3],v3,'--s1']];
+  const steps=[[trl('เวลาตามแผน'),[0,100],100,'--plan'],['Availability loss',[Math.min(v1,100),Math.max(v1,100)],v1-100,'--s2'],['Performance loss',[Math.min(v2,v1),Math.max(v2,v1)],v2-v1,'--s2'],['Quality loss',[Math.min(v3,v2),Math.max(v3,v2)],v3-v2,'--s2'],['OEE',[0,v3],v3,'--s1']];
   const bo=baseOpts({fmt:v=>v+'%',min:0,max:110,legend:false});
-  bo.plugins.tooltip.callbacks.label=c=>{const s=steps[c.dataIndex]; return ` ${s[2]>=0&&c.dataIndex>0&&c.dataIndex<4?'+':''}${s[2].toFixed(2)}${c.dataIndex===0||c.dataIndex===4?'%':' จุด'}`;};
+  bo.plugins.tooltip.callbacks.label=c=>{const s=steps[c.dataIndex]; return ` ${s[2]>=0&&c.dataIndex>0&&c.dataIndex<4?'+':''}${s[2].toFixed(2)}${c.dataIndex===0||c.dataIndex===4?'%':' '+trl('จุด')}`;};
   bo.scales.y.max=110; bo.scales.y.ticks.callback=v=>v<=100?v+'%':'';
   bo.scales.x.ticks.maxRotation=0; bo.scales.x.ticks.autoSkip=false;
   mk('bridge',{type:'bar',data:{labels:steps.map(s=>s[0].split(' ')),datasets:[{data:steps.map(s=>s[1]),backgroundColor:steps.map(s=>cv(s[3])),borderRadius:4,borderSkipped:false,barPercentage:.62}]},options:Object.assign(bo,{plugins:Object.assign(bo.plugins,{barLabels:{on:true,text:i=>i===0?'100%':i===4?v3.toFixed(1)+'%':(steps[i][2]).toFixed(1)}})}),plugins:[labelPlugin]},
@@ -758,18 +1210,17 @@ function procStats(o){
   return [...g.entries()].map(([p,x])=>Object.assign({proc:p},agg(x)));
 }
 function pageOEE(){
-  const T=S.targets; let st=procStats({ignoreX:'proc'}).filter(x=>x.run>0||x.total>0);
+  const T=S.targets; let st=procStats({ignoreX:'proc'}).filter(x=>!isScreen(x.proc)&&(x.run>0||x.total>0));
   const order=[...st].sort((a,b)=>(a.oee??9)-(b.oee??9)); const labels=order.map(x=>x.proc);
   const h=Math.max(260,order.length*26+56);
-  $('#view').innerHTML = titleHTML('OEE รายเครื่อง') + `<p class="note" style="margin:-4px 0 12px">เรียงจาก OEE ต่ำไปสูง และใช้ลำดับเดียวกันทุกกราฟ เพื่อเทียบ A / P / Q ของเครื่องเดียวกันได้ · เส้นประ = เป้าหมาย</p>
-   <div class="grid g2">
-     ${card('o_oee','OEE %','',h)}${card('o_a','Availability %','เวลาเดินเครื่อง ÷ เวลาตามแผน',h)}
-     ${card('o_p','Performance %','ชิ้นงานที่ควรทำได้ตาม Cycle Time ÷ เวลาเดินเครื่อง',h)}${card('o_q','Quality %','ชิ้นดี ÷ ชิ้นทั้งหมด',h)}
+  $('#view').innerHTML = titleHTML('OEE รายเครื่อง') + `<div class="grid g2">
+     ${card('o_oee','OEE %','',h)}${card('o_a','Availability %','',h)}
+     ${card('o_p','Performance %','',h)}${card('o_q','Quality %','',h)}
    </div>
    <div style="height:14px"></div>
-   ${card('o_pph','Pcs/Hr ต่อ Process','ชิ้นต่อชั่วโมงเดินเครื่อง (เฉลี่ยทุก Part ใน Process นั้น) · Part ต่างกันมี Cycle Time ต่างกัน ใช้เทียบข้าม Process ได้จำกัด',h)}
+   ${card('o_pph','Pcs/Hr ต่อ Process','',h)}
    <div style="height:14px"></div>
-   <section class="card"><div class="head"><div><h3>ตารางรายเครื่อง</h3><div class="sub">กดหัวคอลัมน์เพื่อเรียงลำดับ · ▲/▼ = เทียบเป้า OEE</div></div></div><div class="scroll" id="proctbl"></div></section>`;
+   <section class="card"><div class="head"><div><h3>ตารางรายเครื่อง</h3></div></div><div class="scroll" id="proctbl"></div></section>`;
   bindCards();
   const mkBar=(id,key,color,target,fmin)=>{
     const vals=order.map(x=>x[key]==null?null:+(x[key]*100).toFixed(2));
@@ -803,9 +1254,8 @@ function pageLoss(){
   const tot=cats.map(c=>rs.reduce((s,r)=>s+(r.loss[c.k]||0),0)); const all=tot.reduce((a,b)=>a+b,0);
   $('#view').innerHTML=titleHTML('เวลาสูญเสีย (Loss)')+catChips+`
    <div class="grid g4 kpis">${cats.map((c,i)=>kpiHTML(c.k,nf(tot[i])+' <small style="font-size:13px;font-weight:400">นาที</small>',all?pct(tot[i]/all,1)+' ของทั้งหมด':'–')).join('')}</div>
-   <div class="grid g2">${card('l_day','Loss รายวัน แยกหมวด','นาที',Math.max(300,new Set(rs.map(r=>r.proc)).size*26+60))}${card('l_proc','Loss รายเครื่อง แยกหมวด','นาที',Math.max(300,new Set(rs.map(r=>r.proc)).size*26+60))}</div>
-   <div style="height:14px"></div>
-   ${card('l_top','เหตุผลที่ทำให้เสียเวลามากที่สุด','นาที · สีตามหมวด · กดชิปด้านบนเพื่อดูเฉพาะหมวด',480)}`;
+   <div class="grid g1">${card('l_day','Loss รายวัน แยกหมวด','นาที',380)}</div>
+   <div class="grid g2" style="margin-top:14px">${card('l_proc','Loss รายเครื่อง แยกหมวด','นาที',Math.max(480,new Set(rs.map(r=>r.proc)).size*26+60))}${card('l_top','เหตุผลที่ทำให้เสียเวลามากที่สุด','นาที',Math.max(480,new Set(rs.map(r=>r.proc)).size*26+60))}</div>`;
   bindCards();
   $$('[data-lcat]').forEach(b=>b.onclick=()=>{S.lossCat=b.dataset.lcat; render();});
   $('#lossPlan').onchange=e=>{S.lossPlan=e.target.checked; render();};
@@ -821,7 +1271,7 @@ function pageLoss(){
   let rr=[...rm.entries()].map(([k,v])=>{const [cat,...re]=k.split('|'); return {cat,reason:re.join('|'),v};}).filter(x=>cats.some(c=>c.k===x.cat)&&(S.lossCat==='all'||x.cat===S.lossCat)).sort((a,b)=>b.v-a.v).slice(0,12);
   const to=baseOpts({horiz:true,fmt:v=>nf(v),legend:false}); to.plugins.barLabels={on:true,text:i=>nf(rr[i].v)};
   to.plugins.tooltip.callbacks.title=items=>{const x=rr[items[0].dataIndex]; return `${x.cat} · ${x.reason}`;};
-  mk('l_top',{type:'bar',data:{labels:rr.map(x=>wrapLabel(x.reason,34)),datasets:[{data:rr.map(x=>x.v),backgroundColor:rr.map(x=>cv((CATS.find(c=>c.k===x.cat)||{col:'--s5'}).col)),borderRadius:4,borderSkipped:false,barPercentage:.7}]},options:to,plugins:[labelPlugin]},
+  mk('l_top',{type:'bar',data:{labels:rr.map(x=>wrapLabel(x.reason,26)),datasets:[{data:rr.map(x=>x.v),backgroundColor:rr.map(x=>cv((CATS.find(c=>c.k===x.cat)||{col:'--s5'}).col)),borderRadius:4,borderSkipped:false,barPercentage:.7}]},options:to,plugins:[labelPlugin]},
     {first:'เหตุผล',labels:rr.map(x=>`${x.cat} · ${x.reason}`),series:[{name:'นาที',values:rr.map(x=>x.v)}]});
   xfBind('l_day','date',dates); xfBind('l_proc','proc',gp.map(x=>x.p)); xfBind('l_top','cat',rr.map(x=>x.cat));
 }
@@ -833,9 +1283,9 @@ function pageNG(){
   const tt=[...types.entries()].sort((a,b)=>b[1]-a[1]).slice(0,12);
   const gp=[...groupBy(ngF({ignoreX:'proc'}),r=>r.proc).entries()].map(([p,x])=>({p,...agg(x)})).filter(x=>x.total>0).sort((a,b)=>(b.ngp||0)-(a.ngp||0));
   $('#view').innerHTML=titleHTML('งานเสีย (NG)')+`<div class="chips"><label class="chip"><input type="checkbox" id="ngInd" ${S.ngInduction?'checked':''}> ไม่นับ NG ของ Induction</label></div>
-   <div class="grid g3 kpis">${kpiHTML('NG (ชิ้น)',nf(a.ng),`จากยอดผลิต ${nf(a.total)} ชิ้น`)}${kpiHTML('% NG',pct(a.ngp,2),'NG ÷ ยอดผลิต')}${kpiHTML('Quality',pct(a.Q,2),gapOf(a.Q,S.targets.q).t,gapOf(a.Q,S.targets.q).c)}</div>
-   <div class="grid g2">${card('n_day','NG รายวัน','ชิ้น',280)}${card('n_proc','% NG รายเครื่อง','NG ÷ ยอดผลิต ของแต่ละ Process',Math.max(280,gp.length*26+60))}</div>
-   <div style="height:14px"></div>${card('n_type','ประเภท NG ที่พบมากที่สุด','ชิ้น · ชื่อ = ขั้นตอน | ประเภทของเสีย',460)}`;
+   <div class="grid g3 kpis">${kpiHTML('NG (ชิ้น)',nf(a.ng),`จากยอดผลิต ${nf(a.total)} ชิ้น`)}${kpiHTML('% NG',pct(a.ngp,2),'')}${kpiHTML('Quality',pct(a.Q,2),gapOf(a.Q,S.targets.q).t,gapOf(a.Q,S.targets.q).c,statusOf(a.Q,S.targets.q))}</div>
+   <div class="grid g1">${card('n_day','NG รายวัน','ชิ้น',340)}</div>
+   <div class="grid g2" style="margin-top:14px">${card('n_proc','% NG รายเครื่อง','',Math.max(460,gp.length*26+60))}${card('n_type','ประเภท NG ที่พบมากที่สุด','ชิ้น',Math.max(460,gp.length*26+60))}</div>`;
   bindCards(); $('#ngInd').onchange=e=>{S.ngInduction=e.target.checked;render();};
   const nd=dates.map(d=>(byD.get(d)||[]).reduce((s,r)=>s+r.ng,0));
   mk('n_day',{type:'bar',data:{labels:dates.map(d=>fmtD(d)),datasets:[{label:'NG',data:nd,backgroundColor:cv('--s2'),borderRadius:4,borderSkipped:false,barPercentage:.7}]},options:baseOpts({fmt:v=>nf(v),legend:false})},{first:'วันที่',labels:dates.map(d=>fmtD(d)),series:[{name:'NG',values:nd}]});
@@ -843,13 +1293,13 @@ function pageNG(){
   mk('n_proc',{type:'bar',data:{labels:gp.map(x=>x.p),datasets:[{data:gp.map(x=>+(x.ngp*100).toFixed(3)),backgroundColor:cv('--s2'),borderRadius:4,borderSkipped:false,barPercentage:.7}]},options:po,plugins:[labelPlugin]},{first:'Process',labels:gp.map(x=>x.p),series:[{name:'% NG',values:gp.map(x=>x.ngp*100),fmt:v=>v.toFixed(2)+'%'},{name:'NG (ชิ้น)',values:gp.map(x=>x.ng)}]});
   const to=baseOpts({horiz:true,fmt:v=>nf(v),legend:false}); to.plugins.barLabels={on:true,text:i=>nf(tt[i][1])};
   to.plugins.tooltip.callbacks.title=items=>tt[items[0].dataIndex][0];
-  mk('n_type',{type:'bar',data:{labels:tt.map(x=>wrapLabel(x[0],38)),datasets:[{data:tt.map(x=>x[1]),backgroundColor:cv('--s2'),borderRadius:4,borderSkipped:false,barPercentage:.7}]},options:to,plugins:[labelPlugin]},{first:'ประเภท',labels:tt.map(x=>x[0]),series:[{name:'ชิ้น',values:tt.map(x=>x[1])}]});
+  mk('n_type',{type:'bar',data:{labels:tt.map(x=>wrapLabel(x[0],28)),datasets:[{data:tt.map(x=>x[1]),backgroundColor:cv('--s2'),borderRadius:4,borderSkipped:false,barPercentage:.7}]},options:to,plugins:[labelPlugin]},{first:'ประเภท',labels:tt.map(x=>x[0]),series:[{name:'ชิ้น',values:tt.map(x=>x[1])}]});
   xfBind('n_day','date',dates); xfBind('n_proc','proc',gp.map(x=>x.p));
 }
 
 function pagePlan(){
   const f=F(), d=D(); const noCmp=shiftFiltered();
-  if (!d.plan){ $('#view').innerHTML=titleHTML('แผน vs ผลิตจริง')+`<div class="card empty"><h2>ยังไม่มีข้อมูลแผน</h2><p>ตรวจว่าไฟล์ Google Sheets มีแท็บ Input plan (ดูสถานะในหน้า “ข้อมูลและเป้าหมาย”) หรือเลือกไฟล์ .xlsx</p></div>`; return; }
+  if (!d.plan){ $('#view').innerHTML=titleHTML('แผน vs ผลิตจริง')+`<div class="card empty"><h2>ยังไม่มีข้อมูลแผน</h2></div>`; return; }
   let rows=planVsActual().map(x=>Object.assign(x,{diff:x.actual-x.plan,ach:x.plan?x.actual/x.plan:null}));
   if (S.planHideZero) rows=rows.filter(x=>x.plan||x.actual);
   rows.sort((a,b)=>a.diff-b.diff);
@@ -859,14 +1309,14 @@ function pagePlan(){
   const dd=dates.map(x=>(byD.has(x)?agg(byD.get(x)).total:0)-(pl.get(x)||0));
   $('#view').innerHTML=titleHTML('แผน vs ผลิตจริง')+(noCmp?`<div class="warn">ตัวกรองกะ หรือ กลางวัน/กลางคืน ทำให้ยอดผลิตจริงน้อยลง แต่ Plan ไม่แยกกะ ผลต่างจึงไม่ตรงความจริง ให้ตั้งเป็น “ทุกกะ” ก่อนอ่านหน้านี้</div>`:'')+
    (d.plan.unmapped.length?`<div class="warn">มี ${d.plan.unmapped.length} คอลัมน์ใน Input plan ที่ยังไม่ได้จับคู่กับ Process (ยอดแผนยังนับรวม แต่ผลิตจริงเป็น 0): ${esc(d.plan.unmapped.slice(0,6).join(' · '))}${d.plan.unmapped.length>6?' …':''}</div>`:'')+
-   `<div class="grid g3 kpis">${kpiHTML('Plan รวม',nf(tp),'ในช่วงที่เลือก')}${kpiHTML('Actual รวม',nf(ta),'เฉพาะรายการที่แสดงด้านล่าง')}${kpiHTML('ผลต่างรวม',(ta-tp>=0?'+':'')+nf(ta-tp),tp?pct(ta/tp,1)+' ของแผน':'–',ta-tp>=0?'up':'down')}</div>
-   ${card('p_day','ผลต่างรายวัน (ผลิตจริง − แผน)','ชิ้น · ฟ้า = เกินแผน · แดง = ต่ำกว่าแผน',260)}
+   `<div class="grid g3 kpis">${kpiHTML('Plan รวม',nf(tp),'')}${kpiHTML('Actual รวม',nf(ta),'')}${kpiHTML('ผลต่างรวม',(ta-tp>=0?'+':'')+nf(ta-tp),tp?pct(ta/tp,1)+' ของแผน':'–',ta-tp>=0?'up':'down')}</div>
+   ${card('p_day','ผลต่างรายวัน (ผลิตจริง − แผน)','ชิ้น',260)}
    <div style="height:14px"></div>
-   <section class="card"><div class="head"><div><h3>ผลต่างแยกตาม Process และ Part</h3><div class="sub">เรียงจากขาดแผนมากที่สุด</div></div><label class="chip"><input type="checkbox" id="hz" ${S.planHideZero?'checked':''}> ซ่อนแถวที่เป็น 0</label></div>
+   <section class="card"><div class="head"><div><h3>ผลต่างแยกตาม Process และ Part</h3></div><label class="chip"><input type="checkbox" id="hz" ${S.planHideZero?'checked':''}> ซ่อนแถวที่เป็น 0</label></div>
    <div class="scroll"><table><thead><tr><th>Process</th><th>Part</th><th>Plan</th><th>Actual</th><th>ผลต่าง</th><th>% ตามแผน</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.group)}</td><td style="text-align:right">${esc(x.part)}</td><td class="num">${nf(x.plan)}</td><td class="num">${nf(x.actual)}</td><td class="num ${x.diff>=0?'up':'down'}">${x.diff>=0?'▲ +':'▼ '}${nf(x.diff)}</td><td class="num">${x.ach==null?'ไม่มีแผน':pct(x.ach,0)}</td></tr>`).join('')}</tbody></table></div></section>`;
   bindCards(); $('#hz').onchange=e=>{S.planHideZero=e.target.checked;render();};
-  const o=baseOpts({fmt:v=>nf(v),legend:false}); o.scales.y.beginAtZero=false;
-  mk('p_day',{type:'bar',data:{labels:dates.map(x=>fmtD(x)),datasets:[{label:'ผลต่าง',data:dd,backgroundColor:dd.map(v=>v>=0?cv('--pos'):cv('--neg')),borderRadius:4,borderSkipped:false,barPercentage:.7}]},options:o},{first:'วันที่',labels:dates.map(x=>fmtD(x)),series:[{name:'ผลต่าง',values:dd}]});
+  const o=baseOpts({fmt:v=>nf(v),legend:false}); o.scales.y.beginAtZero=false; o.plugins.autoLabels={fmt:v=>(v>0?'+':'')+nf(v)};
+  mk('p_day',{type:'bar',data:{labels:dates.map(x=>fmtD(x)),datasets:[{label:trl('ผลต่าง'),data:dd,backgroundColor:dd.map(v=>v>=0?cv('--pos'):cv('--neg')),borderRadius:4,borderSkipped:false,barPercentage:.7}]},options:o},{first:'วันที่',labels:dates.map(x=>fmtD(x)),series:[{name:'ผลต่าง',values:dd}]});
   xfBind('p_day','date',dates);
 }
 
@@ -876,22 +1326,20 @@ function pageData(){
     const u=urlsOf(p), d=S.data[p]; const ok=d&&d.rows&&d.rows.length;
     const st = d&&d.error ? `<span class="status bad">ผิดพลาด: ${esc(d.error)}</span>` : ok ? `<span class="status ok">โหลดแล้ว ${nf(d.rows.length)} รายการ · ${esc(d.source||'')} · ข้อมูลถึง ${fmtD(S.filt[p].max,true)} · แผน ${d.plan?nf(d.plan.rows.length)+' แถว':'ยังไม่มี'}</span>${d.planNote?`<br><span class="status bad">แท็บ Input plan: ${esc(d.planNote)}</span>`:''}${d.rows.skipped&&d.rows.skipped.n?`<br><span class="status bad">ข้าม ${d.rows.skipped.n} รายการที่ช่อง Date ใน Combined ว่าง (รวม ${nf(d.rows.skipped.pcs)} ชิ้น) ตรวจสูตรคอลัมน์ Date</span>`:''}` : `<span class="status">ยังไม่มีข้อมูล</span>`;
     return `<section class="card"><div class="head"><div><h3>${p} · ${esc(v.name)}</h3><div class="sub">${st}</div></div></div>
-      <div class="form-row"><label class="fld" style="flex:1">ไฟล์ Google Sheets ของ ${p} (วางลิงก์ หรือ Spreadsheet ID)<input type="text" data-sid="${p}" value="${esc(rawIdOf(p))}" placeholder="https://docs.google.com/spreadsheets/d/…/edit" style="width:100%" autocomplete="off"></label></div>
+      <div class="form-row"><label class="fld" style="flex:1">Google Sheets ของ ${p}<input type="text" data-sid="${p}" value="${esc(rawIdOf(p))}" placeholder="https://docs.google.com/spreadsheets/d/…/edit" style="width:100%" autocomplete="off"></label></div>
       <div class="form-row"><button class="btn primary" data-load="${p}">โหลดตอนนี้</button><label class="btn">เลือกไฟล์ .xlsx / .csv<input type="file" accept=".xlsx,.xlsm,.csv" data-file="${p}" hidden></label></div>
-      <details style="margin-top:8px" ${u.combinedUrl&&!sheetIdOf(p)?'open':''}><summary class="note">ทางเลือก: ใช้ลิงก์ CSV ที่เผยแพร่ (ไม่ต้องใช้ API Key แต่ช้ากว่า ~5 นาที)</summary>
+      <details style="margin-top:8px" ${u.combinedUrl&&!sheetIdOf(p)?'open':''}><summary class="note">ลิงก์ CSV (ทางเลือก)</summary>
         <div class="form-row"><label class="fld" style="flex:1">ลิงก์ CSV ของชีต Combined<input type="url" data-u="${p}:combinedUrl" value="${esc(u.combinedUrl)}" placeholder="https://docs.google.com/spreadsheets/d/e/…/pub?gid=…&single=true&output=csv" style="width:100%"></label></div>
         <div class="form-row"><label class="fld" style="flex:1">ลิงก์ CSV ของชีต Input plan<input type="url" data-u="${p}:planUrl" value="${esc(u.planUrl)}" placeholder="https://docs.google.com/spreadsheets/d/e/…/pub?gid=…&single=true&output=csv" style="width:100%"></label></div></details></section>`;
   }).join('');
   $('#view').innerHTML=titleHTML('ข้อมูลและเป้าหมาย').replace(/<span>.*<\/span>/,'')+`
    <div class="grid g2" style="margin-bottom:14px">
-   <section class="card"><h3>เป้าหมาย (%)</h3><div class="sub">ใช้กับเส้นประและสีลูกศรทั้งแดชบอร์ด · เก็บไว้ในเบราว์เซอร์นี้</div>
+   <section class="card"><h3>เป้าหมาย (%)</h3>
      <div class="form-row">${[['oee','OEE'],['a','Availability'],['p','Performance'],['q','Quality']].map(([k,t])=>`<label class="fld">${t}<input type="number" min="0" max="100" step="0.5" data-t="${k}" value="${T[k]}" style="min-width:90px"></label>`).join('')}</div></section>
-   <section class="card"><h3>เชื่อมต่อ Google Sheets แบบเรียลไทม์</h3><div class="sub">ทำครั้งเดียว · ${refreshSec()>0?'ดึงข้อมูลใหม่อัตโนมัติทุก '+refreshSec()+' วินาที ไม่ต้องกดรีเฟรช':'รีเฟรชอัตโนมัติปิดอยู่ (ตั้ง refreshSec ใน CONFIG)'}</div>
-     <ol style="margin:0 0 8px;padding-left:18px;font-size:13px;color:var(--ink2)"><li>สร้าง API Key: Google Cloud Console → เปิดใช้ <code>Google Sheets API</code> → Credentials → Create API key</li><li>แต่ละไฟล์ Sheets: แชร์ → การเข้าถึงทั่วไป → <code>ทุกคนที่มีลิงก์</code> สิทธิ์ <code>ผู้ดู</code></li><li>วาง API Key ด้านล่าง และวางลิงก์ไฟล์ของแต่ละผลิตภัณฑ์ แล้วกด “เชื่อมต่อและโหลดทั้งหมด”</li><li>แต่ละไฟล์ต้องมีแท็บ <code>${esc(CONFIG.sheetNames.combined)}</code> และ <code>${esc(CONFIG.sheetNames.plan)}</code></li></ol>
-     <div class="form-row"><label class="fld" style="flex:1">Apps Script URL (ลงท้าย /exec) — ไม่ต้องใช้ API Key<input type="url" data-surl="1" value="${esc(scriptUrlOf())}" placeholder="https://script.google.com/macros/s/…/exec" style="width:100%" autocomplete="off"></label></div>
-     <div class="form-row"><label class="fld" style="flex:1">รหัสผ่านเข้าถึง (DASH_TOKEN)<input type="password" data-stoken="1" value="${esc(scriptTokenOf())}" style="width:100%" autocomplete="off"></label></div>
-     <div class="form-row"><label class="fld" style="flex:1">หรือ Google API Key (ถ้าไม่ใช้ Apps Script)<input type="password" data-key="1" value="${esc(apiKeyOf())}" placeholder="AIza…" style="width:100%" autocomplete="off"></label><button class="btn primary" id="connectAll">เชื่อมต่อและโหลดทั้งหมด</button></div>
-     <p class="note">ค่าที่กรอกในหน้านี้จำเฉพาะเบราว์เซอร์เครื่องนี้ · ถ้าอยากให้ทุกเครื่องใช้ได้ทันที ให้ใส่ apiKey และ sheetId ใน CONFIG ที่ต้นไฟล์ · ใครมีลิงก์ไฟล์ชีตจะอ่านข้อมูลได้ (แก้ไขไม่ได้)</p></section></div>
+   <section class="card"><h3>การเชื่อมต่อข้อมูล</h3>
+     <div class="form-row"><label class="fld" style="flex:1">Apps Script URL<input type="url" data-surl="1" value="${esc(scriptUrlOf())}" placeholder="https://script.google.com/macros/s/…/exec" style="width:100%" autocomplete="off"></label></div>
+     <div class="form-row"><label class="fld" style="flex:1">รหัสผ่านเข้าถึง<input type="password" data-stoken="1" value="${esc(scriptTokenOf())}" style="width:100%" autocomplete="off"></label></div>
+     <div class="form-row"><label class="fld" style="flex:1">Google API Key<input type="password" data-key="1" value="${esc(apiKeyOf())}" placeholder="AIza…" style="width:100%" autocomplete="off"></label><button class="btn primary" id="connectAll">เชื่อมต่อและโหลดทั้งหมด</button></div></section></div>
    <div class="grid g2">${blocks}</div>`;
   $$('[data-t]').forEach(i=>i.onchange=()=>{S.targets[i.dataset.t]=+i.value||0; store.set('oee.targets',S.targets);});
   $$('[data-u]').forEach(i=>i.onchange=()=>{const [p,k]=i.dataset.u.split(':'); S.urls[p]=Object.assign({},S.urls[p],{[k]:i.value.trim()}); store.set('oee.urls',S.urls);});
@@ -904,7 +1352,7 @@ function pageData(){
   $$('[data-file]').forEach(i=>i.onchange=async()=>{ if(i.files[0]){ await loadFile(i.dataset.file,i.files[0]); render(); }});
 }
 function pageEmpty(){
-  $('#view').innerHTML=titleHTML('ยังไม่มีข้อมูล').replace(/<span>.*<\/span>/,'')+`<div class="card empty"><h2>${S.product} ยังไม่มีข้อมูล</h2><p>ใส่ API Key กับลิงก์ไฟล์ Google Sheets ในหน้า “ข้อมูลและเป้าหมาย” เพื่อเชื่อมต่อแบบเรียลไทม์ หรือเลือกไฟล์ .xlsx ที่มีชีต Combined</p>
+  $('#view').innerHTML=titleHTML('ยังไม่มีข้อมูล').replace(/<span>.*<\/span>/,'')+`<div class="card empty"><h2>${S.product} ยังไม่มีข้อมูล</h2>
    <div class="form-row" style="justify-content:center"><button class="btn primary" id="goData">ไปหน้าตั้งค่าข้อมูล</button><label class="btn">เลือกไฟล์ .xlsx / .csv<input type="file" accept=".xlsx,.xlsm,.csv" id="quickFile" hidden></label></div>
    ${D()&&D().error?`<p class="status bad">ผิดพลาด: ${esc(D().error)}</p>`:''}</div>`;
   $('#goData').onclick=()=>{S.page='data';render();};
@@ -919,11 +1367,96 @@ function render(){
   $('#banner').innerHTML = typeof Chart==='undefined' ? `<div class="warn">โหลดไลบรารีกราฟ (Chart.js) ไม่สำเร็จ ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต</div>` : '';
   renderRail(); renderFilters(); renderXF();
   if (S.page!=='data' && !hasData()) pageEmpty(); else PAGEFN[S.page]();
-  document.title = `${S.product} · แผงติดตามการผลิต OEE`;
+  document.title = S.product+' · '+trl('แผงติดตามการผลิต')+' OEE';
   LIVE.dirty=false;
 }
+
+/* ===== Motion layer: odometer scoreboard + entrance animations ===== */
+(function(){
+  const reduce=()=>window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ODO={}; let lastKey=null; const SPINS=2, REEL=(SPINS+1)*10;
+  const reel=()=>{let h='';for(let k=0;k<REEL;k++)h+='<i>'+(k%10)+'</i>';return h;};
+
+  function odoBuild(text,prev){
+    const o=document.createElement('span'); o.className='od'; o.setAttribute('aria-hidden','true');
+    const n=text.length, pn=prev==null?0:prev.length, jobs=[];
+    let right=0;
+    for(let i=n-1;i>=0;i--){
+      const ch=text[i]; let el;
+      if(!/\d/.test(ch)){ el=document.createElement('span'); el.textContent=ch; o.insertBefore(el,o.firstChild); continue; }
+      const pc=prev==null?undefined:prev[i-(n-pn)];
+      const to=+ch, from=/\d/.test(pc||'')?+pc:0;
+      const changed=prev==null||pc!==ch;
+      const d=document.createElement('span'); d.className='od-d';
+      const r=document.createElement('span'); r.className='od-r'; r.innerHTML=reel();
+      const startI=from, endI=changed?SPINS*10+to:to;
+      r.style.transition='none'; r.style.transform='translateY(-'+(startI*1.15)+'em)';
+      r.style.setProperty('--od-delay',(right*0.07)+'s'); r.style.setProperty('--od-dur',(1.1+right*0.12)+'s');
+      d.appendChild(r); o.insertBefore(d,o.firstChild);
+      jobs.push([r,endI,changed]); right++;
+    }
+    return {o,jobs};
+  }
+
+  function odoRun(prefix,enter){
+    if(reduce()) return;
+    const all=[];
+    document.querySelectorAll('#view .kpi .val').forEach(v=>{
+      const lbl=(v.parentElement.querySelector('.lbl')||{}).textContent||'';
+      const key=prefix+lbl;
+      const node=[...v.childNodes].find(x=>x.nodeType===3&&/\d/.test(x.textContent));
+      if(!node){ delete ODO[key]; return; }
+      const m=node.textContent.match(/\S+/); if(!m) return;
+      const text=m[0], prev=ODO[key]; ODO[key]=text;
+      if(prev===text&&!enter) return;            // unchanged on live refresh: leave as is
+      v.setAttribute('aria-label',v.textContent.trim());
+      const {o,jobs}=odoBuild(text,enter||prev===undefined?null:prev);
+      node.textContent=node.textContent.replace(text,'');
+      v.insertBefore(o,node);
+      if(!enter&&prev!==undefined&&prev!==text){ v.classList.add('od-flash'); setTimeout(()=>v.classList.remove('od-flash'),1200); }
+      all.push(...jobs);
+    });
+    if(!all.length) return;
+    void document.body.offsetHeight;              // commit start positions
+    requestAnimationFrame(()=>all.forEach(([r,endI])=>{ r.style.transition=''; r.style.transform='translateY(-'+(endI*1.15)+'em)'; }));
+  }
+
+  function enterRun(){
+    const v=document.getElementById('view'); if(!v||reduce()) return;
+    v.querySelectorAll('.card').forEach((c,i)=>c.style.setProperty('--i',Math.min(i,14)));
+    v.classList.remove('view-enter'); void v.offsetWidth; v.classList.add('view-enter');
+    clearTimeout(enterRun.t); enterRun.t=setTimeout(()=>v.classList.remove('view-enter'),1600);
+  }
+
+  const _render=render;
+  render=function(){
+    const key=S.product+'|'+S.page, enter=key!==lastKey; lastKey=key;
+    if(typeof Chart!=='undefined'&&!reduce()){
+      const A=Chart.defaults.animation;   // mutate in place; replacing the object breaks Chart.js internals
+      A.duration=enter?1100:450; A.easing='easeOutQuart';
+      A.delay=c=>(enter&&c&&c.type==='data'&&c.mode==='default')?Math.min(c.dataIndex||0,60)*14:0;
+    }
+    _render();
+    if(enter) enterRun();
+    odoRun(key+'|',enter);
+  };
+})();
+/* ---------------- Drawer: ย่อ/ขยาย (จอใหญ่) · เลื่อนเข้า-ออก (จอเล็ก) ---------------- */
+function setRailMini(on){
+  document.body.classList.toggle('rail-mini',on); store.set('oee.railMini',on);
+  const t=$('#railToggle'); if (t){ t.textContent=on?'›':'‹'; t.setAttribute('aria-expanded',String(!on)); const l=on?'ขยายเมนู':'ย่อเมนู'; t.setAttribute('aria-label',l); t.title=l; }
+}
+function setDrawer(open){
+  document.body.classList.toggle('drawer-open',open);
+  const f=$('#drawerOpen'); if (f) f.setAttribute('aria-expanded',String(open));
+}
+document.body.classList.toggle('rail-mini', !!store.get('oee.railMini',false));
+$('#drawerOpen').onclick=()=>setDrawer(!document.body.classList.contains('drawer-open'));
+$('#scrim').onclick=()=>setDrawer(false);
+document.addEventListener('keydown',e=>{ if (e.key==='Escape') setDrawer(false); });
+$('#rail').addEventListener('click',e=>{ if (e.target.closest('[data-prod],[data-page]')) setDrawer(false); });   // เลือกเมนูแล้วปิด drawer บนมือถือ
 (async function boot(){
-  applyTheme();
+  applyTheme(); document.documentElement.lang=LANG; applyStaticLang(); i18nStart();
   const loads=Object.keys(CONFIG.products).map(p=>loadProduct(p));
   render();
   await Promise.all(loads);
