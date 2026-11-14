@@ -100,6 +100,18 @@ th:first-child,td:first-child{text-align:left;white-space:normal}
 th{font-weight:600;color:var(--ink2);font-size:12px;position:sticky;top:0;background:var(--surface)}
 th button{background:none;border:0;cursor:pointer;font-weight:600;color:var(--ink2);padding:0;font-size:12px}
 td.num{font-variant-numeric:tabular-nums}
+/* ===== Plan vs Actual matrix ===== */
+.pvm{border-collapse:separate;border-spacing:3px;width:100%;font-size:13px}
+.pvm th,.pvm td{text-align:center;white-space:normal;padding:8px 6px;border-radius:2px}
+.pvm thead th{position:static;background:var(--surface);color:var(--ink);font-weight:600;border:1px solid var(--axis);border-radius:0}
+.pvm tbody th{background:var(--surface);color:var(--ink);font-weight:700;border:1px solid var(--axis);border-radius:0;min-width:70px}
+.pvm td{font-weight:700;font-variant-numeric:tabular-nums;color:#0b0b0b;border:0}
+.pvm td.pos{background:#8fc98a}
+.pvm td.neg{background:#f26b6b}
+.pvm td.zero{background:#ffe29a}
+.pvm td.na{background:#595959}
+.pvm tr.sum th,.pvm tr.sum td{border-top:2px solid var(--ink2)}
+.pvm .corner{background:transparent!important;border:0!important}
 .scroll{overflow:auto;max-height:560px}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 10px}
 .chip{display:inline-flex;gap:6px;align-items:center;font-size:12px;color:var(--ink2);border:1px solid var(--axis);border-radius:999px;padding:2px 10px;background:var(--plane);cursor:pointer}
@@ -1307,24 +1319,63 @@ function pageNG(){
   xfBind('n_day','date',dates); xfBind('n_proc','proc',gp.map(x=>x.p));
 }
 
+/* คอลัมน์ของเมทริกซ์ แยกตามผลิตภัณฑ์: [regex ของชื่อ Process กลุ่ม, หัวคอลัมน์] (ตรงกติกาแรกก่อนใช้อันนั้น)
+   Process ที่ไม่ตรงกติกาไหนจะแสดงเป็นคอลัมน์ชื่อเดิม · Screening ไม่แสดงในเมทริกซ์ */
+const PLAN_COLS = {
+  SOP:[[/^cold forging/i,'Cold Forging'],[/^lathe/i,'Lathe 1,2,3'],[/^roll/i,'Roll Slit'],[/^induction/i,'Induction'],[/^(grinding|gr \d)/i,'Grinding 1,2']],
+  SWP:[[/^milling/i,'Milling'],[/^deburring/i,'Deburring'],[/^lathe/i,'Lathe 1,2 + Gr 2'],[/^grinding/i,'Grinding']],
+  VBA:[[/^lathe op1/i,'Lathe OP1'],[/^lathe op2/i,'Lathe OP2']],
+  VOP:[[/^lathe/i,'Lathe'],[/^drilling/i,'Drilling'],[/^deburring/i,'Deburring'],[/^grinding/i,'Grinding 1,3']]
+};
+const PLAN_HIDE = /screen/i;   // ลบบรรทัดนี้ถ้าอยากให้แสดงคอลัมน์ Screening ด้วย
+function planCol(prod,g){
+  if (PLAN_HIDE.test(g)) return null;
+  for (const [re,n] of (PLAN_COLS[prod]||[])) if (re.test(g)) return n;
+  return g;
+}
 function pagePlan(){
   const f=F(), d=D(); const noCmp=shiftFiltered();
   if (!d.plan){ $('#view').innerHTML=titleHTML('แผน vs ผลิตจริง')+`<div class="card empty"><h2>ยังไม่มีข้อมูลแผน</h2></div>`; return; }
-  let rows=planVsActual().map(x=>Object.assign(x,{diff:x.actual-x.plan,ach:x.plan?x.actual/x.plan:null}));
-  if (S.planHideZero) rows=rows.filter(x=>x.plan||x.actual);
-  rows.sort((a,b)=>a.diff-b.diff);
-  const tp=rows.reduce((s,x)=>s+x.plan,0), ta=rows.reduce((s,x)=>s+x.actual,0);
+  const all=planVsActual();
+  const tp=all.reduce((s,x)=>s+x.plan,0), ta=all.reduce((s,x)=>s+x.actual,0);
+
+  /* ---- เมทริกซ์ Part × Process ---- */
+  const order=[]; (PLAN_COLS[S.product]||[]).forEach(([,n])=>{ if(!order.includes(n)) order.push(n); });
+  const cells=new Map();               // part -> Map(col -> {plan,actual})
+  const seen=new Set();
+  for (const x of all){
+    const col=planCol(S.product,x.group); if (!col) continue;
+    if (!x.plan && !x.actual) continue;
+    const part=String(x.part).replace(/^(\d+)[LS]$/,'$1');
+    if (!cells.has(part)) cells.set(part,new Map());
+    const m=cells.get(part); if(!m.has(col)) m.set(col,{plan:0,actual:0});
+    const c=m.get(col); c.plan+=x.plan; c.actual+=x.actual; seen.add(col);
+  }
+  const cols=order.filter(c=>seen.has(c)).concat([...seen].filter(c=>!order.includes(c)));
+  const net=c=>c?c.actual-c.plan:0;
+  const parts=[...cells.keys()].sort((a,b)=>{ const s=p=>[...cells.get(p).values()].reduce((t,c)=>t+c.actual,0); return s(b)-s(a); });
+  const colSum=cols.map(c=>parts.reduce((s,p)=>s+net(cells.get(p).get(c)),0));
+  const cls=v=>v>0?'pos':v<0?'neg':'zero';
+  const sg=v=>(v>0?'+':'')+nf(v);
+
   const dates=dateRange(f.from,f.to); const act=filteredRows({ignoreX:'date'}); const byD=groupBy(act,r=>r.date);
   const pl=new Map(); for (const p of d.plan.rows){ if(p.date<f.from||p.date>f.to) continue; if(f.proc&&!p.procs.includes(f.proc)) continue; if(!xfPlanPass(p,'date')) continue; pl.set(p.date,(pl.get(p.date)||0)+p.qty); }
   const dd=dates.map(x=>(byD.has(x)?agg(byD.get(x)).total:0)-(pl.get(x)||0));
+
+  const matrix = cols.length ? `<div class="scroll"><table class="pvm">
+    <thead><tr><th class="corner"></th>${cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead>
+    <tbody>${parts.map(p=>`<tr><th scope="row">${esc(p)}</th>${cols.map(c=>{ const x=cells.get(p).get(c); if(!x) return '<td class="na"></td>'; const v=net(x); return `<td class="${cls(v)}" title="Plan ${nf(x.plan)} · Actual ${nf(x.actual)}">${sg(v)}</td>`; }).join('')}</tr>`).join('')}
+    <tr class="sum"><th scope="row">Sum</th>${colSum.map(v=>`<td class="${cls(v)}">${sg(v)}</td>`).join('')}</tr></tbody></table></div>
+    <p class="note">ค่า = ผลิตจริง − แผน (ชิ้น) · เขียว = เกินแผน · แดง = ต่ำกว่าแผน · เหลือง = ตรงแผน · เทา = ไม่มีแผน/ไม่ผลิต · Screening ไม่แสดงในตาราง · เอาเมาส์ชี้ช่องเพื่อดู Plan / Actual</p>`
+    : `<div class="empty"><h2>ไม่มีข้อมูลในช่วงที่เลือก</h2></div>`;
+
   $('#view').innerHTML=titleHTML('แผน vs ผลิตจริง')+(noCmp?`<div class="warn">ตัวกรองกะ หรือ กลางวัน/กลางคืน ทำให้ยอดผลิตจริงน้อยลง แต่ Plan ไม่แยกกะ ผลต่างจึงไม่ตรงความจริง ให้ตั้งเป็น “ทุกกะ” ก่อนอ่านหน้านี้</div>`:'')+
    (d.plan.unmapped.length?`<div class="warn">มี ${d.plan.unmapped.length} คอลัมน์ใน Input plan ที่ยังไม่ได้จับคู่กับ Process (ยอดแผนยังนับรวม แต่ผลิตจริงเป็น 0): ${esc(d.plan.unmapped.slice(0,6).join(' · '))}${d.plan.unmapped.length>6?' …':''}</div>`:'')+
    `<div class="grid g3 kpis">${kpiHTML('Plan รวม',nf(tp),'')}${kpiHTML('Actual รวม',nf(ta),'')}${kpiHTML('ผลต่างรวม',(ta-tp>=0?'+':'')+nf(ta-tp),tp?pct(ta/tp,1)+' ของแผน':'–',ta-tp>=0?'up':'down')}</div>
    ${card('p_day','ผลต่างรายวัน (ผลิตจริง − แผน)','ชิ้น',260)}
    <div style="height:14px"></div>
-   <section class="card"><div class="head"><div><h3>ผลต่างแยกตาม Process และ Part</h3></div><label class="chip"><input type="checkbox" id="hz" ${S.planHideZero?'checked':''}> ซ่อนแถวที่เป็น 0</label></div>
-   <div class="scroll"><table><thead><tr><th>Process</th><th>Part</th><th>Plan</th><th>Actual</th><th>ผลต่าง</th><th>% ตามแผน</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.group)}</td><td style="text-align:right">${esc(x.part)}</td><td class="num">${nf(x.plan)}</td><td class="num">${nf(x.actual)}</td><td class="num ${x.diff>=0?'up':'down'}">${x.diff>=0?'▲ +':'▼ '}${nf(x.diff)}</td><td class="num">${x.ach==null?'ไม่มีแผน':pct(x.ach,0)}</td></tr>`).join('')}</tbody></table></div></section>`;
-  bindCards(); $('#hz').onchange=e=>{S.planHideZero=e.target.checked;render();};
+   <section class="card"><div class="head"><div><h3>ผลต่างแยกตาม Process และ Part</h3></div></div>${matrix}</section>`;
+  bindCards();
   const o=baseOpts({fmt:v=>nf(v),legend:false}); o.scales.y.beginAtZero=false; o.plugins.autoLabels={fmt:v=>(v>0?'+':'')+nf(v)};
   mk('p_day',{type:'bar',data:{labels:dates.map(x=>fmtD(x)),datasets:[{label:trl('ผลต่าง'),data:dd,backgroundColor:dd.map(v=>v>=0?cv('--pos'):cv('--neg')),borderRadius:4,borderSkipped:false,barPercentage:.7}]},options:o},{first:'วันที่',labels:dates.map(x=>fmtD(x)),series:[{name:'ผลต่าง',values:dd}]});
   xfBind('p_day','date',dates);
