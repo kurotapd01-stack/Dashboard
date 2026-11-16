@@ -275,6 +275,20 @@ details summary{cursor:pointer}
 body.rail-mini .rail .brand{padding:4px 0 10px;justify-content:center}
 :root:lang(ja) body{font-family:"IBM Plex Sans Thai","Noto Sans JP","Hiragino Sans","Yu Gothic UI",Meiryo,system-ui,sans-serif}
 @media(prefers-reduced-motion:reduce){.pb{transition:none}}
+
+/* ===== ช่องวันที่ dd/mm/yyyy + Process เลือกได้หลายรายการ ===== */
+.dwrap{position:relative;display:flex;gap:4px;align-items:center}
+.dwrap input[type=text]{width:112px;min-width:0}
+.dwrap .dcal{padding:5px 8px;line-height:1}
+.dwrap .dhid{position:absolute;left:0;bottom:0;width:1px;height:1px;min-width:0;padding:0;border:0;opacity:0;pointer-events:none}
+.msel{position:relative}
+.msel summary{list-style:none;background:var(--plane);border:1px solid var(--axis);border-radius:8px;padding:6px 10px;cursor:pointer;min-width:170px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.msel summary::-webkit-details-marker{display:none}
+.msel summary:after{content:" ▾";color:var(--muted)}
+.msel .pop{position:absolute;z-index:40;top:100%;left:0;margin-top:4px;background:var(--surface);border:1px solid var(--axis);border-radius:10px;padding:6px;max-height:340px;overflow:auto;min-width:250px;box-shadow:0 8px 26px rgba(0,0,0,.18)}
+.msel .pop label{display:flex;gap:8px;align-items:center;padding:4px 6px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--ink)}
+.msel .pop label:hover{background:var(--wash)}
+.msel .pop .btn{margin:2px 0 6px}
 </style>
 </head>
 <body>
@@ -389,6 +403,7 @@ const I18N_EXACT = {
   'ทุกกะ':['All shifts','全シフト'],
   'กลางวัน/กลางคืน':['Day/Night','昼勤/夜勤'],
   'ทุก Process':['All processes','全工程'],
+  'เลือกวันที่':['Pick a date','日付を選択'],
   'กรองจากกราฟ':['Filtered from chart','グラフからの絞り込み'],
   'ล้างทั้งหมด':['Clear all','すべて解除'],
   'คลิกเพื่อยกเลิก':['Click to remove','クリックで解除'],
@@ -690,19 +705,32 @@ function dateRange(from,to){
   while (d<=e && out.length<800){ out.push(d.toISOString().slice(0,10)); d=new Date(d.getTime()+86400000); }
   return out;
 }
+/* ---- วันที่ แบบ วัน/เดือน/ปี (dd/mm/yyyy) สำหรับช่องกรอก ---- */
+const isoToDMY = iso => { const [y,m,d]=String(iso).split('-'); return `${d}/${m}/${y}`; };
+const dmyToISO = s => {
+  const m=String(s).trim().match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/); if(!m) return null;
+  const d=+m[1], mo=+m[2], y=+m[3]; const dt=new Date(Date.UTC(y,mo-1,d));
+  if (dt.getUTCFullYear()!==y || dt.getUTCMonth()!==mo-1 || dt.getUTCDate()!==d) return null;
+  return `${y}-${pad(mo)}-${pad(d)}`;
+};
+/* เวลา Loss ของหมวด cat · ถ้าเลือกเหตุผลจากกราฟ จะนับเฉพาะเหตุผลที่เลือก */
+function lossOf(r,cat){
+  const x=S.xf.reasons; if (!x.size) return r.loss[cat]||0;
+  let s=0; for (const k of x) if (k.startsWith(cat+'|')) s+=r.reasons[k]||0; return s;
+}
 
 /* ---------------------------------------------------------------- state */
 const S = {
   product: store.get('oee.product','SOP'),
   page: 'overview',
   data: {},          // product -> {rows, plan:{rows,unmapped}, loaded, source, error}
-  filt: {},          // product -> {from,to,shift,dn,proc}
+  filt: {},          // product -> {from,to,shift,dn,procs[]}
   urls: store.get('oee.urls',{}),
   api: Object.assign({ids:{}}, store.get('oee.api',{})),   // {key, ids:{SOP:'..'}} กรอกจากหน้าข้อมูล
   targets: Object.assign({}, CONFIG.targets, store.get('oee.targets',{})),
-  lossPlan: false, lossCat: 'all', ngInduction: false, planHideZero: true,
+  lossPlan: false, lossCat: 'all', ngInduction: false, planHideZero: true, procOpen: false,
   sort: {col:'oee', dir:1},
-  xf: {dates:new Set(), procs:new Set()}     // ตัวกรองข้ามกราฟ (คลิกที่กราฟ) ; หมวด Loss ใช้ S.lossCat
+  xf: {dates:new Set(), procs:new Set(), reasons:new Set()}     // ตัวกรองข้ามกราฟ (คลิกที่กราฟ) ; หมวด Loss ใช้ S.lossCat
 };
 const D = () => S.data[S.product];
 const F = () => S.filt[S.product];
@@ -740,11 +768,12 @@ function initFilters(p){
   const d=S.data[p]; if (!d||!d.rows.length) return;
   const max=d.rows.reduce((m,r)=>r.date>m?r.date:m,'0000'); const min=d.rows.reduce((m,r)=>r.date<m?r.date:m,'9999');
   const from = max.slice(0,8)+'01';
-  S.filt[p]={from: from<min?min:from, to:max, shift:'', dn:'', proc:'', min, max};
+  S.filt[p]={from: from<min?min:from, to:max, shift:'', dn:'', procs:[], min, max};
 }
 function filteredRows(opts={}){
   const f=F(); if(!f) return [];
-  return D().rows.filter(r => r.date>=f.from && r.date<=f.to && (opts.ignoreShift || ((!f.shift||r.shift===f.shift)&&(!f.dn||r.dn===f.dn))) && (!f.proc||r.proc===f.proc) && xfPass(r,opts.ignoreX));
+  const ps=f.procs||[];
+  return D().rows.filter(r => r.date>=f.from && r.date<=f.to && (opts.ignoreShift || ((!f.shift||r.shift===f.shift)&&(!f.dn||r.dn===f.dn))) && (!ps.length||ps.includes(r.proc)) && xfPass(r,opts.ignoreX));
 }
 function planVsActual(){
   const f=F(), d=D(); const prod=S.product;
@@ -754,7 +783,7 @@ function planVsActual(){
   for (const r of act){ get(groupOf(prod,r.proc), normPart(r.part)).actual += r.total; }
   if (d.plan) for (const p of d.plan.rows){
     if (p.date<f.from||p.date>f.to) continue;
-    if (f.proc && !(p.procs.includes(f.proc))) continue;
+    if ((f.procs||[]).length && !p.procs.some(q=>f.procs.includes(q))) continue;
     if (!xfPlanPass(p)) continue;
     get(p.group,p.part).plan += p.qty;
   }
@@ -1009,6 +1038,7 @@ function xfPass(r, ignore){
   const x=S.xf;
   if (ignore!=='date' && x.dates.size && !x.dates.has(r.date)) return false;
   if (ignore!=='proc' && x.procs.size && !x.procs.has(r.proc)) return false;
+  if (ignore!=='reason' && x.reasons.size && ![...x.reasons].some(k=>(r.reasons[k]||0)>0)) return false;
   return true;
 }
 function xfPlanPass(p, ignore){
@@ -1017,8 +1047,8 @@ function xfPlanPass(p, ignore){
   if (ignore!=='proc' && x.procs.size && !p.procs.some(q=>x.procs.has(q))) return false;
   return true;
 }
-const xfActive = () => S.xf.dates.size>0 || S.xf.procs.size>0 || S.lossCat!=='all';
-function xfSel(dim,v){ return dim==='date' ? S.xf.dates.has(v) : dim==='proc' ? S.xf.procs.has(v) : S.lossCat===v; }
+const xfActive = () => S.xf.dates.size>0 || S.xf.procs.size>0 || S.xf.reasons.size>0 || S.lossCat!=='all';
+function xfSel(dim,v){ return dim==='date' ? S.xf.dates.has(v) : dim==='proc' ? S.xf.procs.has(v) : dim==='reason' ? S.xf.reasons.has(v) : S.lossCat===v; }
 function dimHex(c){
   const m=/^#([0-9a-f]{6})$/i.exec(String(c||'').trim()); if (!m) return c;
   const n=parseInt(m[1],16); return 'rgba('+(n>>16)+','+((n>>8)&255)+','+(n&255)+',.28)';
@@ -1027,11 +1057,11 @@ function toggleXF(dim,v){
   setTimeout(()=>{                                  // รอให้ Chart.js จัดการคลิกเสร็จก่อนค่อยวาดใหม่
     const x=S.xf;
     if (dim==='cat') S.lossCat = S.lossCat===v ? 'all' : v;
-    else { const set=dim==='date'?x.dates:x.procs; if (set.has(v)) set.delete(v); else set.add(v); }
+    else { const set=dim==='date'?x.dates:dim==='reason'?x.reasons:x.procs; if (set.has(v)) set.delete(v); else set.add(v); }
     const y=window.scrollY; render(); window.scrollTo(0,y);
   },0);
 }
-/* ผูกกราฟกับมิติ: dim = 'date' | 'proc' | 'cat', values[i] = ค่าของแท่งที่ i */
+/* ผูกกราฟกับมิติ: dim = 'date' | 'proc' | 'cat' | 'reason', values[i] = ค่าของแท่งที่ i */
 function xfBind(id,dim,values){
   const el=$('#c-'+id); if (!el || typeof Chart==='undefined' || !Chart.getChart) return;
   const ch=Chart.getChart(el); if (!ch) return;
@@ -1052,13 +1082,14 @@ function renderXF(){
   const x=S.xf, chips=[];
   if (x.dates.size){ const ds=[...x.dates].sort(); chips.push(['date','วันที่ ',ds.length<=3?ds.map(d=>fmtD(d)).join(', '):ds.length+' วัน']); }
   if (x.procs.size){ const ps=[...x.procs]; chips.push(['proc','Process ',ps.length<=2?ps.join(', '):ps.length+' รายการ']); }
+  if (x.reasons.size){ const rs=[...x.reasons].map(k=>k.split('|').slice(1).join('|')); chips.push(['reason','เหตุผล ',rs.length<=1?rs[0]:rs.length+' รายการ']); }
   if (S.lossCat!=='all') chips.push(['cat','หมวด Loss ',S.lossCat]);
   box.innerHTML = chips.length
     ? `<div class="xf"><span class="xf-l">กรองจากกราฟ</span>${chips.map(([k,l,t])=>`<button class="chip" data-xfclear="${k}" title="คลิกเพื่อยกเลิก">${l}<b>${esc(t)}</b> ✕</button>`).join('')}<button class="btn sm" id="xfAll">ล้างทั้งหมด</button></div>`
     : '';
   const redraw=()=>{ const y=window.scrollY; render(); window.scrollTo(0,y); };
-  $$('[data-xfclear]').forEach(b=>b.onclick=()=>{ const k=b.dataset.xfclear; if (k==='date') x.dates.clear(); else if (k==='proc') x.procs.clear(); else S.lossCat='all'; redraw(); });
-  const all=$('#xfAll'); if (all) all.onclick=()=>{ x.dates.clear(); x.procs.clear(); S.lossCat='all'; redraw(); };
+  $$('[data-xfclear]').forEach(b=>b.onclick=()=>{ const k=b.dataset.xfclear; if (k==='date') x.dates.clear(); else if (k==='proc') x.procs.clear(); else if (k==='reason') x.reasons.clear(); else S.lossCat='all'; redraw(); });
+  const all=$('#xfAll'); if (all) all.onclick=()=>{ x.dates.clear(); x.procs.clear(); x.reasons.clear(); S.lossCat='all'; redraw(); };
 }
 
 function mk(id,cfg,tbl){
@@ -1108,7 +1139,7 @@ function selectProduct(p){
   const changed = p!==S.product;
   S.product=p; store.set('oee.product',S.product);
   store.set('oee.prodBarCollapsed',true);          // เลือกแล้ว → ย่อแถบอัตโนมัติ
-  if (changed){ S.xf.dates.clear(); S.xf.procs.clear(); S.lossCat='all'; }
+  if (changed){ S.xf.dates.clear(); S.xf.procs.clear(); S.xf.reasons.clear(); S.lossCat='all'; }
   render(); if (changed) liveTick(false);
 }
 function renderProdBar(){
@@ -1133,24 +1164,45 @@ function applyTheme(){ const t=themePref(); if (t==='auto') document.documentEle
 function renderFilters(){
   const box=$('#filters'); const f=F();
   if (S.page==='data' || !hasData() || !f){ box.innerHTML=''; return; }
-  const all=D().rows; const shifts=[...new Set(all.map(r=>r.shift).filter(Boolean))].sort(); const dns=[...new Set(all.map(r=>r.dn).filter(Boolean))].sort();
+  const all=D().rows; const dns=[...new Set(all.map(r=>r.dn).filter(Boolean))].sort();
   const procs=[...new Set(all.map(r=>r.proc))].sort();
-  const opt=(arr,v,all)=>`<option value="">${all}</option>`+arr.map(x=>`<option value="${esc(x)}" ${x===v?'selected':''}>${esc(x)}</option>`).join('');
+  f.procs=(f.procs||[]).filter(p=>procs.includes(p));
+  const opt=(arr,v,allT)=>`<option value="">${allT}</option>`+arr.map(x=>`<option value="${esc(x)}" ${x===v?'selected':''}>${esc(x)}</option>`).join('');
+  const procLabel = !f.procs.length ? 'ทุก Process' : f.procs.length<=2 ? f.procs.join(', ') : f.procs.length+' รายการ';
+  const dateFld=(id,lbl,val)=>`<div class="fld">${lbl}<div class="dwrap"><input type="text" id="f-${id}" inputmode="numeric" maxlength="10" placeholder="dd/mm/yyyy" value="${isoToDMY(val)}" autocomplete="off"><button type="button" class="btn dcal" data-pick="${id}" aria-label="เลือกวันที่">📅</button><input type="date" class="dhid" id="p-${id}" tabindex="-1" value="${val}" min="${f.min}" max="${f.max}"></div></div>`;
   box.innerHTML=`<div class="filters">
-    <label class="fld">ตั้งแต่<input type="date" id="f-from" value="${f.from}" min="${f.min}" max="${f.max}"></label>
-    <label class="fld">ถึง<input type="date" id="f-to" value="${f.to}" min="${f.min}" max="${f.max}"></label>
+    ${dateFld('from','ตั้งแต่',f.from)}
+    ${dateFld('to','ถึง',f.to)}
     <div class="presets" role="group" aria-label="ช่วงเวลาลัด">
       <button class="btn" data-pre="month">เดือนล่าสุด</button><button class="btn" data-pre="7">7 วันล่าสุด</button><button class="btn" data-pre="all">ทั้งหมด</button></div>
-    <label class="fld">กะ<select id="f-shift">${opt(shifts,f.shift,'ทุกกะ')}</select></label>
     <label class="fld">กลางวัน/กลางคืน<select id="f-dn">${opt(dns,f.dn,'ทั้งหมด')}</select></label>
-    <label class="fld">Process<select id="f-proc">${opt(procs,f.proc,'ทุก Process')}</select></label>
+    <div class="fld">Process
+      <details class="msel" id="f-proc-d" ${S.procOpen?'open':''}>
+        <summary>${esc(procLabel)}</summary>
+        <div class="pop">
+          <button type="button" class="btn sm" id="f-proc-clear">ล้างทั้งหมด</button>
+          ${procs.map(p=>`<label><input type="checkbox" value="${esc(p)}" ${f.procs.includes(p)?'checked':''}> ${esc(p)}</label>`).join('')}
+        </div>
+      </details>
+    </div>
   </div>`;
   const upd=()=>render();
-  $('#f-from').onchange=e=>{f.from=e.target.value||f.min; if(f.from>f.to) f.to=f.from; upd();};
-  $('#f-to').onchange=e=>{f.to=e.target.value||f.max; if(f.to<f.from) f.from=f.to; upd();};
-  $('#f-shift').onchange=e=>{f.shift=e.target.value;upd();};
+  const clamp=v=>v<f.min?f.min:(v>f.max?f.max:v);
+  const setFrom=iso=>{ f.from=clamp(iso||f.from); if(f.from>f.to) f.to=f.from; upd(); };
+  const setTo=iso=>{ f.to=clamp(iso||f.to); if(f.to<f.from) f.from=f.to; upd(); };
+  $('#f-from').onchange=e=>setFrom(dmyToISO(e.target.value));
+  $('#f-to').onchange=e=>setTo(dmyToISO(e.target.value));
+  $('#p-from').onchange=e=>setFrom(e.target.value);
+  $('#p-to').onchange=e=>setTo(e.target.value);
+  $$('[data-pick]').forEach(b=>b.onclick=()=>{ const p=$('#p-'+b.dataset.pick); try{ p.showPicker(); }catch(_){ p.focus(); p.click(); } });
   $('#f-dn').onchange=e=>{f.dn=e.target.value;upd();};
-  $('#f-proc').onchange=e=>{f.proc=e.target.value;upd();};
+  const md=$('#f-proc-d');
+  md.addEventListener('toggle',()=>{ S.procOpen=md.open; });
+  $$('#f-proc-d input[type=checkbox]').forEach(cb=>cb.onchange=()=>{
+    const set=new Set(f.procs); if (cb.checked) set.add(cb.value); else set.delete(cb.value);
+    f.procs=[...set]; S.procOpen=true; upd();
+  });
+  $('#f-proc-clear').onclick=()=>{ f.procs=[]; S.procOpen=true; upd(); };
   $$('[data-pre]').forEach(b=>b.onclick=()=>{
     if (b.dataset.pre==='all'){f.from=f.min;f.to=f.max;}
     else if (b.dataset.pre==='month'){f.from=f.max.slice(0,8)+'01'; if(f.from<f.min)f.from=f.min; f.to=f.max;}
@@ -1214,13 +1266,13 @@ function pageOverview(){
     options:dopt,plugins:[targetPlugin]},
     {first:'วันที่',labels:dates.map(d=>fmtD(d)),series:['OEE','A','P','Q'].map((n,i)=>({name:n==='A'?'Availability':n==='P'?'Performance':n==='Q'?'Quality':'OEE',values:ag.map(x=>p1(x&&[x.oee,x.A,x.P,x.Q][i])),fmt:v=>v.toFixed(2)+'%'}))});
   // actual vs plan per day
-  const planByD=new Map(); if (D().plan && !noPlanCmp) for (const p of D().plan.rows){ if(p.date<f.from||p.date>f.to) continue; if(f.proc&&!p.procs.includes(f.proc)) continue; if(!xfPlanPass(p,'date')) continue; planByD.set(p.date,(planByD.get(p.date)||0)+p.qty); }
+  const planByD=new Map(); if (D().plan && !noPlanCmp) for (const p of D().plan.rows){ if(p.date<f.from||p.date>f.to) continue; if((f.procs||[]).length&&!p.procs.some(q=>f.procs.includes(q))) continue; if(!xfPlanPass(p,'date')) continue; planByD.set(p.date,(planByD.get(p.date)||0)+p.qty); }
   const actD=dates.map(d=>byD.has(d)?agg(byD.get(d)).total:0); const plD=dates.map(d=>planByD.get(d)||0);
   const aopt=baseOpts({fmt:v=>nf(v)}); aopt.scales.y.ticks.callback=v=>v>=1000?(v/1000)+'K':v;
   mk('avp',{type:'bar',data:{labels:dates.map(d=>fmtD(d)),datasets:[{label:'Actual',data:actD,backgroundColor:cv('--s1'),borderRadius:4,borderSkipped:false},{label:'Plan',data:plD,backgroundColor:cv('--plan'),borderRadius:4,borderSkipped:false}]},options:aopt},
     {first:'วันที่',labels:dates.map(d=>fmtD(d)),series:[{name:'Actual',values:actD},{name:'Plan',values:plD}]});
   // loss mix
-  const cats=CATS.filter(c=>c.k!=='Plan'); const sums=cats.map(c=>rs.reduce((s,r)=>s+(r.loss[c.k]||0),0));
+  const cats=CATS.filter(c=>c.k!=='Plan'); const sums=cats.map(c=>rs.reduce((s,r)=>s+lossOf(r,c.k),0));
   const lopt=baseOpts({horiz:true,fmt:v=>nf(v),legend:false});
   mk('mix',{type:'bar',data:{labels:cats.map(c=>c.k+' '+c.name.split(' ').slice(1).join(' ')),datasets:[{data:sums,backgroundColor:cats.map(c=>cv(c.col)),borderRadius:4,borderSkipped:false,barPercentage:.65}]},options:Object.assign(lopt,{plugins:Object.assign(lopt.plugins,{barLabels:{on:true,text:i=>nf(sums[i])}})}),plugins:[labelPlugin]},
     {first:'หมวด',labels:cats.map(c=>c.name),series:[{name:'นาที',values:sums}]});
@@ -1273,29 +1325,34 @@ function pageLoss(){
   const catChips=`<div class="chips" role="group" aria-label="กรองหมวด Loss">${[{k:'all',name:'ทุกหมวด',col:'--ink2'},...cats].map(c=>`<button class="chip" data-lcat="${c.k}" aria-pressed="${S.lossCat===c.k}"><i style="background:var(${c.col})"></i>${esc(c.k==='all'?c.name:c.k)}</button>`).join('')}
     <label class="chip"><input type="checkbox" id="lossPlan" ${S.lossPlan?'checked':''}> รวม Plan (ไม่มีแผน/อบรม/ประชุม)</label></div>`;
   const dates=dateRange(f.from,f.to); const byD=groupBy(filteredRows({ignoreX:'date'}),r=>r.date);
-  const tot=cats.map(c=>rs.reduce((s,r)=>s+(r.loss[c.k]||0),0)); const all=tot.reduce((a,b)=>a+b,0);
+  const tot=cats.map(c=>rs.reduce((s,r)=>s+lossOf(r,c.k),0)); const all=tot.reduce((a,b)=>a+b,0);
+  const nProc=new Set(rs.map(r=>r.proc)).size;
   $('#view').innerHTML=titleHTML('เวลาสูญเสีย (Loss)')+catChips+`
    <div class="grid g4 kpis">${cats.map((c,i)=>kpiHTML(c.k,nf(tot[i])+' <small style="font-size:13px;font-weight:400">นาที</small>',all?pct(tot[i]/all,1)+' ของทั้งหมด':'–')).join('')}</div>
    <div class="grid g1">${card('l_day','Loss รายวัน แยกหมวด','นาที',380)}</div>
-   <div class="grid g2" style="margin-top:14px">${card('l_proc','Loss รายเครื่อง แยกหมวด','นาที',Math.max(480,new Set(rs.map(r=>r.proc)).size*26+60))}${card('l_top','เหตุผลที่ทำให้เสียเวลามากที่สุด','นาที',Math.max(480,new Set(rs.map(r=>r.proc)).size*26+60))}</div>`;
+   <div class="grid g2" style="margin-top:14px">${card('l_proc','Loss รายเครื่อง แยกหมวด','นาที',Math.max(480,nProc*26+60))}${card('l_top','เหตุผลที่ทำให้เสียเวลามากที่สุด','นาที',Math.max(480,nProc*26+60))}</div>`;
   bindCards();
   $$('[data-lcat]').forEach(b=>b.onclick=()=>{S.lossCat=b.dataset.lcat; render();});
   $('#lossPlan').onchange=e=>{S.lossPlan=e.target.checked; render();};
   const dcats=S.lossCat==='all'?cats:cats.filter(c=>c.k===S.lossCat);   // หมวดที่เลือก (จากชิปหรือคลิกกราฟ)
+  const dayVals=c=>dates.map(d=>(byD.get(d)||[]).reduce((s,r)=>s+lossOf(r,c.k),0));
   const so=baseOpts({stacked:true,fmt:v=>nf(v)});
-  mk('l_day',{type:'bar',data:{labels:dates.map(d=>fmtD(d)),datasets:dcats.map(c=>({label:c.k,data:dates.map(d=>(byD.get(d)||[]).reduce((s,r)=>s+(r.loss[c.k]||0),0)),backgroundColor:cv(c.col),borderColor:cv('--surface'),borderWidth:1.5,barPercentage:.7}))},options:so},
-    {first:'วันที่',labels:dates.map(d=>fmtD(d)),series:dcats.map(c=>({name:c.k,values:dates.map(d=>(byD.get(d)||[]).reduce((s,r)=>s+(r.loss[c.k]||0),0))}))});
-  const gp=[...groupBy(filteredRows({ignoreX:'proc'}),r=>r.proc).entries()].map(([p,x])=>({p,v:dcats.map(c=>x.reduce((s,r)=>s+(r.loss[c.k]||0),0))})).sort((a,b)=>b.v.reduce((s,y)=>s+y,0)-a.v.reduce((s,y)=>s+y,0));
+  mk('l_day',{type:'bar',data:{labels:dates.map(d=>fmtD(d)),datasets:dcats.map(c=>({label:c.k,data:dayVals(c),backgroundColor:cv(c.col),borderColor:cv('--surface'),borderWidth:1.5,barPercentage:.7}))},options:so},
+    {first:'วันที่',labels:dates.map(d=>fmtD(d)),series:dcats.map(c=>({name:c.k,values:dayVals(c)}))});
+  let gp=[...groupBy(filteredRows({ignoreX:'proc'}),r=>r.proc).entries()].map(([p,x])=>({p,v:dcats.map(c=>x.reduce((s,r)=>s+lossOf(r,c.k),0))}));
+  if (S.xf.reasons.size) gp=gp.filter(x=>x.v.some(n=>n>0));
+  gp.sort((a,b)=>b.v.reduce((s,y)=>s+y,0)-a.v.reduce((s,y)=>s+y,0));
   const po=baseOpts({horiz:true,stacked:true,fmt:v=>nf(v)});
   mk('l_proc',{type:'bar',data:{labels:gp.map(x=>x.p),datasets:dcats.map((c,i)=>({label:c.k,data:gp.map(x=>x.v[i]),backgroundColor:cv(c.col),borderColor:cv('--surface'),borderWidth:1.5,barPercentage:.75}))},options:po},
     {first:'Process',labels:gp.map(x=>x.p),series:dcats.map((c,i)=>({name:c.k,values:gp.map(x=>x.v[i])}))});
-  const rm=new Map(); for (const r of rs) for (const [k,v] of Object.entries(r.reasons)) rm.set(k,(rm.get(k)||0)+v);
-  let rr=[...rm.entries()].map(([k,v])=>{const [cat,...re]=k.split('|'); return {cat,reason:re.join('|'),v};}).filter(x=>cats.some(c=>c.k===x.cat)&&(S.lossCat==='all'||x.cat===S.lossCat)).sort((a,b)=>b.v-a.v).slice(0,12);
+  /* กราฟเหตุผล: ใช้ข้อมูลที่ไม่ถูกกรองด้วย "เหตุผล" เอง เพื่อให้เห็นแท่งอื่นและเลือกเพิ่มได้ */
+  const rm=new Map(); for (const r of filteredRows({ignoreX:'reason'})) for (const [k,v] of Object.entries(r.reasons)) rm.set(k,(rm.get(k)||0)+v);
+  let rr=[...rm.entries()].map(([k,v])=>{const [cat,...re]=k.split('|'); return {key:k,cat,reason:re.join('|'),v};}).filter(x=>cats.some(c=>c.k===x.cat)&&(S.lossCat==='all'||x.cat===S.lossCat)).sort((a,b)=>b.v-a.v).slice(0,12);
   const to=baseOpts({horiz:true,fmt:v=>nf(v),legend:false}); to.plugins.barLabels={on:true,text:i=>nf(rr[i].v)};
   to.plugins.tooltip.callbacks.title=items=>{const x=rr[items[0].dataIndex]; return `${x.cat} · ${x.reason}`;};
   mk('l_top',{type:'bar',data:{labels:rr.map(x=>wrapLabel(x.reason,26)),datasets:[{data:rr.map(x=>x.v),backgroundColor:rr.map(x=>cv((CATS.find(c=>c.k===x.cat)||{col:'--s5'}).col)),borderRadius:4,borderSkipped:false,barPercentage:.7}]},options:to,plugins:[labelPlugin]},
     {first:'เหตุผล',labels:rr.map(x=>`${x.cat} · ${x.reason}`),series:[{name:'นาที',values:rr.map(x=>x.v)}]});
-  xfBind('l_day','date',dates); xfBind('l_proc','proc',gp.map(x=>x.p)); xfBind('l_top','cat',rr.map(x=>x.cat));
+  xfBind('l_day','date',dates); xfBind('l_proc','proc',gp.map(x=>x.p)); xfBind('l_top','reason',rr.map(x=>x.key));
 }
 
 function pageNG(){
@@ -1374,7 +1431,7 @@ function pagePlan(){
   const sg=v=>(v>0?'+':'')+nf(v);
 
   const dates=dateRange(f.from,f.to); const act=filteredRows({ignoreX:'date'}); const byD=groupBy(act,r=>r.date);
-  const pl=new Map(); for (const p of d.plan.rows){ if(p.date<f.from||p.date>f.to) continue; if(f.proc&&!p.procs.includes(f.proc)) continue; if(!xfPlanPass(p,'date')) continue; pl.set(p.date,(pl.get(p.date)||0)+p.qty); }
+  const pl=new Map(); for (const p of d.plan.rows){ if(p.date<f.from||p.date>f.to) continue; if((f.procs||[]).length&&!p.procs.some(q=>f.procs.includes(q))) continue; if(!xfPlanPass(p,'date')) continue; pl.set(p.date,(pl.get(p.date)||0)+p.qty); }
   const dd=dates.map(x=>(byD.has(x)?agg(byD.get(x)).total:0)-(pl.get(x)||0));
 
   const matrix = cols.length ? `<div class="scroll"><table class="pvm">
@@ -1530,6 +1587,11 @@ document.body.classList.toggle('rail-mini', !!store.get('oee.railMini',false));
 $('#drawerOpen').onclick=()=>setDrawer(!document.body.classList.contains('drawer-open'));
 $('#scrim').onclick=()=>setDrawer(false);
 document.addEventListener('keydown',e=>{ if (e.key==='Escape') setDrawer(false); });
+/* ปิด dropdown Process เมื่อคลิกข้างนอก */
+document.addEventListener('click',e=>{
+  if (!e.target.isConnected) return;
+  const m=$('#f-proc-d'); if (m && m.open && !m.contains(e.target)){ m.open=false; S.procOpen=false; }
+});
 $('#rail').addEventListener('click',e=>{ if (e.target.closest('[data-prod],[data-page]')) setDrawer(false); });   // เลือกเมนูแล้วปิด drawer บนมือถือ
 (async function boot(){
   applyTheme(); document.documentElement.lang=LANG; applyStaticLang(); i18nStart();
