@@ -9,6 +9,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="OEE">
 <link rel="manifest" href="manifest.json">
+<script>
+/* PWA: เก็บ event ติดตั้งไว้ตั้งแต่ต้น (เบราว์เซอร์ยิงมาครั้งเดียว ก่อนที่จะเปิดหน้าตั้งค่า) */
+window.PWA={ev:null,done:false};
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();PWA.ev=e;window.dispatchEvent(new Event('pwa-change'));});
+window.addEventListener('appinstalled',function(){PWA.ev=null;PWA.done=true;window.dispatchEvent(new Event('pwa-change'));});
+</script>
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>แผงติดตามการผลิต OEE</title>
@@ -535,6 +541,20 @@ const I18N_EXACT = {
   'ผลต่าง':['Variance','差異'],
   '% ตามแผน':['% of Plan','計画比'],
   'ไม่มีแผน':['No plan','計画なし'],
+  /* ติดตั้งแอป (PWA) */
+  'ติดตั้งแอป':['Install App','アプリのインストール'],
+  'ติดตั้งแอปแดชบอร์ด':['Install Dashboard App','ダッシュボードアプリをインストール'],
+  'ติดตั้งแดชบอร์ดลงเครื่องนี้ เพื่อเปิดจากไอคอนบนหน้าจอ/เดสก์ท็อปได้เลย ไม่ต้องเปิดเบราว์เซอร์':['Install the dashboard on this device to open it from an icon on the home screen / desktop, without opening a browser.','このデバイスにダッシュボードをインストールすると、ブラウザを開かずにホーム画面/デスクトップのアイコンから起動できます。'],
+  'ติดตั้งแล้ว — กำลังเปิดในโหมดแอป':['Installed — running as an app','インストール済み — アプリモードで実行中'],
+  'บน iPhone / iPad ติดตั้งได้ผ่าน Safari เท่านั้น:':['On iPhone / iPad, installing works only from Safari:','iPhone / iPad では Safari からのみインストールできます:'],
+  '1) แตะปุ่มแชร์ (สี่เหลี่ยมมีลูกศรชี้ขึ้น) ที่แถบด้านล่าง':['1) Tap the Share button (square with an up arrow) in the bottom bar','1) 下部バーの共有ボタン (上向き矢印の付いた四角) をタップ'],
+  '2) เลื่อนลงแล้วแตะ “เพิ่มลงในหน้าจอโฮม”':['2) Scroll down and tap “Add to Home Screen”','2) 下にスクロールして「ホーム画面に追加」をタップ'],
+  '3) แตะ “เพิ่ม” มุมขวาบน':['3) Tap “Add” at the top right','3) 右上の「追加」をタップ'],
+  'หน้านี้เปิดอยู่ในเบราว์เซอร์ของแอปอื่น (เช่น LINE) ซึ่งติดตั้งไม่ได้ — ให้เปิดลิงก์นี้ใน Chrome หรือ Safari ก่อน (เมนู ⋮ → “เปิดในเบราว์เซอร์”)':['This page is open inside another app’s browser (e.g. LINE), which cannot install apps — open this link in Chrome or Safari first (menu ⋮ → “Open in browser”).','このページは他アプリ (LINE など) 内のブラウザで開かれているためインストールできません。まず Chrome または Safari で開いてください (メニュー ⋮ →「ブラウザで開く」)。'],
+  'ติดตั้งได้เฉพาะเมื่อเปิดผ่านลิงก์ https:// เท่านั้น':['Installing is only possible when the page is opened through an https:// link.','インストールは https:// のリンクで開いた場合のみ可能です。'],
+  'Firefox บนคอมพิวเตอร์ยังไม่รองรับการติดตั้งเว็บแอป — ให้เปิดใน Chrome หรือ Edge':['Firefox on desktop does not support installing web apps — open this in Chrome or Edge.','デスクトップ版 Firefox は Web アプリのインストールに対応していません。Chrome または Edge で開いてください。'],
+  'ถ้ายังไม่มีหน้าต่างติดตั้งขึ้นมา: แตะเมนู ⋮ มุมขวาบนของ Chrome แล้วเลือก “ติดตั้งแอป” (หรือ “เพิ่มลงในหน้าจอหลัก”)':['If no install window appears: tap the ⋮ menu at the top right of Chrome, then choose “Install app” (or “Add to Home screen”).','インストール画面が表示されない場合: Chrome 右上のメニュー ⋮ から「アプリをインストール」(または「ホーム画面に追加」) を選んでください。'],
+  'ถ้ายังไม่มีหน้าต่างติดตั้งขึ้นมา: คลิกไอคอนติดตั้งที่ท้ายช่องที่อยู่เว็บ หรือเปิดเมนู ⋮ ของเบราว์เซอร์แล้วเลือก “ติดตั้ง…” (Chrome / Edge)':['If no install window appears: click the install icon at the end of the address bar, or open the browser ⋮ menu and choose “Install…” (Chrome / Edge).','インストール画面が表示されない場合: アドレスバー右端のインストールアイコンをクリックするか、ブラウザのメニュー ⋮ から「インストール…」を選んでください (Chrome / Edge)。'],
   /* ข้อมูลและเป้าหมาย */
   'เป้า':['Target','目標'],
   'เป้าหมาย (%)':['Targets (%)','目標 (%)'],
@@ -1560,6 +1580,42 @@ function pagePlan(){
   xfBind('p_day','date',dates);
 }
 
+/* ---------------- ติดตั้งเว็บแอป (PWA) ---------------- */
+const isStandalone=()=>(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+function pwaHelpLines(){
+  const ua=navigator.userAgent||'';
+  const ios=/iPad|iPhone|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const inApp=/Line\/|FBAN|FBAV|Instagram|MicroMessenger|; wv\)/i.test(ua);
+  if (!window.isSecureContext) return ['ติดตั้งได้เฉพาะเมื่อเปิดผ่านลิงก์ https:// เท่านั้น'];
+  if (inApp) return ['หน้านี้เปิดอยู่ในเบราว์เซอร์ของแอปอื่น (เช่น LINE) ซึ่งติดตั้งไม่ได้ — ให้เปิดลิงก์นี้ใน Chrome หรือ Safari ก่อน (เมนู ⋮ → “เปิดในเบราว์เซอร์”)'];
+  if (ios) return ['บน iPhone / iPad ติดตั้งได้ผ่าน Safari เท่านั้น:','1) แตะปุ่มแชร์ (สี่เหลี่ยมมีลูกศรชี้ขึ้น) ที่แถบด้านล่าง','2) เลื่อนลงแล้วแตะ “เพิ่มลงในหน้าจอโฮม”','3) แตะ “เพิ่ม” มุมขวาบน'];
+  if (/Firefox\//.test(ua)&&!/Android/.test(ua)) return ['Firefox บนคอมพิวเตอร์ยังไม่รองรับการติดตั้งเว็บแอป — ให้เปิดใน Chrome หรือ Edge'];
+  if (/Android/.test(ua)) return ['ถ้ายังไม่มีหน้าต่างติดตั้งขึ้นมา: แตะเมนู ⋮ มุมขวาบนของ Chrome แล้วเลือก “ติดตั้งแอป” (หรือ “เพิ่มลงในหน้าจอหลัก”)'];
+  return ['ถ้ายังไม่มีหน้าต่างติดตั้งขึ้นมา: คลิกไอคอนติดตั้งที่ท้ายช่องที่อยู่เว็บ หรือเปิดเมนู ⋮ ของเบราว์เซอร์แล้วเลือก “ติดตั้ง…” (Chrome / Edge)'];
+}
+function pwaCardHTML(){
+  if (isStandalone()||PWA.done) return `<h3>ติดตั้งแอป</h3><p class="status ok" style="margin:8px 0 0">ติดตั้งแล้ว — กำลังเปิดในโหมดแอป</p>`;
+  return `<h3>ติดตั้งแอป</h3><p class="note">ติดตั้งแดชบอร์ดลงเครื่องนี้ เพื่อเปิดจากไอคอนบนหน้าจอ/เดสก์ท็อปได้เลย ไม่ต้องเปิดเบราว์เซอร์</p>
+    <div class="form-row"><button class="btn primary" id="pwaInstall">ติดตั้งแอปแดชบอร์ด</button></div>
+    <p class="note" id="pwaHelp"${PWA.ev?' hidden':''}>${pwaHelpLines().map(esc).join('<br>')}</p>`;
+}
+function pwaBind(){
+  const b=$('#pwaInstall'); if (!b) return;
+  b.onclick=async()=>{
+    const ev=PWA.ev;
+    if (ev){
+      PWA.ev=null;                                   // prompt() ใช้ได้ครั้งเดียวต่อ event
+      try{ ev.prompt(); const r=await ev.userChoice; if (r&&r.outcome==='accepted') PWA.done=true; }catch(_){}
+      pwaRefresh();
+    } else {
+      const h=$('#pwaHelp'); if (h){ h.hidden=false; h.scrollIntoView({block:'nearest',behavior:'smooth'}); }
+    }
+  };
+}
+function pwaRefresh(){ const c=$('#pwaCard'); if (c){ c.innerHTML=pwaCardHTML(); pwaBind(); } }
+window.addEventListener('pwa-change',pwaRefresh);
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) window.addEventListener('load',()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
+
 function pageData(){
   const T=S.targets;
   const blocks=Object.entries(CONFIG.products).map(([p,v])=>{
@@ -1580,7 +1636,9 @@ function pageData(){
      <div class="form-row"><label class="fld" style="flex:1">Apps Script URL<input type="url" data-surl="1" value="${esc(scriptUrlOf())}" placeholder="https://script.google.com/macros/s/…/exec" style="width:100%" autocomplete="off"></label></div>
      <div class="form-row"><label class="fld" style="flex:1">รหัสผ่านเข้าถึง<input type="password" data-stoken="1" value="${esc(scriptTokenOf())}" style="width:100%" autocomplete="off"></label></div>
      <div class="form-row"><label class="fld" style="flex:1">Google API Key<input type="password" data-key="1" value="${esc(apiKeyOf())}" placeholder="AIza…" style="width:100%" autocomplete="off"></label><button class="btn primary" id="connectAll">เชื่อมต่อและโหลดทั้งหมด</button></div></section></div>
+   <section class="card" id="pwaCard" style="margin-bottom:14px">${pwaCardHTML()}</section>
    <div class="grid g2">${blocks}</div>`;
+  pwaBind();
   $$('[data-t]').forEach(i=>i.onchange=()=>{S.targets[i.dataset.t]=+i.value||0; store.set('oee.targets',S.targets);});
   $$('[data-u]').forEach(i=>i.onchange=()=>{const [p,k]=i.dataset.u.split(':'); S.urls[p]=Object.assign({},S.urls[p],{[k]:i.value.trim()}); store.set('oee.urls',S.urls);});
   $$('[data-surl]').forEach(i=>i.onchange=()=>{S.api.scriptUrl=i.value.trim(); store.set('oee.api',S.api);});
