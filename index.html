@@ -158,8 +158,10 @@ code{background:var(--wash);padding:1px 5px;border-radius:4px;font-size:12px}
 .component-kpis .kpi:first-child{background:linear-gradient(135deg,var(--surface),color-mix(in srgb,var(--s1) 7%,var(--surface)));border-color:color-mix(in srgb,var(--s1) 28%,var(--border))}
 .component-kpis .kpi:first-child:before{width:4px}
 .component-kpis{margin-bottom:25px}
-.component-kpis .kpi{padding:12px 16px}
-.component-kpis .kpi .val{font-size:24px}
+.component-kpis .kpi{padding:18px 20px 16px}
+.component-kpis .kpi .lbl{font-size:13px}
+.component-kpis .kpi .val{font-size:clamp(32px,2.9vw,42px);letter-spacing:-1px;line-height:1.1;margin-top:4px}
+.component-kpis .kpi .gap{font-size:12px;margin-top:6px}
 #xfbar .xf{border-radius:12px;box-shadow:0 4px 14px rgba(20,35,55,.04)}
 .btn{transition:background .15s ease,border-color .15s ease}
 @media(max-width:900px){.main{padding:16px 16px 40px}.app{grid-template-columns:1fr}.rail{box-shadow:none}.page-title h1{font-size:22px}}
@@ -211,6 +213,51 @@ details summary{cursor:pointer}
 .kpi:hover{transform:translateY(-2px)}
 @media(prefers-reduced-motion:reduce){.view-enter .card,.view-enter .kpi:before,.view-enter .kpi .gap,.kpi .val.od-flash{animation:none}.od-r{transition:none}.kpi{transition:none}.kpi:hover{transform:none}}
 
+/* ===== Extra motion: hover / press / popup (เสริม) ===== */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{from{opacity:0;transform:translateY(-6px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+.card:hover{box-shadow:0 10px 28px rgba(20,35,55,.10);border-color:var(--axis)}
+.btn,.pb,.pb-tgl,.lang-sw button{transition:background .15s ease,border-color .15s ease,transform .12s ease,box-shadow .15s ease}
+.btn:hover,.pb:hover{transform:translateY(-1px)}
+.btn:active,.pb:active,.pb-tgl:active,.rail button:active{transform:scale(.96)}
+.rail button{transition:background .15s ease,transform .12s ease}
+.rail .nav button .ic,.rail #refreshBtn .ic,.rail #themeBtn .ic{transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.rail .nav button:hover .ic{transform:scale(1.18)}
+.rail #refreshBtn:hover .ic{transform:rotate(180deg)}
+.msel[open] .pop{animation:popIn .18s cubic-bezier(.2,.8,.2,1) both;transform-origin:top left}
+.msel summary:after{display:inline-block;transition:transform .2s ease}
+.msel[open] summary:after{transform:rotate(180deg)}
+.msel .pop label{transition:background .12s ease}
+tbody tr{transition:background .12s ease}
+tbody tr:hover{background:var(--wash)}
+.page-title{animation:slideIn .4s cubic-bezier(.2,.7,.2,1) both}
+@media (min-width:901px){
+  body.rail-mini .rail:hover .brand .bt,body.rail-mini .rail:hover .nl,body.rail-mini .rail:hover .tx,body.rail-mini .rail:hover h2,body.rail-mini .rail:hover .live span:last-child{animation:slideIn .25s ease .06s both}
+}
+@media (min-width:901px) and (hover:hover){
+  #prodbar .prodbar.collapsed:hover{animation:popIn .18s ease both}
+}
+@media(prefers-reduced-motion:reduce){.card:hover,.btn:hover,.pb:hover{transform:none}.msel[open] .pop,.page-title,.rail .brand .bt,.rail .nl,.rail .tx,.rail h2,.rail .live span,#prodbar .prodbar{animation:none!important}.rail .nav button:hover .ic,.rail #refreshBtn:hover .ic{transform:none}}
+
+/* ===== Note list (Machine issue / NG note / Loss note) ===== */
+.nlist{display:flex;flex-direction:column;gap:6px;max-height:440px;overflow:auto;padding:2px}
+.nrow{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) auto;gap:6px 14px;align-items:baseline;text-align:left;width:100%;background:var(--plane);border:1px solid var(--border);border-radius:10px;padding:9px 12px;cursor:pointer;transition:background .15s ease,border-color .15s ease,opacity .15s ease}
+.nrow:hover{border-color:var(--axis);background:var(--wash)}
+.nrow.on{border-color:var(--s1);background:color-mix(in srgb,var(--s1) 9%,var(--plane))}
+.nrow.dim{opacity:.45}
+.nr-txt{font-size:13px;color:var(--ink);overflow-wrap:anywhere}
+.nr-m{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:12px;color:var(--ink2)}
+.nr-m i{font-style:normal}.nr-m b{color:var(--ink);font-weight:600}
+.nr-n{font-size:12px;color:var(--ink);font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+@media(max-width:700px){.nrow{grid-template-columns:1fr auto}.nr-m{grid-column:1/-1;order:3}}
+/* ปุ่มตั้งค่า (ข้อมูลและเป้าหมาย) มุมขวาล่างของ Side bar */
+.rail .rail-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%}
+.rail .rail-foot .live{padding:6px 8px}
+.rail .rail-foot .gear{width:34px;height:34px;flex:none;padding:0;align-items:center;justify-content:center;flex-direction:row;font-size:17px;color:var(--rail-dim)}
+.rail .rail-foot .gear:hover{color:var(--rail-ink)}
+.rail .rail-foot .gear:hover .ic{transform:rotate(60deg)}
+@media (min-width:901px){ body.rail-mini .rail:not(:hover) .rail-foot{flex-direction:column;gap:2px} }
 /* ===== Drawer (side bar ย่อ/ขยายได้) ===== */
 .app{transition:grid-template-columns .25s ease}
 .rail-top{display:flex;align-items:flex-start;justify-content:space-between;gap:6px}
@@ -223,13 +270,15 @@ details summary{cursor:pointer}
 .drawer-fab:focus-visible{outline:2px solid var(--s4);outline-offset:2px}
 @media (min-width:901px){
   body.rail-mini .app{grid-template-columns:68px minmax(0,1fr)}
-  body.rail-mini .rail{padding:20px 10px;align-items:center;overflow-x:hidden}
-  body.rail-mini .rail-top{flex-direction:column;align-items:center}
-  body.rail-mini .rail .brand .bt,body.rail-mini .rail h2,body.rail-mini .rail .full,body.rail-mini .rail .nl,body.rail-mini .rail .tx,body.rail-mini .rail .live span:last-child{display:none}
-  body.rail-mini .rail button{align-items:center;justify-content:center;padding:10px 6px}
-  body.rail-mini .rail #refreshBtn,body.rail-mini .rail #themeBtn,body.rail-mini .rail .nav button{gap:0}
-  body.rail-mini .rail .live{justify-content:center;padding:6px 0}
-  body.rail-mini .rail button:hover{transform:none}
+  body.rail-mini .rail:not(:hover){padding:20px 10px;align-items:center;overflow-x:hidden}
+  body.rail-mini .rail:not(:hover) .rail-top{flex-direction:column;align-items:center}
+  body.rail-mini .rail:not(:hover) .brand .bt,body.rail-mini .rail:not(:hover) h2,body.rail-mini .rail:not(:hover) .full,body.rail-mini .rail:not(:hover) .nl,body.rail-mini .rail:not(:hover) .tx,body.rail-mini .rail:not(:hover) .live span:last-child{display:none}
+  body.rail-mini .rail:not(:hover) button{align-items:center;justify-content:center;padding:10px 6px}
+  body.rail-mini .rail:not(:hover) #refreshBtn,body.rail-mini .rail:not(:hover) #themeBtn,body.rail-mini .rail:not(:hover) .nav button{gap:0}
+  body.rail-mini .rail:not(:hover) .live{justify-content:center;padding:6px 0}
+  body.rail-mini .rail:not(:hover) button:hover{transform:none}
+  body.rail-mini .rail{transition:width .2s ease,box-shadow .2s ease}
+  body.rail-mini .rail:hover{width:232px;z-index:60;box-shadow:12px 0 40px rgba(0,0,0,.35)}
 }
 @media(prefers-reduced-motion:reduce){.app,.rail,.scrim{transition:none}}
 
@@ -240,6 +289,9 @@ details summary{cursor:pointer}
 .pb-cur{display:none;font-size:13px;color:var(--ink2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pb-cur b{color:var(--ink);font-weight:700}
 .lang-sw{margin-left:auto;display:inline-flex;border:1px solid var(--axis);border-radius:8px;overflow:hidden;flex:none}
+.lang-sel{padding:4px 8px;background:var(--plane);color:var(--ink);font-size:12px;font-weight:600;cursor:pointer;display:inline-block;border-radius:8px}
+.lang-sel:hover{background:var(--wash)}
+.lang-sel:focus-visible{outline:2px solid var(--s4);outline-offset:2px}
 .lang-sw button{background:var(--plane);border:0;padding:4px 10px;cursor:pointer;font-size:12px;color:var(--ink2)}
 .lang-sw button+button{border-left:1px solid var(--axis)}
 .lang-sw button:hover:not([aria-pressed="true"]){background:var(--wash)}
@@ -270,9 +322,21 @@ details summary{cursor:pointer}
   .prodbar.collapsed .pb-head{flex-wrap:wrap}
   .prodbar.collapsed .pb-cur{flex:1 0 100%;order:5}
 }
+@media (min-width:901px) and (hover:hover){
+  #prodbar{position:relative}
+  #prodbar .prodbar.collapsed:hover{position:absolute;left:0;right:0;top:0;z-index:45;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+  #prodbar .prodbar.collapsed:hover .pb-head{flex-wrap:wrap}
+  #prodbar .prodbar.collapsed:hover .pb-cur{display:none}
+  #prodbar .prodbar.collapsed:hover .pb-list{order:5;flex:1 0 100%;display:grid}
+  #prodbar .prodbar.collapsed:hover .lang-sw{margin-left:auto;order:0}
+  #prodbar .prodbar.collapsed:hover .pb-tgl{order:0}
+  #prodbar .prodbar.collapsed:hover .pb{padding:10px 14px;border-radius:12px;flex-direction:column}
+  #prodbar .prodbar.collapsed:hover .pb .code{font-size:15px}
+  #prodbar .prodbar.collapsed:hover .pb .full{display:block}
+}
 .rail .brand{display:flex;align-items:center;gap:10px}
 .rail .brand .logo{width:34px;height:34px;flex:none}
-body.rail-mini .rail .brand{padding:4px 0 10px;justify-content:center}
+body.rail-mini .rail:not(:hover) .brand{padding:4px 0 10px;justify-content:center}
 :root:lang(ja) body{font-family:"IBM Plex Sans Thai","Noto Sans JP","Hiragino Sans","Yu Gothic UI",Meiryo,system-ui,sans-serif}
 @media(prefers-reduced-motion:reduce){.pb{transition:none}}
 
@@ -287,6 +351,7 @@ body.rail-mini .rail .brand{padding:4px 0 10px;justify-content:center}
 .msel summary:after{content:" ▾";color:var(--muted)}
 .msel .pop{position:absolute;z-index:40;top:100%;left:0;margin-top:4px;background:var(--surface);border:1px solid var(--axis);border-radius:10px;padding:6px;max-height:340px;overflow:auto;min-width:250px;box-shadow:0 8px 26px rgba(0,0,0,.18)}
 .msel .pop label{display:flex;gap:8px;align-items:center;padding:4px 6px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--ink)}
+.msel .pop label input[type=checkbox]{min-width:0;width:auto;padding:0;flex:none}
 .msel .pop label:hover{background:var(--wash)}
 .msel .pop .btn{margin:2px 0 6px}
 </style>
@@ -444,6 +509,11 @@ const I18N_EXACT = {
   'Plan (ไม่มีแผน/อบรม/ประชุม)':['Plan (no plan / training / meeting)','Plan(計画なし・教育・会議)'],
   'Loss รายวัน แยกหมวด':['Daily Loss by Category','日別ロス (カテゴリ別)'],
   'Loss รายเครื่อง แยกหมวด':['Loss by Machine and Category','設備別ロス (カテゴリ別)'],
+  'ปัญหาเครื่องจักร (Machine issue)':['Machine Issues','設備トラブル'],
+  'บันทึก NG (NG note)':['NG Notes','NGメモ'],
+  'บันทึกเวลาสูญเสีย (Loss note)':['Loss Notes','ロス時間メモ'],
+  'คลิกเพื่อกรองข้ามกราฟ':['Click to cross-filter','クリックで絞り込み'],
+  'ครั้ง':['times','回'],
   'เหตุผลที่ทำให้เสียเวลามากที่สุด':['Top Reasons for Lost Time','ロス時間の主な要因'],
   'เหตุผล':['Reason','要因'],
   /* NG */
@@ -644,6 +714,10 @@ function buildCombined(aoa){
   for (const [k,n] of Object.entries(need)){ c[k]=ix(n); if (c[k]<0) missing.push(n); }
   if (missing.length) throw new Error('ไม่พบคอลัมน์: '+missing.join(', ')+' (ต้องเป็นชีต Combined)');
   c.dn = ix('DayNight');
+  const hk=h=>String(h).toLowerCase().replace(/[^a-z0-9]/g,'');          // จับหัวคอลัมน์แบบไม่สนตัวพิมพ์/ช่องว่าง/_
+  const ixk=k=>H.findIndex(h=>hk(h)===k);
+  c.issue=ixk('machineissue'); c.ngNote=ixk('ngnote'); c.lossT=ixk('losstimetime'); c.ltNote=ixk('losstimenote');
+  const tmin=v=>{ const m=/^\s*(\d+):(\d{2})(?::\d{2})?\s*$/.exec(String(v??'')); return m? (+m[1])*60+(+m[2]) : num(v); };   // รองรับ "1:30" = 90 นาที
   const lossCols=[], ngCols=[];
   H.forEach((h,i)=>{
     if (h.startsWith('Loss: ')){ const [cat,...r]=h.slice(6).split(' | '); lossCols.push({i,cat:catShort(cat.trim()),reason:r.join(' | ').trim()}); }
@@ -657,11 +731,15 @@ function buildCombined(aoa){
     const rec={ date, shift:String(row[c.shift]??'').trim(), dn:c.dn>=0?String(row[c.dn]??'').trim():'', proc:String(row[c.proc]??'').trim(), part:String(row[c.part]??'').trim(),
       planned:num(row[c.planned]), run:num(row[c.run]), down:num(row[c.down]), ct:num(row[c.ct]), total:num(row[c.total]), good:num(row[c.good]), ng:num(row[c.ng]),
       loss:{}, reasons:{}, ngt:{} };
+    if (c.issue>=0) rec.issue=String(row[c.issue]??'').trim();
+    if (c.ngNote>=0) rec.ngNote=String(row[c.ngNote]??'').trim();
+    if (c.lossT>=0) rec.lossT=tmin(row[c.lossT]);
+    if (c.ltNote>=0) rec.ltNote=String(row[c.ltNote]??'').trim();
     for (const L of lossCols){ const v=num(row[L.i]); if (v){ rec.loss[L.cat]=(rec.loss[L.cat]||0)+v; const k=L.cat+'|'+L.reason; rec.reasons[k]=(rec.reasons[k]||0)+v; } }
     for (const N of ngCols){ const v=num(row[N.i]); if (v) rec.ngt[N.label]=(rec.ngt[N.label]||0)+v; }
     out.push(rec);
   }
-  out.skipped={n:skipped,pcs:skippedPcs};
+  out.skipped={n:skipped,pcs:skippedPcs}; out.cols={issue:c.issue>=0,ngNote:c.ngNote>=0,lossT:c.lossT>=0,ltNote:c.ltNote>=0};
   return out;
 }
 function buildPlan(aoa, product){
@@ -730,7 +808,7 @@ const S = {
   targets: Object.assign({}, CONFIG.targets, store.get('oee.targets',{})),
   lossPlan: false, lossCat: 'all', ngInduction: false, planHideZero: true, procOpen: false,
   sort: {col:'oee', dir:1},
-  xf: {dates:new Set(), procs:new Set(), reasons:new Set()}     // ตัวกรองข้ามกราฟ (คลิกที่กราฟ) ; หมวด Loss ใช้ S.lossCat
+  xf: {dates:new Set(), procs:new Set(), reasons:new Set(), issue:new Set(), ngNote:new Set(), ltNote:new Set()}     // ตัวกรองข้ามกราฟ (คลิกที่กราฟ) ; หมวด Loss ใช้ S.lossCat
 };
 const D = () => S.data[S.product];
 const F = () => S.filt[S.product];
@@ -975,22 +1053,29 @@ const autoLabelPlugin = { id:'autoLabels', afterDatasetsDraw(chart,a,opt){
   const inkOn=bg=>{ const m=typeof bg==='string' && /^(?:#([0-9a-f]{6})|rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([\d.]+))?)/i.exec(bg.trim()); if(!m) return ink;
     let r,g,b,al=1; if(m[1]){ const k=parseInt(m[1],16); r=k>>16; g=(k>>8)&255; b=k&255; } else { r=+m[2]; g=+m[3]; b=+m[4]; if(m[5]!=null) al=+m[5]; }
     if (al<.9) return ink; return (0.299*r+0.587*g+0.114*b)>150?'#0b0b0b':'#ffffff'; };
+  const short=t=>{ const m=/^([^\d-]*)(-?[\d,]+(?:\.\d+)?)(.*)$/.exec(t); if(!m) return null; const n=parseFloat(m[2].replace(/,/g,'')); if(!isFinite(n)||Math.abs(n)<1000) return null;
+    const a=Math.abs(n), u=a>=1e6?[1e6,'M']:[1e3,'K']; return m[1]+(n/u[0]).toFixed(1).replace(/\.0$/,'')+u[1]+m[3]; };   // 13,425 → 13.4K (ยังเป็นแนวนอน)
   const put=(t,x,y,o)=>{ ctx.save(); ctx.font=(o.bold?'700 ':'600 ')+FS+'px '+FONT; ctx.translate(x,y); if(o.rot) ctx.rotate(-Math.PI/2);
     ctx.textAlign=o.align||'center'; ctx.textBaseline=o.base||'middle';
     if (o.halo){ ctx.lineWidth=3; ctx.lineJoin='round'; ctx.strokeStyle=o.halo; ctx.strokeText(t,0,0); }
     ctx.fillStyle=o.color||ink; ctx.fillText(t,0,0); ctx.restore(); };
   ctx.save();
-  bars.forEach(({ds,m})=>{ m.data.forEach((el,i)=>{
+  bars.forEach(({ds,m},bi)=>{ m.data.forEach((el,i)=>{
     const v=ds.data[i]; if (v==null||Array.isArray(v)||!isFinite(v)) return; if (stacked && !v) return;
-    const t=fmt(v), w=tw(t), p=el.getProps(['x','y','base','width','height'],true), col=inkOn(el.options&&el.options.backgroundColor);
+    let t=fmt(v), w=tw(t);
+    const p=el.getProps(['x','y','base','width','height'],true), col=inkOn(el.options&&el.options.backgroundColor);
     if (!horiz){
       const end=p.y, base=p.base, len=Math.abs(base-end), up=end<=base;
       if (stacked){ if (len<FS+3) return; const mid=(end+base)/2;
-        if (w+2<=p.width) put(t,p.x,mid,{color:col}); else if (len>=w+6 && p.width>=FS+2) put(t,p.x,mid,{color:col,rot:true}); return; }
-      const fit=w+4<=pitch/nb, inside=(lines.length>0||!fit) && len>=(fit?FS+8:w+10);
-      if (inside){ if (fit) put(t,p.x,end+(up?4:-4),{color:col,base:up?'top':'bottom'}); else put(t,p.x,end+(up?4:-4),{color:col,rot:true,align:up?'right':'left'}); }
-      else if (fit) put(t,p.x,end+(up?-4:4),{base:up?'bottom':'top'});
-      else put(t,p.x,end+(up?-4:4),{rot:true,align:up?'left':'right'});
+        if (w+2>p.width){ const c=short(t); if (c){ t=c; w=tw(t); } }
+        if (w+2<=p.width) put(t,p.x,mid,{color:col}); return; }      // ตัวเลขแนวนอนเสมอ (ไม่หมุน)
+      if (len>=w+10 && p.width>=FS+2){ put(t,p.x,end+(up?4:-4),{color:col,rot:true,align:up?'right':'left'}); return; }   // แท่งยาวพอ → ตัวเลขหมุน 90° ทับบนแท่ง
+      const room=pitch/nb;
+      if (w+4>room){ const c=short(t); if (c){ t=c; w=tw(t); } }
+      const fit=w+4<=room, inside=lines.length>0 && len>=FS+8;
+      const stag=(!fit && (nb>1?bi:i)%2) ? FS+3 : 0;                  // ยังแคบอยู่ → สลับยกขึ้นอีกชั้น ไม่ให้ทับกัน
+      if (inside) put(t,p.x,end+(up?4:-4),{color:col,base:up?'top':'bottom'});
+      else put(t,p.x,end+(up?-4-stag:4+stag),{base:up?'bottom':'top'});
     } else {
       const end=p.x, base=p.base, len=Math.abs(end-base), right=end>=base;
       if (stacked){ if (p.height<FS+2||len<w+6) return; put(t,(end+base)/2,p.y,{color:col}); return; }
@@ -1002,8 +1087,7 @@ const autoLabelPlugin = { id:'autoLabels', afterDatasetsDraw(chart,a,opt){
       bars.forEach(({ds,m})=>{ const v=ds.data[i]; if(v==null||!isFinite(v)||v<=0) return; sum+=+v; const el=m.data[i]; if(!el) return; const q=el.getProps(['x','y'],true); pos=horiz?q.y:q.x; ext = ext==null ? (horiz?q.x:q.y) : (horiz?Math.max(ext,q.x):Math.min(ext,q.y)); });
       if (!sum||ext==null) continue; const t=fmt(sum), w=tw(t,true);
       if (horiz) put(t,ext+6,pos,{bold:true,align:'left'});
-      else if (w+4<=pitch) put(t,pos,ext-4,{bold:true,base:'bottom'});
-      else put(t,pos,ext-4,{bold:true,rot:true,align:'left'});
+      else { let tt=t; if (w+4>pitch){ const c=short(t); if (c) tt=c; } put(tt,pos,ext-4,{bold:true,base:'bottom'}); }
     }
   }
   if (lines.length){                       // เส้น: ค่าอยู่เหนือจุด เรียงกันไม่ให้ซ้อน
@@ -1024,7 +1108,7 @@ function baseOpts({horiz=false,stacked=false,fmt=v=>v,min,max,legend=true,ytitle
   const cat = { stacked, grid:{display:false}, border:{color:axis}, ticks:{color:cv('--ink2'),autoSkip:true,maxRotation:horiz?0:60}, title: xtitle?{display:true,text:xtitle,color:mut}:undefined };
   return { responsive:true, maintainAspectRatio:false, indexAxis:horiz?'y':'x',
     interaction:{mode:'index',intersect:false, axis: horiz?'y':'x'},
-    layout:{padding:{top:horiz?16:18,right:horiz?52:6}},
+    layout:{padding:{top:horiz?16:32,right:horiz?52:6}},
     plugins:{ autoLabels:{fmt}, legend:{display:legend,position:'bottom',labels:{color:cv('--ink2'),boxWidth:10,boxHeight:10,usePointStyle:true,pointStyle:'rectRounded',font:{family:FONT,size:12}}},
       tooltip:{backgroundColor:cv('--ink'),titleColor:cv('--surface'),bodyColor:cv('--surface'),padding:10,cornerRadius:8,titleFont:{family:FONT},bodyFont:{family:FONT},
         callbacks:{ label: c => ` ${c.dataset.label?c.dataset.label+': ':''}${fmt(c.parsed[horiz?'x':'y'])}` }} },
@@ -1034,11 +1118,13 @@ function card(id,title,sub,h=280,extra=''){
   return `<section class="card" id="card-${id}"><div class="head"><div><h3>${esc(title)}</h3>${sub?`<div class="sub">${esc(sub)}</div>`:''}</div><button class="btn sm" data-tbl="${id}" aria-pressed="false">ดูเป็นตาราง</button></div>${extra}<div class="chartbox" style="height:${h}px"><canvas id="c-${id}" role="img" aria-label="${esc(title)}"></canvas></div><div class="tbl scroll" id="t-${id}"></div></section>`;
 }
 /* ---- cross-filter: คลิกแท่ง/จุดบนกราฟ → กรองกราฟและตัวเลขอื่น (คลิกซ้ำเพื่อยกเลิก) ---- */
+const NOTE_DIMS=['issue','ngNote','ltNote'];
 function xfPass(r, ignore){
   const x=S.xf;
   if (ignore!=='date' && x.dates.size && !x.dates.has(r.date)) return false;
   if (ignore!=='proc' && x.procs.size && !x.procs.has(r.proc)) return false;
   if (ignore!=='reason' && x.reasons.size && ![...x.reasons].some(k=>(r.reasons[k]||0)>0)) return false;
+  for (const k of NOTE_DIMS) if (ignore!==k && x[k].size && !x[k].has(r[k]||'')) return false;
   return true;
 }
 function xfPlanPass(p, ignore){
@@ -1047,8 +1133,8 @@ function xfPlanPass(p, ignore){
   if (ignore!=='proc' && x.procs.size && !p.procs.some(q=>x.procs.has(q))) return false;
   return true;
 }
-const xfActive = () => S.xf.dates.size>0 || S.xf.procs.size>0 || S.xf.reasons.size>0 || S.lossCat!=='all';
-function xfSel(dim,v){ return dim==='date' ? S.xf.dates.has(v) : dim==='proc' ? S.xf.procs.has(v) : dim==='reason' ? S.xf.reasons.has(v) : S.lossCat===v; }
+const xfActive = () => S.xf.dates.size>0 || S.xf.procs.size>0 || S.xf.reasons.size>0 || NOTE_DIMS.some(k=>S.xf[k].size>0) || S.lossCat!=='all';
+function xfSel(dim,v){ return dim==='date' ? S.xf.dates.has(v) : dim==='proc' ? S.xf.procs.has(v) : dim==='reason' ? S.xf.reasons.has(v) : NOTE_DIMS.includes(dim) ? S.xf[dim].has(v) : S.lossCat===v; }
 function dimHex(c){
   const m=/^#([0-9a-f]{6})$/i.exec(String(c||'').trim()); if (!m) return c;
   const n=parseInt(m[1],16); return 'rgba('+(n>>16)+','+((n>>8)&255)+','+(n&255)+',.28)';
@@ -1057,7 +1143,7 @@ function toggleXF(dim,v){
   setTimeout(()=>{                                  // รอให้ Chart.js จัดการคลิกเสร็จก่อนค่อยวาดใหม่
     const x=S.xf;
     if (dim==='cat') S.lossCat = S.lossCat===v ? 'all' : v;
-    else { const set=dim==='date'?x.dates:dim==='reason'?x.reasons:x.procs; if (set.has(v)) set.delete(v); else set.add(v); }
+    else { const set=dim==='date'?x.dates:dim==='reason'?x.reasons:NOTE_DIMS.includes(dim)?x[dim]:x.procs; if (set.has(v)) set.delete(v); else set.add(v); }
     const y=window.scrollY; render(); window.scrollTo(0,y);
   },0);
 }
@@ -1083,13 +1169,14 @@ function renderXF(){
   if (x.dates.size){ const ds=[...x.dates].sort(); chips.push(['date','วันที่ ',ds.length<=3?ds.map(d=>fmtD(d)).join(', '):ds.length+' วัน']); }
   if (x.procs.size){ const ps=[...x.procs]; chips.push(['proc','Process ',ps.length<=2?ps.join(', '):ps.length+' รายการ']); }
   if (x.reasons.size){ const rs=[...x.reasons].map(k=>k.split('|').slice(1).join('|')); chips.push(['reason','เหตุผล ',rs.length<=1?rs[0]:rs.length+' รายการ']); }
+  [['issue','Machine issue '],['ngNote','NG note '],['ltNote','Loss note ']].forEach(([k,l])=>{ if (x[k].size){ const v=[...x[k]]; chips.push([k,l,v.length<=1?v[0]:v.length+' รายการ']); } });
   if (S.lossCat!=='all') chips.push(['cat','หมวด Loss ',S.lossCat]);
   box.innerHTML = chips.length
     ? `<div class="xf"><span class="xf-l">กรองจากกราฟ</span>${chips.map(([k,l,t])=>`<button class="chip" data-xfclear="${k}" title="คลิกเพื่อยกเลิก">${l}<b>${esc(t)}</b> ✕</button>`).join('')}<button class="btn sm" id="xfAll">ล้างทั้งหมด</button></div>`
     : '';
   const redraw=()=>{ const y=window.scrollY; render(); window.scrollTo(0,y); };
-  $$('[data-xfclear]').forEach(b=>b.onclick=()=>{ const k=b.dataset.xfclear; if (k==='date') x.dates.clear(); else if (k==='proc') x.procs.clear(); else if (k==='reason') x.reasons.clear(); else S.lossCat='all'; redraw(); });
-  const all=$('#xfAll'); if (all) all.onclick=()=>{ x.dates.clear(); x.procs.clear(); x.reasons.clear(); S.lossCat='all'; redraw(); };
+  $$('[data-xfclear]').forEach(b=>b.onclick=()=>{ const k=b.dataset.xfclear; if (k==='date') x.dates.clear(); else if (k==='proc') x.procs.clear(); else if (k==='reason') x.reasons.clear(); else if (NOTE_DIMS.includes(k)) x[k].clear(); else S.lossCat='all'; redraw(); });
+  const all=$('#xfAll'); if (all) all.onclick=()=>{ x.dates.clear(); x.procs.clear(); x.reasons.clear(); NOTE_DIMS.forEach(k=>x[k].clear()); S.lossCat='all'; redraw(); };
 }
 
 function mk(id,cfg,tbl){
@@ -1121,11 +1208,11 @@ function renderRail(){
   const mini=document.body.classList.contains('rail-mini');
   $('#rail').innerHTML = `<div class="rail-top"><div class="brand"><svg class="logo" viewBox="0 0 64 64" role="img" aria-label="Logo"><g fill="#fff"><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(0 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(45 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(90 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(135 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(180 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(225 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(270 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(315 32 32)"/></g><circle cx="32" cy="32" r="19.5" fill="none" stroke="#fff" stroke-width="7"/><rect x="22" y="35" width="5" height="7" rx="1.5" fill="#7FB2F0"/><rect x="29" y="29" width="5" height="13" rx="1.5" fill="#7FB2F0"/><rect x="36" y="23" width="5" height="19" rx="1.5" fill="#F5841F"/></svg><span class="bt">แผงติดตามการผลิต</span></div><button class="rail-tgl" id="railToggle" aria-expanded="${!mini}" aria-controls="rail" aria-label="${mini?'ขยายเมนู':'ย่อเมนู'}" title="${mini?'ขยายเมนู':'ย่อเมนู'}">${mini?'›':'‹'}</button></div>
   <h2>หน้า</h2>
-  <div class="nav">${PAGES.map(([k,t,i])=>`<button data-page="${k}" title="${t}" aria-current="${k===S.page}"><span class="ic" aria-hidden="true">${i}</span><span class="nl">${t}</span></button>`).join('')}</div>
+  <div class="nav">${PAGES.filter(p=>p[0]!=='data').map(([k,t,i])=>`<button data-page="${k}" title="${t}" aria-current="${k===S.page}"><span class="ic" aria-hidden="true">${i}</span><span class="nl">${t}</span></button>`).join('')}</div>
   <div class="spacer"></div>
   <button id="refreshBtn" title="รีเฟรชตอนนี้"><span class="ic code" aria-hidden="true">↻</span><span class="code tx">รีเฟรชตอนนี้</span></button>
   <button id="themeBtn" title="เปลี่ยนธีม"><span class="ic code" aria-hidden="true">◐</span><span class="code tx">ธีม: ${({auto:'ตามเครื่อง',light:'สว่าง',dark:'มืด'})[themePref()]}</span></button>
-  <div class="live" id="liveInd">${liveHTML()}</div>`;
+  <div class="rail-foot"><div class="live" id="liveInd">${liveHTML()}</div><button id="dataBtn" data-page="data" class="gear" title="${(PAGES.find(p=>p[0]==='data')||[,'ข้อมูลและเป้าหมาย'])[1]}" aria-label="${(PAGES.find(p=>p[0]==='data')||[,'ข้อมูลและเป้าหมาย'])[1]}" aria-current="${S.page==='data'}"><span class="ic" aria-hidden="true">⚙</span></button></div>`;
   $('#railToggle').onclick=()=>setRailMini(!document.body.classList.contains('rail-mini'));
   renderProdBar();
   $$('[data-page]').forEach(b=>b.onclick=()=>{S.page=b.dataset.page; render();});
@@ -1133,13 +1220,13 @@ function renderRail(){
   $('#refreshBtn').onclick=async()=>{ if (!sourceOf(S.product)){ S.page='data'; render(); return; } await liveTick(false); if (S.data[S.product]&&!S.data[S.product].error) { LIVE.dirty=true; tryRender(); } };
 }
 /* ---- แถบเลือกผลิตภัณฑ์ด้านบนสุด (ย่อ/ขยายได้ · จำสถานะไว้ในเบราว์เซอร์) ---- */
-const pbCollapsed=()=>!!store.get('oee.prodBarCollapsed',false);
+const pbCollapsed=()=>!!store.get('oee.prodBarCollapsed',true);
 function selectProduct(p){
   if (!CONFIG.products[p]) return;
   const changed = p!==S.product;
   S.product=p; store.set('oee.product',S.product);
   store.set('oee.prodBarCollapsed',true);          // เลือกแล้ว → ย่อแถบอัตโนมัติ
-  if (changed){ S.xf.dates.clear(); S.xf.procs.clear(); S.xf.reasons.clear(); S.lossCat='all'; }
+  if (changed){ S.xf.dates.clear(); S.xf.procs.clear(); S.xf.reasons.clear(); NOTE_DIMS.forEach(k=>S.xf[k].clear()); S.lossCat='all'; }
   render(); if (changed) liveTick(false);
 }
 function renderProdBar(){
@@ -1150,12 +1237,13 @@ function renderProdBar(){
       <span class="pb-label">ผลิตภัณฑ์</span>
       <span class="pb-cur"><b>${esc(S.product)}</b>${cur?` · ${esc(cur.name)}`:''}</span>
       <div class="pb-list" role="group" aria-label="เลือกผลิตภัณฑ์">${Object.entries(CONFIG.products).map(([k,v])=>`<button class="pb" data-prod="${k}" title="${esc(v.name)}" aria-current="${k===S.product}"><span class="code">${k}</span><span class="full">${esc(v.name)}</span></button>`).join('')}</div>
-      <div class="lang-sw" role="group" aria-label="Language" translate="no">${[['th','ไทย'],['en','EN'],['ja','日本語']].map(([k,t])=>`<button data-lang="${k}" lang="${k}" aria-pressed="${k===LANG}">${t}</button>`).join('')}</div>
+      <select class="lang-sw lang-sel" id="langSel" aria-label="Language" translate="no">${[['th','TH'],['en','EN'],['ja','JP']].map(([k,t])=>`<option value="${k}" ${k===LANG?'selected':''}>${t}</option>`).join('')}</select>
       <button class="pb-tgl" id="pbToggle" aria-expanded="${!col}" title="${col?'ขยายแถบผลิตภัณฑ์':'ย่อแถบผลิตภัณฑ์'}">${col?'ขยาย ▾':'ย่อ ▴'}</button>
     </div>
   </div>`;
+  if (col){ const h=box.dataset.h||(box.dataset.h=$('#pbWrap').offsetHeight); box.style.minHeight=h+'px'; } else box.style.minHeight='';
   $$('#prodbar [data-prod]').forEach(b=>b.onclick=()=>selectProduct(b.dataset.prod));
-  $$('#prodbar [data-lang]').forEach(b=>b.onclick=()=>setLang(b.dataset.lang));
+  $('#langSel').onchange=e=>setLang(e.target.value);
   $('#pbToggle').onclick=()=>{ store.set('oee.prodBarCollapsed',!pbCollapsed()); renderProdBar(); };
 }
 const themePref=()=>store.get('oee.theme','auto');
@@ -1327,10 +1415,28 @@ function pageLoss(){
   const dates=dateRange(f.from,f.to); const byD=groupBy(filteredRows({ignoreX:'date'}),r=>r.date);
   const tot=cats.map(c=>rs.reduce((s,r)=>s+lossOf(r,c.k),0)); const all=tot.reduce((a,b)=>a+b,0);
   const nProc=new Set(rs.map(r=>r.proc)).size;
+  const cols=D().rows.cols||{};
+  /* กราฟโน้ต: 1 แท่ง = 1 ข้อความ, สีแบ่งตามเครื่อง (Process), คลิกแท่ง = กรองข้ามกราฟ */
+  const NPAL=['--s1','--s2','--s3','--s4'].map(cv).concat(['#8a63d2','#d6477a','#2aa6b8','#7a8b3a','#a0634b','#6b7a90','#c2a23a','#4f6bd8']);
+  const noteList=(k,title,o)=>{
+    const sel=S.xf[k];
+    const body=!o.has?`<p class="note">ไม่พบคอลัมน์ ${o.col} ในชีต Combined</p>`:!o.top.length?`<p class="note">ไม่มีบันทึกในช่วงที่เลือก</p>`
+      :`<div class="nlist" role="list">${o.top.map((g,i)=>`<button type="button" class="nrow${sel.has(g.t)?' on':''}${sel.size&&!sel.has(g.t)?' dim':''}" role="listitem" data-nk="${k}" data-ni="${i}"><span class="nr-txt">${esc(g.t)}</span><span class="nr-m">${[...g.p.entries()].sort((a,b)=>b[1]-a[1]).map(([p,n])=>`<i>${esc(p)} <b>${nf(n)}</b></i>`).join('')}</span><span class="nr-n">${nf(g.n)} ${trl('ครั้ง')}</span></button>`).join('')}</div>`;
+    return `<section class="card" id="card-${o.id}"><div class="head"><div><h3>${esc(title)}</h3><div class="sub">${trl('คลิกเพื่อกรองข้ามกราฟ')}</div></div></div>${body}</section>`; };
+  const notes={}; [['issue','l_issue','Machineissue'],['ngNote','l_ngn','NG_Note'],['ltNote','l_ltn','Losstime_Note']].forEach(([k,id,col])=>{
+    const o={id,col,has:!!cols[k],top:[],procs:[]};
+    if (o.has){ const m=new Map(), pt=new Map();
+      for (const r of filteredRows({ignoreX:k})){ const t=(r[k]||'').trim(); if(!t) continue; let g=m.get(t); if(!g){ g={t,n:0,p:new Map()}; m.set(t,g); } g.n++; g.p.set(r.proc,(g.p.get(r.proc)||0)+1); pt.set(r.proc,(pt.get(r.proc)||0)+1); }
+      o.top=[...m.values()].sort((a,b)=>b.n-a.n).slice(0,50); o.procs=[...pt.entries()].sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
+    }
+    notes[k]=o; });
   $('#view').innerHTML=titleHTML('เวลาสูญเสีย (Loss)')+catChips+`
    <div class="grid g4 kpis">${cats.map((c,i)=>kpiHTML(c.k,nf(tot[i])+' <small style="font-size:13px;font-weight:400">นาที</small>',all?pct(tot[i]/all,1)+' ของทั้งหมด':'–')).join('')}</div>
    <div class="grid g1">${card('l_day','Loss รายวัน แยกหมวด','นาที',380)}</div>
-   <div class="grid g2" style="margin-top:14px">${card('l_proc','Loss รายเครื่อง แยกหมวด','นาที',Math.max(480,nProc*26+60))}${card('l_top','เหตุผลที่ทำให้เสียเวลามากที่สุด','นาที',Math.max(480,nProc*26+60))}</div>`;
+   <div class="grid g2" style="margin-top:14px">${card('l_proc','Loss รายเครื่อง แยกหมวด','นาที',Math.max(480,nProc*26+60))}${card('l_top','เหตุผลที่ทำให้เสียเวลามากที่สุด','นาที',Math.max(480,nProc*26+60))}</div>
+   <div class="grid g1" style="margin-top:14px">${noteList('issue','ปัญหาเครื่องจักร (Machine issue)',notes.issue)}</div>
+   <div class="grid g1" style="margin-top:14px">${noteList('ngNote','บันทึก NG (NG note)',notes.ngNote)}</div>
+   <div class="grid g1" style="margin-top:14px">${noteList('ltNote','บันทึกเวลาสูญเสีย (Loss note)',notes.ltNote)}</div>`;
   bindCards();
   $$('[data-lcat]').forEach(b=>b.onclick=()=>{S.lossCat=b.dataset.lcat; render();});
   $('#lossPlan').onchange=e=>{S.lossPlan=e.target.checked; render();};
@@ -1352,6 +1458,7 @@ function pageLoss(){
   to.plugins.tooltip.callbacks.title=items=>{const x=rr[items[0].dataIndex]; return `${x.cat} · ${x.reason}`;};
   mk('l_top',{type:'bar',data:{labels:rr.map(x=>wrapLabel(x.reason,26)),datasets:[{data:rr.map(x=>x.v),backgroundColor:rr.map(x=>cv((CATS.find(c=>c.k===x.cat)||{col:'--s5'}).col)),borderRadius:4,borderSkipped:false,barPercentage:.7}]},options:to,plugins:[labelPlugin]},
     {first:'เหตุผล',labels:rr.map(x=>`${x.cat} · ${x.reason}`),series:[{name:'นาที',values:rr.map(x=>x.v)}]});
+  $$('.nrow').forEach(b=>b.onclick=()=>toggleXF(b.dataset.nk,notes[b.dataset.nk].top[+b.dataset.ni].t));
   xfBind('l_day','date',dates); xfBind('l_proc','proc',gp.map(x=>x.p)); xfBind('l_top','reason',rr.map(x=>x.key));
 }
 
@@ -1381,7 +1488,7 @@ function pageNG(){
 const SOP_G2='Grinding 1,2 + Milling + M8,M9';   // SOP: Grinding/Milling/M8,M9 ที่รันพาส 11320 11051 11140 11110
 const PLAN_COLS = {
   SOP:[[/^lathe auto \((b08-01|b12-24|b12-28|b12-13)\)/i,'Cutting'],[/^cold forging/i,'Cold Forging'],[/^lathe/i,'Lathe 1,2,3'],[/^roll/i,'Lathe 1,2,3'],[/^induction/i,'Induction'],[/^(grinding|gr \d)/i,'Grinding 1,2'],[/^(milling|m ?[89]\b)/i,SOP_G2]],
-  SWP:[[/^milling/i,'Milling'],[/^deburring/i,'Deburring'],[/^lathe/i,'Lathe 1,2 + Gr 2'],[/^grinding/i,'Grinding']],
+  SWP:[[/^milling/i,'Milling'],[/^deburring/i,'Deburring'],[/^grinding small/i,'Grinding Small'],[/^grinding 1/i,'Grinding 1'],[/^lathe/i,'Lathe 1,2 + Gr 2']],
   VBA:[[/^lathe op1/i,'Lathe OP1'],[/^lathe op2/i,'Lathe OP2']],
   VOP:[[/^lathe/i,'Lathe'],[/^drilling/i,'Drilling'],[/^deburring/i,'Deburring'],[/^grinding [12]/i,'Grinding 1,2'],[/^grinding 3/i,'Grinding 3']]
 };
@@ -1392,7 +1499,7 @@ const VBA_PARTS='20030 27040 22090 22170 20930 20970 21970 17880 18950 PLUNGER 2
 const VOP_PARTS='Y1 10050 10070 46040 10290 10230'.split(' ');
 const PLAN_PARTS = {
   SOP:{'Cutting':SOP_LATHE,'Cold Forging':'11320 11051 11140 11110'.split(' '),'Lathe 1,2,3':SOP_LATHE,'Induction':'11120 11040'.split(' '),'Grinding 1,2':'11120 11040'.split(' '),[SOP_G2]:'11320 11051 11140 11110'.split(' ')},
-  SWP:{'Lathe 1,2 + Gr 2':'10260 10300'.split(' '),'Milling':'10160 10250'.split(' '),'Grinding':'10260 10300 10160 10250'.split(' ')},
+  SWP:{'Milling':'10160 10250'.split(' '),'Grinding Small':'10160 10250'.split(' '),'Grinding 1':'10260 10300'.split(' '),'Lathe 1,2 + Gr 2':'10260 10300'.split(' ')},
   VBA:{'Lathe OP1':VBA_PARTS,'Lathe OP2':VBA_PARTS},
   VOP:{'Lathe':VOP_PARTS,'Drilling':['10290'],'Deburring':['10290'],'Grinding 1,2':VOP_PARTS,'Grinding 3':VOP_PARTS}
 };
@@ -1583,7 +1690,7 @@ function setDrawer(open){
   document.body.classList.toggle('drawer-open',open);
   const f=$('#drawerOpen'); if (f) f.setAttribute('aria-expanded',String(open));
 }
-document.body.classList.toggle('rail-mini', !!store.get('oee.railMini',false));
+document.body.classList.toggle('rail-mini', !!store.get('oee.railMini',true));
 $('#drawerOpen').onclick=()=>setDrawer(!document.body.classList.contains('drawer-open'));
 $('#scrim').onclick=()=>setDrawer(false);
 document.addEventListener('keydown',e=>{ if (e.key==='Escape') setDrawer(false); });
