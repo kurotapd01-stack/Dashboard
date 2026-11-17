@@ -247,9 +247,6 @@ tbody tr:hover{background:var(--wash)}
 @media (min-width:901px){
   body.rail-mini .rail:hover .brand .bt,body.rail-mini .rail:hover .nl,body.rail-mini .rail:hover .tx,body.rail-mini .rail:hover h2,body.rail-mini .rail:hover .live span:last-child{animation:slideIn .25s ease .06s both}
 }
-@media (min-width:901px) and (hover:hover){
-  #prodbar .prodbar.collapsed:hover{animation:popIn .18s ease both}
-}
 @media(prefers-reduced-motion:reduce){.card:hover,.btn:hover,.pb:hover{transform:none}.msel[open] .pop,.page-title,.rail .brand .bt,.rail .nl,.rail .tx,.rail h2,.rail .live span,#prodbar .prodbar{animation:none!important}.rail .nav button:hover .ic,.rail #refreshBtn:hover .ic{transform:none}}
 
 /* ===== Note list (Machine issue / NG note / Loss note) ===== */
@@ -334,17 +331,6 @@ tbody tr:hover{background:var(--wash)}
   .prodbar.collapsed .pb-head{flex-wrap:wrap}
   .prodbar.collapsed .pb-cur{flex:1 0 100%;order:5}
 }
-@media (min-width:901px) and (hover:hover){
-  #prodbar{position:relative}
-  #prodbar .prodbar.collapsed:hover{position:absolute;left:0;right:0;top:0;z-index:45;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.18)}
-  #prodbar .prodbar.collapsed:hover .pb-head{flex-wrap:wrap}
-  #prodbar .prodbar.collapsed:hover .pb-cur{display:none}
-  #prodbar .prodbar.collapsed:hover .pb-list{order:5;flex:1 0 100%;display:grid}
-  #prodbar .prodbar.collapsed:hover .lang-sw{margin-left:auto;order:0}
-  #prodbar .prodbar.collapsed:hover .pb-tgl{order:0}
-  #prodbar .prodbar.collapsed:hover .pb{padding:10px 14px;border-radius:12px;flex-direction:column}
-  #prodbar .prodbar.collapsed:hover .pb .code{font-size:15px}
-  #prodbar .prodbar.collapsed:hover .pb .full{display:block}
 }
 .rail .brand{display:flex;align-items:center;gap:10px}
 .rail .brand .logo{width:34px;height:34px;flex:none}
@@ -1284,12 +1270,11 @@ function renderRail(){
   $('#refreshBtn').onclick=async()=>{ if (!sourceOf(S.product)){ S.page='data'; render(); return; } await liveTick(false); if (S.data[S.product]&&!S.data[S.product].error) { LIVE.dirty=true; tryRender(); } };
 }
 /* ---- แถบเลือกผลิตภัณฑ์ด้านบนสุด (ย่อ/ขยายได้ · จำสถานะไว้ในเบราว์เซอร์) ---- */
-const pbCollapsed=()=>!!store.get('oee.prodBarCollapsed',true);
+const pbCollapsed=()=>!!store.get('oee.prodBarCollapsed',false);   // ย่อ/ขยายด้วยปุ่มเท่านั้น (ไม่อัตโนมัติ)
 function selectProduct(p){
   if (!CONFIG.products[p]) return;
   const changed = p!==S.product;
   S.product=p; store.set('oee.product',S.product);
-  store.set('oee.prodBarCollapsed',true);          // เลือกแล้ว → ย่อแถบอัตโนมัติ
   if (changed){ S.xf.dates.clear(); S.xf.procs.clear(); S.xf.reasons.clear(); NOTE_DIMS.forEach(k=>S.xf[k].clear()); S.lossCat='all'; }
   render(); if (changed) liveTick(false);
 }
@@ -1305,7 +1290,7 @@ function renderProdBar(){
       <button class="pb-tgl" id="pbToggle" aria-expanded="${!col}" title="${col?'ขยายแถบผลิตภัณฑ์':'ย่อแถบผลิตภัณฑ์'}">${col?'ขยาย ▾':'ย่อ ▴'}</button>
     </div>
   </div>`;
-  if (col){ const h=box.dataset.h||(box.dataset.h=$('#pbWrap').offsetHeight); box.style.minHeight=h+'px'; } else box.style.minHeight='';
+  box.style.minHeight='';
   $$('#prodbar [data-prod]').forEach(b=>b.onclick=()=>selectProduct(b.dataset.prod));
   $('#langSel').onchange=e=>setLang(e.target.value);
   $('#pbToggle').onclick=()=>{ store.set('oee.prodBarCollapsed',!pbCollapsed()); renderProdBar(); };
