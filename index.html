@@ -160,7 +160,10 @@ code{background:var(--wash);padding:1px 5px;border-radius:4px;font-size:12px}
 .card h3{font-size:14px;letter-spacing:-.1px}
 .card .sub{line-height:1.55;min-height:18px}
 .kpi{padding:17px 18px;position:relative;overflow:hidden}
-.kpi:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--s1);opacity:.72}
+.kpi:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--kc,var(--s1));opacity:.72}
+.kpi.dept:before{width:5px;opacity:1}
+.kpi.dept .lbl{display:flex;align-items:center;gap:6px;font-weight:600;color:var(--ink)}
+.kpi.dept .lbl:before{content:"";width:10px;height:10px;border-radius:3px;background:var(--kc);flex:none}
 .kpi .lbl{font-size:12px;font-weight:500}
 .kpi .val{font-size:clamp(25px,2vw,34px);letter-spacing:-.8px;font-variant-numeric:tabular-nums}
 .kpi .gap{font-size:11px;line-height:1.5}
@@ -1245,7 +1248,7 @@ function bindCards(){
     if (on && tables[id]) $('#t-'+id).innerHTML=tableHTML(tables[id]);
   }));
 }
-const kpiHTML=(lbl,val,gap,cls='',st='')=>`<div class="card kpi"><div class="lbl">${lbl}</div><div class="val ${st}">${val}</div><div class="gap ${st||cls}">${gap}</div></div>`;
+const kpiHTML=(lbl,val,gap,cls='',st='',kc='')=>`<div class="card kpi${kc?' dept':''}"${kc?` style="--kc:var(${kc})"`:''}><div class="lbl">${lbl}</div><div class="val ${st}">${val}</div><div class="gap ${st||cls}">${gap}</div></div>`;
 /* สีสถานะ scoreboard: ต่ำกว่าเป้า = แดง, เป้า–100% = เขียว, มากกว่า 100% = เหลือง (เป้า OEE 85 / A 90 / P 95 / Q 99 ตั้งได้ในหน้า "ข้อมูลและเป้าหมาย") */
 function statusOf(v,target){ if(v==null||!isFinite(v)) return ''; const x=Math.round(v*10000)/100; return x<target?'st-red':(x>100?'st-yellow':'st-green'); }
 /* สี % ผลิตได้ตามแผน: ≤95 แดง · มากกว่า 95 ถึงน้อยกว่า 105 เขียว (96–104) · ≥105 เหลือง */
@@ -1490,7 +1493,7 @@ function pageLoss(){
     }
     notes[k]=o; });
   $('#view').innerHTML=titleHTML('เวลาสูญเสีย (Loss)')+catChips+`
-   <div class="grid g4 kpis">${cats.map((c,i)=>kpiHTML(c.k,nf(tot[i])+' <small style="font-size:13px;font-weight:400">นาที</small>',all?pct(tot[i]/all,1)+' ของทั้งหมด':'–')).join('')}</div>
+   <div class="grid g4 kpis">${cats.map((c,i)=>kpiHTML(c.k,nf(tot[i])+' <small style="font-size:13px;font-weight:400">นาที</small>',all?pct(tot[i]/all,1)+' ของทั้งหมด':'–','','',c.col)).join('')}</div>
    <div class="grid g1">${card('l_day','Loss รายวัน แยกหมวด','นาที',380)}</div>
    <div class="grid g2" style="margin-top:14px">${card('l_proc','Loss รายเครื่อง แยกหมวด','นาที',Math.max(480,nProc*26+60))}${card('l_top','เหตุผลที่ทำให้เสียเวลามากที่สุด','นาที',Math.max(480,nProc*26+60))}</div>
    <div class="grid g1" style="margin-top:14px">${noteList('issue','ปัญหาเครื่องจักร (Machine issue)',notes.issue)}</div>
