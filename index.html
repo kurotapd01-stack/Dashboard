@@ -119,6 +119,12 @@ td.num{font-variant-numeric:tabular-nums}
 .pvm tr.sum th,.pvm tr.sum td{border-top:2px solid var(--ink2)}
 .pvm .corner{background:transparent!important;border:0!important}
 .scroll{overflow:auto;max-height:560px}
+.ngcal{border-collapse:collapse;width:100%;font-size:13px}
+.ngcal th,.ngcal td{padding:6px 10px;border-bottom:1px solid var(--axis);text-align:center;white-space:nowrap}
+.ngcal thead th{position:sticky;top:0;background:var(--surface)}
+.ngcal td:first-child{text-align:left}
+.ngcal tr.off td{color:var(--ink2);background:var(--wash)}
+.ngcal input[type=checkbox]{width:16px;height:16px;cursor:pointer}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 10px}
 .chip{display:inline-flex;gap:6px;align-items:center;font-size:12px;color:var(--ink2);border:1px solid var(--axis);border-radius:999px;padding:2px 10px;background:var(--plane);cursor:pointer}
 .chip i{width:10px;height:10px;border-radius:3px;display:inline-block}
@@ -401,7 +407,8 @@ const CONFIG = {
   refreshSec: 3600,           // ดึงข้อมูลผลิตภัณฑ์ที่เปิดอยู่ทุกกี่วินาที (3600 = ทุก 1 ชั่วโมง, 0 = ปิด) · ปุ่ม "รีเฟรชตอนนี้" ยังกดดึงเองได้ตลอด
   bgRefreshSec: 3600,         // ดึงข้อมูลผลิตภัณฑ์อื่นที่ไม่ได้เปิดอยู่ทุกกี่วินาที (0 = ปิด)
   sheetNames: { combined: 'Combined', plan: 'Input plan', ngPlan: 'Plan NG' },   // ชื่อแท็บในแต่ละไฟล์ Sheets
-  targets: { oee: 85, a: 90, p: 95, q: 99, ng: 1 },   // เป้าหมาย % (แก้ได้ในหน้า "ข้อมูล")
+  targets: { oee: 85, a: 90, p: 95, q: 99, ng: 1 },
+  ngDaily: { SOP: 49 },   // เป้า NG ต่อวันเริ่มต้น (ชิ้น) ต่อผลิตภัณฑ์ — PE กำหนด · แก้ได้ที่หน้า "ข้อมูลและเป้าหมาย"   // เป้าหมาย % (แก้ได้ในหน้า "ข้อมูล")
   products: {
     SOP: { name: 'Shaft Oil Pump', sheetId: '1CsYo5t9JQ4vMLh_ShrjsLBeb93hOmwf1Fbkg2T8iGS4', combinedUrl: '', planUrl: '' },
     SWP: { name: 'Shaft Water Pump', sheetId: '1q8WR5LP7r1Vw1jjWaL-yiMDd5B0k5pTAdrUzZYKzYhQ', combinedUrl: '', planUrl: '' },
@@ -605,6 +612,7 @@ const I18N_PATS = [
   [/^Google Sheets ของ (\S+)$/g,'Google Sheets for $1','$1 の Google Sheets'],
   [/^(\S+) ยังไม่มีข้อมูล$/g,'$1: no data yet','$1: データがまだありません'],
   [/\(ยังไม่จับคู่\) /g,'(unmapped) ','(未対応) '],
+  [/เป้า NG = ตารางวันทำงาน × ([\d.]+) ชิ้น\/วัน · /g,'Target NG = working days × $1 pcs/day · ','目標NG = 稼働日 × $1 個/日 · '],
   [/เป้า NG = ชีต Plan NG · /g,'Target NG = from the Plan NG sheet · ','目標NG = Plan NGシート · '],
   [/เป้า NG = แผนผลิต × ([\d.]+)% · /g,'Target NG = planned qty × $1% · ','目標NG = 計画数 × $1% · '],
   [/สะสมตั้งแต่ต้นช่วง รวม NG ของทุก Process \(รวม Screening\)/g,'Cumulative from start of period, includes NG from all processes (incl. Screening)','期間開始からの累計 · Screeningを含む全工程のNG'],
@@ -1526,8 +1534,8 @@ function pageNG(){
   /* ---- NG สะสม: เป้า vs จริง ----
      จริง = NG ทุก Process (รวม Screening/SC) สะสมรายวัน · เป้า = แผนผลิตรายวัน (Input plan) × เป้า NG % สะสมรายวัน
      ถ้าดูถึงวันล่าสุดอยู่ เส้นเป้าจะยาวต่อไปจนสิ้นเดือน ส่วนเส้นจริงหยุดที่วันล่าสุดที่มีข้อมูล */
-  const dd0=D(), hasNgP=!!(dd0&&dd0.ngPlan), planOK=hasNgP||!!(dd0&&dd0.plan), ngRate=(S.targets.ng!=null?+S.targets.ng:1)/100, nfT=String(+(ngRate*100).toFixed(3));
-  const tRows=hasNgP?dd0.ngPlan.rows:(planOK?dd0.plan.rows.map(p=>({date:p.date,procs:p.procs,qty:p.qty*ngRate})):[]);
+  const dd0=D(), calR=ngCalRows(S.product), hasCal=!!calR, hasNgP=!hasCal&&!!(dd0&&dd0.ngPlan), planOK=hasCal||hasNgP||!!(dd0&&dd0.plan), ngRate=(S.targets.ng!=null?+S.targets.ng:1)/100, nfT=String(+(ngRate*100).toFixed(3));
+  const tRows=hasCal?calR:hasNgP?dd0.ngPlan.rows:(planOK?dd0.plan.rows.map(p=>({date:p.date,procs:p.procs,qty:p.qty*ngRate})):[]);
   let cEnd=f.to;
   if (planOK && f.to>=f.max){
     const ym=f.to.slice(0,7); const [yy,mm]=ym.split('-').map(Number);
@@ -1550,11 +1558,11 @@ function pageNG(){
     cumA.push(x>f.max?null:sa); cumT.push(planOK?Math.round(st):null);
   }
   const cumNote = !planOK ? '<p class="note">ไม่มีข้อมูลเป้า (ชีต Plan NG / Input plan) จึงแสดงเฉพาะเส้น NG จริง</p>'
-    : (shiftFiltered()&&!hasNgP) ? '<p class="note">ตัวกรองกะ หรือ กลางวัน/กลางคืน ทำให้ NG จริงน้อยลง แต่แผนไม่แยกกะ เส้นเป้า NG จึงไม่ตรงความจริง</p>' : '';
+    : (shiftFiltered()&&!hasNgP&&!hasCal) ? '<p class="note">ตัวกรองกะ หรือ กลางวัน/กลางคืน ทำให้ NG จริงน้อยลง แต่แผนไม่แยกกะ เส้นเป้า NG จึงไม่ตรงความจริง</p>' : '';
   const gp=[...groupBy(ngF({ignoreX:'proc'}),r=>r.proc).entries()].map(([p,x])=>({p,...agg(x)})).filter(x=>x.total>0).sort((a,b)=>(b.ngp||0)-(a.ngp||0));
   $('#view').innerHTML=titleHTML('งานเสีย (NG)')+`<div class="chips"><label class="chip"><input type="checkbox" id="ngInd" ${S.ngInduction?'checked':''}> ไม่นับ NG ของ Induction</label></div>
    <div class="grid g3 kpis">${kpiHTML('NG (ชิ้น)',nf(a.ng),`จากยอดผลิต ${nf(a.total)} ชิ้น`)}${kpiHTML('% NG',pct(a.ngp,2),'')}${kpiHTML('Quality',pct(a.Q,2),gapOf(a.Q,S.targets.q).t,gapOf(a.Q,S.targets.q).c,statusOf(a.Q,S.targets.q))}</div>
-   <div class="grid g1" style="margin-bottom:14px">${card('n_cum','NG สะสม: เป้า vs จริง',(hasNgP?'เป้า NG = ชีต Plan NG · ':'เป้า NG = แผนผลิต × '+nfT+'% · ')+'สะสมตั้งแต่ต้นช่วง รวม NG ของทุก Process (รวม Screening)',380,cumNote)}</div>
+   <div class="grid g1" style="margin-bottom:14px">${card('n_cum','NG สะสม: เป้า vs จริง',(hasCal?'เป้า NG = ตารางวันทำงาน × '+(+S.ngCal[S.product].rate)+' ชิ้น/วัน · ':hasNgP?'เป้า NG = ชีต Plan NG · ':'เป้า NG = แผนผลิต × '+nfT+'% · ')+'สะสมตั้งแต่ต้นช่วง รวม NG ของทุก Process (รวม Screening)',380,cumNote)}</div>
    <div class="grid g1">${card('n_day','NG รายวัน','ชิ้น',340)}</div>
    <div class="grid g2" style="margin-top:14px">${card('n_proc','% NG รายเครื่อง','',Math.max(460,gp.length*26+60))}${card('n_type','ประเภท NG ที่พบมากที่สุด','ชิ้น',Math.max(460,gp.length*26+60))}</div>`;
   bindCards(); $('#ngInd').onchange=e=>{S.ngInduction=e.target.checked;render();};
@@ -1731,6 +1739,50 @@ function pwaRefresh(){ const c=$('#pwaCard'); if (c){ c.innerHTML=pwaCardHTML();
 window.addEventListener('pwa-change',pwaRefresh);
 if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) window.addEventListener('load',()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
 
+/* ===== ตารางเป้า NG รายวัน (ตั้งเองในหน้า "ข้อมูลและเป้าหมาย") =====
+   เป้าสะสม = วันทำงานสะสมในเดือน × เป้า NG ต่อวัน · เก็บในเบราว์เซอร์เครื่องนี้ (localStorage) · ถ้ามีตารางของผลิตภัณฑ์นั้น กราฟ "NG สะสม" จะใช้ตารางนี้ก่อน */
+S.ngCal = store.get('oee.ngCal',{});   // product -> {rate, days:{'YYYY-MM-DD':1|0}}
+function ngCalOf(p){ if(!S.ngCal[p]) S.ngCal[p]={rate:(CONFIG.ngDaily||{})[p]||0, days:{}}; return S.ngCal[p]; }
+function ngCalRows(p){
+  const c=S.ngCal[p]; if(!c||!(+c.rate>0)) return null;
+  const out=Object.entries(c.days||{}).filter(([,v])=>v).map(([date])=>({date,procs:[],qty:+c.rate})).sort((x,y)=>x.date<y.date?-1:1);
+  return out.length?out:null;
+}
+const NC_DOW=['อา','จ','อ','พ','พฤ','ศ','ส'];
+function ncMonthDays(m){ const [y,mo]=m.split('-').map(Number); const n=new Date(Date.UTC(y,mo,0)).getUTCDate(); return Array.from({length:n},(_,i)=>{ const d=i+1; return {iso:m+'-'+String(d).padStart(2,'0'), dow:new Date(Date.UTC(y,mo-1,d)).getUTCDay()}; }); }
+function ncDefaultMonth(){ const f=S.filt[S.product]; if (f&&f.max) return f.max.slice(0,7); const t=new Date(); return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0'); }
+function ngCalBodyHTML(p,m){
+  const c=ngCalOf(p), rate=+c.rate||0; let cum=0;
+  return ncMonthDays(m).map(({iso,dow})=>{
+    const on=!!c.days[iso]; if(on) cum++;
+    return `<tr class="${on?'':'off'}"><td>${fmtD(iso,true)} (${NC_DOW[dow]})</td><td><input type="checkbox" data-ncd="${iso}" ${on?'checked':''} aria-label="${iso}"></td><td>${cum}</td><td>${nf(cum*rate)}</td></tr>`;
+  }).join('');
+}
+function ngCalCardHTML(){
+  const p=S.ngCalP||(S.ngCalP=S.product), m=S.ngCalM||(S.ngCalM=ncDefaultMonth()), c=ngCalOf(p);
+  return `<section class="card" id="ngCalCard" style="margin-bottom:14px"><h3>เป้า NG รายวัน (ตามวันทำงาน)</h3>
+   <div class="note">เป้าสะสม = วันทำงานสะสม × เป้า NG ต่อวัน · วันหยุดเส้นเป้าไม่ขึ้น · กราฟ "NG สะสม" ในหน้างานเสียจะใช้ตารางนี้ · เดือนที่ไม่ได้ติ๊กวันทำงานจะไม่มีเส้นเป้า · ค่าเก็บในเบราว์เซอร์เครื่องนี้</div>
+   <div class="form-row">
+     <label class="fld">ผลิตภัณฑ์<select data-ncp>${Object.keys(CONFIG.products).map(k=>`<option value="${k}" ${k===p?'selected':''}>${k}</option>`).join('')}</select></label>
+     <label class="fld">เดือน<input type="month" data-ncm value="${m}"></label>
+     <label class="fld">เป้า NG ต่อวัน (ชิ้น)<input type="number" min="0" step="1" data-ncr value="${c.rate||''}" style="min-width:110px"></label></div>
+   <div class="form-row"><button class="btn" data-nca="we">เสาร์–อาทิตย์ = หยุด</button><button class="btn" data-nca="sun">อาทิตย์ = หยุด</button><button class="btn" data-nca="all">ทุกวัน = ทำงาน</button><button class="btn" data-nca="clr">ล้างเดือนนี้</button></div>
+   <div class="scroll" style="max-height:420px"><table class="ngcal"><thead><tr><th>วันที่</th><th>Work Day</th><th>Cumulative Work Day</th><th>Target NG (สะสม)</th></tr></thead><tbody id="ngCalBody">${ngCalBodyHTML(p,m)}</tbody></table></div></section>`;
+}
+function ngCalBind(){
+  const card=$('#ngCalCard'); if(!card) return;
+  const save=()=>store.set('oee.ngCal',S.ngCal);
+  const redo=()=>{ $('#ngCalBody').innerHTML=ngCalBodyHTML(S.ngCalP,S.ngCalM); };
+  card.querySelector('[data-ncp]').onchange=e=>{ S.ngCalP=e.target.value; card.querySelector('[data-ncr]').value=ngCalOf(S.ngCalP).rate||''; redo(); };
+  card.querySelector('[data-ncm]').onchange=e=>{ if(e.target.value){ S.ngCalM=e.target.value; redo(); } };
+  card.querySelector('[data-ncr]').onchange=e=>{ ngCalOf(S.ngCalP).rate=Math.max(0,+e.target.value||0); save(); redo(); };
+  $('#ngCalBody').onchange=e=>{ const d=e.target.dataset&&e.target.dataset.ncd; if(!d) return; ngCalOf(S.ngCalP).days[d]=e.target.checked?1:0; save(); redo(); };
+  card.querySelectorAll('[data-nca]').forEach(b=>b.onclick=()=>{
+    const c=ngCalOf(S.ngCalP), a=b.dataset.nca;
+    for (const {iso,dow} of ncMonthDays(S.ngCalM)) c.days[iso] = a==='clr' ? 0 : a==='all' ? 1 : a==='sun' ? (dow===0?0:1) : ((dow===0||dow===6)?0:1);
+    save(); redo();
+  });
+}
 function pageData(){
   const T=S.targets;
   const blocks=Object.entries(CONFIG.products).map(([p,v])=>{
@@ -1751,9 +1803,10 @@ function pageData(){
      <div class="form-row"><label class="fld" style="flex:1">Apps Script URL<input type="url" data-surl="1" value="${esc(scriptUrlOf())}" placeholder="https://script.google.com/macros/s/…/exec" style="width:100%" autocomplete="off"></label></div>
      <div class="form-row"><label class="fld" style="flex:1">รหัสผ่านเข้าถึง<input type="password" data-stoken="1" value="${esc(scriptTokenOf())}" style="width:100%" autocomplete="off"></label></div>
      <div class="form-row"><label class="fld" style="flex:1">Google API Key<input type="password" data-key="1" value="${esc(apiKeyOf())}" placeholder="AIza…" style="width:100%" autocomplete="off"></label><button class="btn primary" id="connectAll">เชื่อมต่อและโหลดทั้งหมด</button></div></section></div>
+   ${ngCalCardHTML()}
    <section class="card" id="pwaCard" style="margin-bottom:14px">${pwaCardHTML()}</section>
    <div class="grid g2">${blocks}</div>`;
-  pwaBind();
+  pwaBind(); ngCalBind();
   $$('[data-t]').forEach(i=>i.onchange=()=>{S.targets[i.dataset.t]=+i.value||0; store.set('oee.targets',S.targets);});
   $$('[data-u]').forEach(i=>i.onchange=()=>{const [p,k]=i.dataset.u.split(':'); S.urls[p]=Object.assign({},S.urls[p],{[k]:i.value.trim()}); store.set('oee.urls',S.urls);});
   $$('[data-surl]').forEach(i=>i.onchange=()=>{S.api.scriptUrl=i.value.trim(); store.set('oee.api',S.api);});
