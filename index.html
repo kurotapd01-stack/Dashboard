@@ -706,6 +706,7 @@ function parseDate(v){
   const s=String(v).trim(); let m;
   if ((m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))) return `${m[1]}-${pad(m[2])}-${pad(m[3])}`;
   if ((m=s.match(/^(\d{1,2})[-\s]([A-Za-z]{3})[a-z]*[-\s](\d{4})/))) { const mo=EN_M[m[2].toLowerCase()]; if (mo) return `${m[3]}-${pad(mo)}-${pad(m[1])}`; }
+  if ((m=s.match(/^(\d{1,2})[-\s]([ก-๙.]+)[-\s](\d{4})/))) { const k=m[2].replace(/\./g,''); const mo=TH_M.findIndex(t=>t.replace(/\./g,'')===k)+1; if (mo){ let y=+m[3]; if (y>2400) y-=543; return `${y}-${pad(mo)}-${pad(m[1])}`; } }
   if ((m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/))) { let a=+m[1], b=+m[2]; if (b>12){ [a,b]=[b,a]; } return `${m[3]}-${pad(b)}-${pad(a)}`; }
   return null;
 }
@@ -772,20 +773,28 @@ function buildCombined(aoa){
   out.skipped={n:skipped,pcs:skippedPcs}; out.cols={issue:c.issue>=0,ngNote:c.ngNote>=0,lossT:c.lossT>=0,ltNote:c.ltNote>=0};
   return out;
 }
-/* ชีต "Plan NG": แถวแรกเป็นหัวคอลัมน์ · คอลัมน์แรก = วันที่ · คอลัมน์ที่เหลือ = เป้า NG (ชิ้น) ของวันนั้น
-   มีคอลัมน์เดียว (เช่น Target NG) ก็ใช้ค่านั้น · มีหลายคอลัมน์ (แยกตาม Process/Part) จะรวมกัน (ไม่นับคอลัมน์ Total ถ้ามีคอลัมน์อื่นอยู่)
-   วันที่ไม่มีแถว/ช่องว่าง = 0 (เส้นเป้าจึงราบในวันหยุด) */
+/* ชีต "Plan NG": แถวแรกเป็นหัวคอลัมน์ · คอลัมน์แรก = วันที่ · มีคอลัมน์ "Target NG / Day"
+   ค่าในคอลัมน์นี้ทำได้ทั้งแบบ "สะสมรายเดือน" (เช่น 46, 92, 138 … แล้วเริ่มใหม่ทุกต้นเดือน) หรือแบบ "รายวัน"
+   ระบบเดาจากข้อมูล แล้วแปลงเป็น "เป้ารายวัน" เสมอ (สะสมแล้วใช้ส่วนต่างของแต่ละวัน · ถ้าค่าลดลง = เริ่มรอบใหม่)
+   วันหยุดที่ค่าเท่าเดิม = เป้าเพิ่ม 0 เส้นเป้าจึงราบ */
 function buildNgPlan(aoa, product){
   if (!aoa || aoa.length<2) return null;
-  const H=aoa[0].map(normLabel); const isTot=h=>/^(total|รวม|sum)$/i.test(h);
-  let vc=[]; for (let j=1;j<H.length;j++) if (H[j] && !isTot(H[j])) vc.push(j);
-  if (!vc.length) for (let j=1;j<H.length;j++) if (H[j]) vc.push(j);
-  const map=CONFIG.planMap[product]||{}; const out=[];
-  for (let r=1;r<aoa.length;r++){
-    const row=aoa[r]; const date=parseDate(row[0]); if (!date) continue;
-    for (const j of vc){ const q=num(row[j]); if (!q) continue; const procs=map[H[j]]||map[(H[j].match(/^(.*?)\s+\S+$/)||[])[1]]||[]; out.push({date,col:H[j],procs,qty:q}); }
+  const H=aoa[0].map(normLabel);
+  let col=H.findIndex(h=>/target|เป้า/i.test(h) && /ng/i.test(h));
+  if (col<1) col=H.findIndex((h,j)=>j>0 && h && !/work|day.*cum|cumul|วันทำงาน/i.test(h));
+  if (col<1) return null;
+  const pts=[]; for (let r=1;r<aoa.length;r++){ const date=parseDate(aoa[r][0]); if (!date) continue; const raw=aoa[r][col]; if (raw==null||String(raw).trim()==='') continue; pts.push({date,v:num(raw)}); }
+  pts.sort((x,y)=>x.date<y.date?-1:x.date>y.date?1:0);
+  if (!pts.length) return null;
+  const nz=pts.map(x=>x.v).filter(v=>v>0).sort((x,y)=>x-y);
+  const med=nz.length?nz[Math.floor(nz.length/2)]:0, mx=nz.length?nz[nz.length-1]:0;
+  const cumulative = nz.length>2 && mx>=1.5*med;
+  const out=[]; let prev=0;
+  for (const x of pts){
+    const inc = cumulative ? (x.v>=prev ? x.v-prev : x.v) : x.v;
+    prev = x.v; if (inc>0) out.push({date:x.date,col:H[col],procs:[],qty:inc});
   }
-  return {rows:out, cols:vc.length};
+  return {rows:out, cumulative};
 }
 function buildPlan(aoa, product){
   const map = CONFIG.planMap[product] || {};
