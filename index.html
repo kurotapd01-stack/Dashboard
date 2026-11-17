@@ -1505,20 +1505,51 @@ function pageNG(){
 
 /* คอลัมน์ของเมทริกซ์ แยกตามผลิตภัณฑ์: [regex ของชื่อ Process กลุ่ม, หัวคอลัมน์] (ตรงกติกาแรกก่อนใช้อันนั้น)
    Process ที่ไม่ตรงกติกาไหนจะแสดงเป็นคอลัมน์ชื่อเดิม · Screening ไม่แสดงในเมทริกซ์ */
-const SOP_G2='Grinding 1,2 + Milling + M8,M9';   // SOP: Grinding/Milling/M8,M9 ที่รันพาส 11320 11051 11140 11110
+const SOP_G2='Grinding 1,2 + Milling + M8,M9';   // SOP: Grinding SOP Set5 / Set6
 const PLAN_COLS = {
-  SOP:[[/^lathe auto \((b08-01|b12-24|b12-28|b12-13)\)/i,'Cutting'],[/^cold forging/i,'Cold Forging'],[/^lathe/i,'Lathe 1,2,3'],[/^roll/i,'Lathe 1,2,3'],[/^induction/i,'Induction'],[/^(grinding|gr \d)/i,'Grinding 1,2'],[/^(milling|m ?[89]\b)/i,SOP_G2]],
+  SOP:[['Cutting'],['Cold Forging'],['Lathe 1,2,3'],['Induction'],['Grinding 1,2'],[SOP_G2]],   // SOP ใช้ SOP_LINES (ด้านล่าง) แทน regex
   SWP:[[/^milling/i,'Milling'],[/^deburring/i,'Deburring'],[/^grinding small/i,'Grinding Small'],[/^grinding 1/i,'Grinding 1'],[/^lathe/i,'Lathe 1,2 + Gr 2']],
   VBA:[[/^lathe op1/i,'Lathe OP1'],[/^lathe op2/i,'Lathe OP2']],
   VOP:[[/^lathe/i,'Lathe'],[/^drilling/i,'Drilling'],[/^deburring/i,'Deburring'],[/^grinding [12]/i,'Grinding 1,2'],[/^grinding 3/i,'Grinding 3']]
 };
 /* Part ที่แต่ละ Process รันได้ตาม SOP (ตัด L/S ท้ายพาสออกแล้ว) · Process ที่ไม่อยู่ในรายการ = ไม่จำกัด · Part นอกรายการ = ช่องเทา */
-const SOP_LATHE='11120 11040 11320 11051 11140 11110 11070 11090'.split(' ');
+/* ===== SOP รายไลน์/เซ็ต (SOP): แต่ละไลน์ → คอลัมน์ในเมทริกซ์ + Part ที่รันได้ (ตัด L/S ท้ายพาสแล้ว) =====
+   Plan/Actual ของไลน์นั้นจะถูกนับเฉพาะ Part ที่ระบุ · Part/ไลน์ที่ไม่อยู่ใน SOP ไม่นับในตาราง (แสดงสรุปไว้ใต้ตาราง) */
+const SOP_LINES = [
+  [/^lathe auto \(b08-?0?1\)/i,  'Cutting','11140 11120 11040'],
+  [/^lathe auto \(b12-?0?28\)/i, 'Cutting','11320 11040 11070'],
+  [/^lathe auto \(b12-?0?24\)/i, 'Cutting','11090 11070 11320 11051'],
+  [/^lathe auto \(b12-?0?13\)/i, 'Cutting','11120 11070 11040'],
+  [/^cold forging/i,             'Cold Forging','11140 11320 11110 11051'],
+  [/^lathe sop \(set ?1\)/i,     'Lathe 1,2,3','11040 11120'],
+  [/^lathe sop \(set ?2\)/i,     'Lathe 1,2,3','11110 11040 11120'],
+  [/^lathe sop \(set ?6\)/i,     'Lathe 1,2,3','11320 11120 11040 11051'],
+  [/^lathe sop \(set ?7\)/i,     'Lathe 1,2,3','11110 11320 11090 11070 11051'],
+  [/^induction/i,                'Induction','11120 11040'],
+  [/^grinding sop \(set ?3\)/i,  'Grinding 1,2','11040 11320 11120 11110'],
+  [/^grinding sop \(set ?4\)/i,  'Grinding 1,2','11110 11120 11051 11040'],
+  [/^grinding sop \(set ?7\)/i,  'Grinding 1,2','11040 11140 11320 11120'],
+  [/^(gr 1\b|grinding 1$)/i,     'Grinding 1,2','11070 11090'],
+  [/^(gr 2\b|grinding 2$)/i,     'Grinding 1,2','11070 11090'],
+  [/^grinding sop \(set ?5\)/i,  SOP_G2,'11051 11110 11040'],
+  [/^grinding sop \(set ?6\)/i,  SOP_G2,'11140 11320 11051']
+].map(([re,col,ps])=>({re,col,parts:ps.split(' ')}));
+const SWP_LINES = [
+  [/^milling/i,                      'Milling','10250 10160'],
+  [/^deburring/i,                    'Deburring','10250 10160'],
+  [/^grinding small/i,               'Grinding Small','10250 10160'],
+  [/^grinding 1 swp \(set ?1\)/i,    'Grinding 1','10300 10260'],
+  [/^grinding 1 swp \(set ?2\)/i,    'Grinding 1','10300 10260'],
+  [/^lathe 1,2 \+ gr 2 \(set ?1\)/i, 'Lathe 1,2 + Gr 2','10300 10260'],
+  [/^lathe 1,2 \+ gr 2 \(set ?2\)/i, 'Lathe 1,2 + Gr 2','10300 10260'],
+  [/^lathe 1,2 \+ gr 2 \(set ?4\)/i, 'Lathe 1,2 + Gr 2','10300 10260']
+].map(([re,col,ps])=>({re,col,parts:ps.split(' ')}));
+const LINE_RULES = {SOP:SOP_LINES, SWP:SWP_LINES};
+const sopLine = (g,prod) => (LINE_RULES[prod||S.product]||[]).find(L=>L.re.test(String(g||'').trim()));
 
 const VBA_PARTS='20030 27040 22090 22170 20930 20970 21970 17880 18950 PLUNGER 20410'.split(' ');
 const VOP_PARTS='Y1 10050 10070 46040 10290 10230'.split(' ');
 const PLAN_PARTS = {
-  SOP:{'Cutting':SOP_LATHE,'Cold Forging':'11320 11051 11140 11110'.split(' '),'Lathe 1,2,3':SOP_LATHE,'Induction':'11120 11040'.split(' '),'Grinding 1,2':'11120 11040'.split(' '),[SOP_G2]:'11320 11051 11140 11110'.split(' ')},
   SWP:{'Milling':'10160 10250'.split(' '),'Grinding Small':'10160 10250'.split(' '),'Grinding 1':'10260 10300'.split(' '),'Lathe 1,2 + Gr 2':'10260 10300'.split(' ')},
   VBA:{'Lathe OP1':VBA_PARTS,'Lathe OP2':VBA_PARTS},
   VOP:{'Lathe':VOP_PARTS,'Drilling':['10290'],'Deburring':['10290'],'Grinding 1,2':VOP_PARTS,'Grinding 3':VOP_PARTS}
@@ -1527,7 +1558,7 @@ const partAllowed=(prod,col,part)=>{ const a=(PLAN_PARTS[prod]||{})[col]; return
 const PLAN_HIDE = /screen/i;   // ลบบรรทัดนี้ถ้าอยากให้แสดงคอลัมน์ Screening ด้วย
 function planCol(prod,g){
   if (PLAN_HIDE.test(g)) return null;
-  for (const [re,n] of (PLAN_COLS[prod]||[])) if (re.test(g)) return n;
+  for (const a of (PLAN_COLS[prod]||[])) if (a.length>1 && a[0].test(g)) return a[1];
   return g;
 }
 function pagePlan(){
@@ -1537,15 +1568,24 @@ function pagePlan(){
   const tp=all.reduce((s,x)=>s+x.plan,0), ta=all.reduce((s,x)=>s+x.actual,0);
 
   /* ---- เมทริกซ์ Part × Process ---- */
-  const order=[]; (PLAN_COLS[S.product]||[]).forEach(([,n])=>{ if(!order.includes(n)) order.push(n); });
+  const order=[]; (PLAN_COLS[S.product]||[]).forEach(a=>{ const n=a[a.length-1]; if(!order.includes(n)) order.push(n); });
   const cells=new Map();               // part -> Map(col -> {plan,actual})
-  const seen=new Set();
+  const seen=new Set(); const outside=new Map();   // outside = ไลน์/Part ที่ไม่อยู่ใน SOP
   for (const x of all){
-    let col=planCol(S.product,x.group); if (!col) continue;
+    if (PLAN_HIDE.test(x.group)) continue;
     if (!x.plan && !x.actual) continue;
     const part=String(x.part).replace(/^(\d+)[LS]$/,'$1');
-    if (S.product==='SOP' && col==='Grinding 1,2' && !partAllowed('SOP',col,part)) col=SOP_G2;   // Grinding รันพาสกลุ่มหลัง → คอลัมน์รวม Milling/M8,M9
-    if (!partAllowed(S.product,col,part)) continue;
+    let col;
+    if (LINE_RULES[S.product]){
+      const L=sopLine(x.group,S.product);
+      if (!L || !L.parts.includes(part)){
+        const k=x.group+' · '+part; const o=outside.get(k)||{plan:0,actual:0}; o.plan+=x.plan; o.actual+=x.actual; outside.set(k,o); continue;
+      }
+      col=L.col;
+    } else {
+      col=planCol(S.product,x.group); if (!col) continue;
+      if (!partAllowed(S.product,col,part)) continue;
+    }
     if (!cells.has(part)) cells.set(part,new Map());
     const m=cells.get(part); if(!m.has(col)) m.set(col,{plan:0,actual:0});
     const c=m.get(col); c.plan+=x.plan; c.actual+=x.actual; seen.add(col);
@@ -1565,7 +1605,7 @@ function pagePlan(){
     <thead><tr><th class="corner"></th>${cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead>
     <tbody>${parts.map(p=>`<tr><th scope="row">${esc(p)}</th>${cols.map(c=>{ const x=cells.get(p).get(c); if(!x) return '<td class="na"></td>'; const v=net(x); return `<td class="${cls(v)}" title="Plan ${nf(x.plan)} · Actual ${nf(x.actual)}">${sg(v)}</td>`; }).join('')}</tr>`).join('')}
     <tr class="sum"><th scope="row">Sum</th>${colSum.map(v=>`<td class="${cls(v)}">${sg(v)}</td>`).join('')}</tr></tbody></table></div>
-    <p class="note">ค่า = ผลิตจริง − แผน (ชิ้น) · เขียว = เกินแผน · แดง = ต่ำกว่าแผน · เหลือง = ตรงแผน · เทา = ไม่มีแผน/ไม่ผลิต · Screening ไม่แสดงในตาราง · เอาเมาส์ชี้ช่องเพื่อดู Plan / Actual</p>`
+    <p class="note">ค่า = ผลิตจริง − แผน (ชิ้น) · เขียว = เกินแผน · แดง = ต่ำกว่าแผน · เหลือง = ตรงแผน · เทา = ไม่มีแผน/ไม่ผลิต · Screening ไม่แสดงในตาราง · เอาเมาส์ชี้ช่องเพื่อดู Plan / Actual</p>${outside.size?`<p class="note">นอก SOP (ไม่นับในตาราง): ${[...outside].slice(0,8).map(([k,o])=>esc(k)+' (แผน '+nf(o.plan)+' / จริง '+nf(o.actual)+')').join(' · ')}${outside.size>8?' …':''}</p>`:''}`
     : `<div class="empty"><h2>ไม่มีข้อมูลในช่วงที่เลือก</h2></div>`;
 
   $('#view').innerHTML=titleHTML('แผน vs ผลิตจริง')+(noCmp?`<div class="warn">ตัวกรองกะ หรือ กลางวัน/กลางคืน ทำให้ยอดผลิตจริงน้อยลง แต่ Plan ไม่แยกกะ ผลต่างจึงไม่ตรงความจริง ให้ตั้งเป็น “ทุกกะ” ก่อนอ่านหน้านี้</div>`:'')+
