@@ -1439,7 +1439,7 @@ function pageOEE(){
   const T=S.targets; let st=procStats({ignoreX:'proc'}).filter(x=>!isScreen(x.proc)&&(x.run>0||x.total>0));
   const order=[...st].sort((a,b)=>(a.oee??9)-(b.oee??9)); const labels=order.map(x=>x.proc);
   const h=Math.max(260,order.length*26+56);
-  $('#view').innerHTML = titleHTML('OEE รายเครื่อง') + `<div class="grid g2">
+  $('#view').innerHTML = titleHTML('OEE รายเครื่อง') + `${card('o_daily','OEE รายวัน','',360)}<div style="height:14px"></div><div class="grid g2">
      ${card('o_oee','OEE %','',h)}${card('o_a','Availability %','',h)}
      ${card('o_p','Performance %','',h)}${card('o_q','Quality %','',h)}
    </div>
@@ -1448,6 +1448,16 @@ function pageOEE(){
    <div style="height:14px"></div>
    <section class="card"><div class="head"><div><h3>ตารางรายเครื่อง</h3></div></div><div class="scroll" id="proctbl"></div></section>`;
   bindCards();
+  /* กราฟเชิงซ้อนด้านบนสุด: แท่ง = OEE รายวัน · เส้น = Availability / Performance / Quality (ตามตัวกรองเครื่อง/กะ ที่เลือก) */
+  { const f=F(); const dates=dateRange(f.from,f.to); const byD=groupBy(filteredRows({ignoreX:'date'}),r=>r.date); const ag=dates.map(d=>byD.has(d)?agg(byD.get(d)):null);
+    const p1=v=>v==null?null:+(v*100).toFixed(2);
+    const dopt=baseOpts({fmt:v=>v+'%',min:0,max:110}); dopt.plugins.target={value:T.oee}; dopt.scales.y.ticks.callback=v=>v<=100?v+'%':''; dopt.scales.x.ticks.callback=function(v){return fmtD(dates[v]);};
+    const ln=(label,key,col)=>({type:'line',label,data:ag.map(x=>p1(x&&x[key])),borderColor:cv(col),backgroundColor:cv(col),pointRadius:3,pointBorderColor:cv('--surface'),pointBorderWidth:1.5,borderWidth:2,tension:0,order:1});
+    mk('o_daily',{type:'bar',data:{labels:dates.map(d=>fmtD(d)),datasets:[
+      {type:'bar',label:'OEE',data:ag.map(x=>p1(x&&x.oee)),backgroundColor:cv('--s1'),borderRadius:4,borderSkipped:false,barPercentage:.6,order:2},
+      ln('Availability','A','--s3'), ln('Performance','P','--s2'), ln('Quality','Q','--s4')]},options:dopt,plugins:[targetPlugin]},
+      {first:'วันที่',labels:dates.map(d=>fmtD(d)),series:[['OEE','oee'],['Availability','A'],['Performance','P'],['Quality','Q']].map(([n,k])=>({name:n,values:ag.map(x=>p1(x&&x[k])),fmt:v=>v.toFixed(2)+'%'}))});
+    xfBind('o_daily','date',dates); }
   const mkBar=(id,key,color,target,fmin)=>{
     const vals=order.map(x=>x[key]==null?null:+(x[key]*100).toFixed(2));
     const o=baseOpts({horiz:true,fmt:v=>v+'%',legend:false,min:fmin}); o.plugins.target={value:target}; o.scales.x.max=Math.max(105, ...vals.filter(v=>v!=null))+0; o.scales.x.max=Math.ceil(Math.max(target+4,...vals.filter(v=>v!=null))/5)*5+5;
