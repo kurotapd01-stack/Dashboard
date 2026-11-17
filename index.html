@@ -400,8 +400,8 @@ const CONFIG = {
   apiKey: '',                 // Google API Key (ว่างไว้ได้ ถ้าจะกรอกในหน้า "ข้อมูลและเป้าหมาย")
   refreshSec: 3600,           // ดึงข้อมูลผลิตภัณฑ์ที่เปิดอยู่ทุกกี่วินาที (3600 = ทุก 1 ชั่วโมง, 0 = ปิด) · ปุ่ม "รีเฟรชตอนนี้" ยังกดดึงเองได้ตลอด
   bgRefreshSec: 3600,         // ดึงข้อมูลผลิตภัณฑ์อื่นที่ไม่ได้เปิดอยู่ทุกกี่วินาที (0 = ปิด)
-  sheetNames: { combined: 'Combined', plan: 'Input plan' },   // ชื่อแท็บในแต่ละไฟล์ Sheets
-  targets: { oee: 85, a: 90, p: 95, q: 99 },   // เป้าหมาย % (แก้ได้ในหน้า "ข้อมูล")
+  sheetNames: { combined: 'Combined', plan: 'Input plan', ngPlan: 'Plan NG' },   // ชื่อแท็บในแต่ละไฟล์ Sheets
+  targets: { oee: 85, a: 90, p: 95, q: 99, ng: 1 },   // เป้าหมาย % (แก้ได้ในหน้า "ข้อมูล")
   products: {
     SOP: { name: 'Shaft Oil Pump', sheetId: '1CsYo5t9JQ4vMLh_ShrjsLBeb93hOmwf1Fbkg2T8iGS4', combinedUrl: '', planUrl: '' },
     SWP: { name: 'Shaft Water Pump', sheetId: '1q8WR5LP7r1Vw1jjWaL-yiMDd5B0k5pTAdrUzZYKzYhQ', combinedUrl: '', planUrl: '' },
@@ -526,6 +526,13 @@ const I18N_EXACT = {
   'ไม่นับ NG ของ Induction':['Exclude Induction NG','InductionのNGを除外'],
   'NG (ชิ้น)':['NG (pcs)','NG (個)'],
   'NG รายวัน':['Daily NG','日別NG'],
+  'NG สะสม: เป้า vs จริง':['Cumulative NG: Target vs Actual','累計NG: 目標 vs 実績'],
+  'NG จริง (สะสม)':['Actual NG','実績NG (累計)'],
+  'เป้า NG (สะสม)':['Target NG / Day','目標NG / 日'],
+  'เกินเป้า':['Over target','目標超過'],
+  'ต่ำกว่าเป้า':['Under target','目標未満'],
+  'ตัวกรองกะ หรือ กลางวัน/กลางคืน ทำให้ NG จริงน้อยลง แต่แผนไม่แยกกะ เส้นเป้า NG จึงไม่ตรงความจริง':['The shift / day-night filter reduces actual NG, but the plan is not split by shift, so the target line is not comparable.','シフト/昼夜フィルターでは実績NGが減りますが、計画はシフト別ではないため目標線とは比較できません。'],
+  'ไม่มีข้อมูลเป้า (ชีต Plan NG / Input plan) จึงแสดงเฉพาะเส้น NG จริง':['No target data (Plan NG / Input plan sheet), so only the actual NG line is shown.','目標データ(Plan NG / Input planシート)がないため、実績NGの線のみ表示しています。'],
   '% NG รายเครื่อง':['% NG by Machine','設備別NG率'],
   'ประเภท NG ที่พบมากที่สุด':['Most Common NG Types','主なNG種別'],
   'ประเภท':['Type','種別'],
@@ -598,6 +605,9 @@ const I18N_PATS = [
   [/^Google Sheets ของ (\S+)$/g,'Google Sheets for $1','$1 の Google Sheets'],
   [/^(\S+) ยังไม่มีข้อมูล$/g,'$1: no data yet','$1: データがまだありません'],
   [/\(ยังไม่จับคู่\) /g,'(unmapped) ','(未対応) '],
+  [/เป้า NG = ชีต Plan NG · /g,'Target NG = from the Plan NG sheet · ','目標NG = Plan NGシート · '],
+  [/เป้า NG = แผนผลิต × ([\d.]+)% · /g,'Target NG = planned qty × $1% · ','目標NG = 計画数 × $1% · '],
+  [/สะสมตั้งแต่ต้นช่วง รวม NG ของทุก Process \(รวม Screening\)/g,'Cumulative from start of period, includes NG from all processes (incl. Screening)','期間開始からの累計 · Screeningを含む全工程のNG'],
   /* สถานะการเชื่อมต่อ */
   [/ข้อมูลจากไฟล์/g,'Data from file','ファイルのデータ'],
   [/ไม่ได้ต่อสด/g,'Not live','ライブ接続なし'],
@@ -761,6 +771,21 @@ function buildCombined(aoa){
   }
   out.skipped={n:skipped,pcs:skippedPcs}; out.cols={issue:c.issue>=0,ngNote:c.ngNote>=0,lossT:c.lossT>=0,ltNote:c.ltNote>=0};
   return out;
+}
+/* ชีต "Plan NG": แถวแรกเป็นหัวคอลัมน์ · คอลัมน์แรก = วันที่ · คอลัมน์ที่เหลือ = เป้า NG (ชิ้น) ของวันนั้น
+   มีคอลัมน์เดียว (เช่น Target NG) ก็ใช้ค่านั้น · มีหลายคอลัมน์ (แยกตาม Process/Part) จะรวมกัน (ไม่นับคอลัมน์ Total ถ้ามีคอลัมน์อื่นอยู่)
+   วันที่ไม่มีแถว/ช่องว่าง = 0 (เส้นเป้าจึงราบในวันหยุด) */
+function buildNgPlan(aoa, product){
+  if (!aoa || aoa.length<2) return null;
+  const H=aoa[0].map(normLabel); const isTot=h=>/^(total|รวม|sum)$/i.test(h);
+  let vc=[]; for (let j=1;j<H.length;j++) if (H[j] && !isTot(H[j])) vc.push(j);
+  if (!vc.length) for (let j=1;j<H.length;j++) if (H[j]) vc.push(j);
+  const map=CONFIG.planMap[product]||{}; const out=[];
+  for (let r=1;r<aoa.length;r++){
+    const row=aoa[r]; const date=parseDate(row[0]); if (!date) continue;
+    for (const j of vc){ const q=num(row[j]); if (!q) continue; const procs=map[H[j]]||map[(H[j].match(/^(.*?)\s+\S+$/)||[])[1]]||[]; out.push({date,col:H[j],procs,qty:q}); }
+  }
+  return {rows:out, cols:vc.length};
 }
 function buildPlan(aoa, product){
   const map = CONFIG.planMap[product] || {};
@@ -945,25 +970,26 @@ async function _loadProduct(p, slot){
   const src = sourceOf(p); if (!src) return false;
   slot.changed = false;
   try{
-    let comb, plan=null, planNote='';
+    let comb, plan=null, planNote='', ngp=null;
     if (src.type==='script'){
-      const j = await fetchScript(src, p); comb = j.combined || []; plan = j.plan || null; planNote = j.planNote || '';
+      const j = await fetchScript(src, p); comb = j.combined || []; plan = j.plan || null; planNote = j.planNote || ''; ngp = j.ngPlan || null;
     } else if (src.type==='api'){
       const tabs = CONFIG.sheetNames;
-      [comb, plan] = await Promise.all([
+      [comb, plan, ngp] = await Promise.all([
         fetchSheet(src.id, src.key, tabs.combined),
-        fetchSheet(src.id, src.key, tabs.plan).catch(e=>{ planNote=e.message; return null; })
+        fetchSheet(src.id, src.key, tabs.plan).catch(e=>{ planNote=e.message; return null; }),
+        fetchSheet(src.id, src.key, tabs.ngPlan).catch(()=>null)
       ]);
     } else {
       comb = await fetchCSV(src.combinedUrl);
       plan = src.planUrl ? await fetchCSV(src.planUrl) : null;
     }
-    const sig = hashStr(JSON.stringify(comb)) + '|' + hashStr(JSON.stringify(plan));
+    const sig = hashStr(JSON.stringify(comb)) + '|' + hashStr(JSON.stringify(plan)) + '|' + hashStr(JSON.stringify(ngp));
     const changed = slot.sig!==sig || !slot.rows.length;
     if (changed){                                    // แปลงข้อมูลใหม่เฉพาะเมื่อชีตเปลี่ยนจริง
       const rows = buildCombined(comb);
       const pl = (plan && plan.length) ? buildPlan(plan, p) : null;
-      slot.rows = rows; slot.plan = pl; slot.sig = sig;
+      slot.rows = rows; slot.plan = pl; slot.ngPlan = buildNgPlan(ngp,p); slot.sig = sig;
     }
     slot.error = ''; slot.planNote = planNote; slot.at = new Date(); slot.changed = changed;
     slot.source = src.type==='script' ? 'Apps Script' : src.type==='api' ? 'Google Sheets' : 'ลิงก์ CSV';
@@ -1025,11 +1051,12 @@ async function loadFile(p, file){
       if (typeof XLSX==='undefined') throw new Error('ไม่พบไลบรารีอ่าน .xlsx (ต้องออนไลน์ครั้งแรก)');
       const buf = await file.arrayBuffer();
       const names = XLSX.read(buf,{type:'array',bookSheets:true}).SheetNames;
-      const pick = names.filter(n=>['combined','input plan'].includes(n.trim().toLowerCase()));
+      const pick = names.filter(n=>['combined','input plan','plan ng'].includes(n.trim().toLowerCase()));
       if (!pick.length) throw new Error('ไม่พบชีต Combined ในไฟล์');
       const wb = XLSX.read(buf,{type:'array',sheets:pick,cellDates:false});
       slot.rows = buildCombined(sheetAoa(wb,'Combined'));
       const pa = sheetAoa(wb,'Input plan'); slot.plan = pa ? buildPlan(pa,p) : null;
+      const na = sheetAoa(wb,'Plan NG'); slot.ngPlan = na ? buildNgPlan(na,p) : null;
     }
     slot.source='ไฟล์ '+file.name; slot.error=''; slot.at=new Date(); slot.sig=''; slot.planNote='';
     initFilters(p);
@@ -1487,12 +1514,51 @@ function pageNG(){
   const a=agg(rs); const dates=dateRange(f.from,f.to); const ngF=o=>{ const x=filteredRows(o); return S.ngInduction? x.filter(r=>r.proc!=='Induction') : x; }; const byD=groupBy(ngF({ignoreX:'date'}),r=>r.date);
   const types=new Map(); for (const r of rs) for (const [k,v] of Object.entries(r.ngt)) types.set(k,(types.get(k)||0)+v);
   const tt=[...types.entries()].sort((a,b)=>b[1]-a[1]).slice(0,12);
+  /* ---- NG สะสม: เป้า vs จริง ----
+     จริง = NG ทุก Process (รวม Screening/SC) สะสมรายวัน · เป้า = แผนผลิตรายวัน (Input plan) × เป้า NG % สะสมรายวัน
+     ถ้าดูถึงวันล่าสุดอยู่ เส้นเป้าจะยาวต่อไปจนสิ้นเดือน ส่วนเส้นจริงหยุดที่วันล่าสุดที่มีข้อมูล */
+  const dd0=D(), hasNgP=!!(dd0&&dd0.ngPlan), planOK=hasNgP||!!(dd0&&dd0.plan), ngRate=(S.targets.ng!=null?+S.targets.ng:1)/100, nfT=String(+(ngRate*100).toFixed(3));
+  const tRows=hasNgP?dd0.ngPlan.rows:(planOK?dd0.plan.rows.map(p=>({date:p.date,procs:p.procs,qty:p.qty*ngRate})):[]);
+  let cEnd=f.to;
+  if (planOK && f.to>=f.max){
+    const ym=f.to.slice(0,7); const [yy,mm]=ym.split('-').map(Number);
+    if (tRows.some(p=>p.qty&&p.date>f.to&&p.date.slice(0,7)===ym)) cEnd=ym+'-'+String(new Date(Date.UTC(yy,mm,0)).getUTCDate()).padStart(2,'0');
+  }
+  const cDates=dateRange(f.from,cEnd);
+  const pq=new Map();
+  if (planOK) for (const p of tRows){
+    if (p.date<f.from||p.date>cEnd) continue;
+    if (p.procs.length){                 // กรอง Process ได้เฉพาะคอลัมน์ที่จับคู่กับ Process แล้ว · คอลัมน์ที่ไม่จับคู่นับรวมเสมอ
+      if ((f.procs||[]).length && !p.procs.some(q=>f.procs.includes(q))) continue;
+      if (!xfPlanPass(p,'date')) continue;
+      if (S.ngInduction && p.procs.includes('Induction')) continue;
+    }
+    pq.set(p.date,(pq.get(p.date)||0)+p.qty);
+  }
+  const cumA=[], cumT=[]; let sa=0, st=0;
+  for (const x of cDates){
+    sa+=(byD.get(x)||[]).reduce((s,r)=>s+r.ng,0); st+=(pq.get(x)||0);
+    cumA.push(x>f.max?null:sa); cumT.push(planOK?Math.round(st):null);
+  }
+  const cumNote = !planOK ? '<p class="note">ไม่มีข้อมูลเป้า (ชีต Plan NG / Input plan) จึงแสดงเฉพาะเส้น NG จริง</p>'
+    : (shiftFiltered()&&!hasNgP) ? '<p class="note">ตัวกรองกะ หรือ กลางวัน/กลางคืน ทำให้ NG จริงน้อยลง แต่แผนไม่แยกกะ เส้นเป้า NG จึงไม่ตรงความจริง</p>' : '';
   const gp=[...groupBy(ngF({ignoreX:'proc'}),r=>r.proc).entries()].map(([p,x])=>({p,...agg(x)})).filter(x=>x.total>0).sort((a,b)=>(b.ngp||0)-(a.ngp||0));
   $('#view').innerHTML=titleHTML('งานเสีย (NG)')+`<div class="chips"><label class="chip"><input type="checkbox" id="ngInd" ${S.ngInduction?'checked':''}> ไม่นับ NG ของ Induction</label></div>
    <div class="grid g3 kpis">${kpiHTML('NG (ชิ้น)',nf(a.ng),`จากยอดผลิต ${nf(a.total)} ชิ้น`)}${kpiHTML('% NG',pct(a.ngp,2),'')}${kpiHTML('Quality',pct(a.Q,2),gapOf(a.Q,S.targets.q).t,gapOf(a.Q,S.targets.q).c,statusOf(a.Q,S.targets.q))}</div>
+   <div class="grid g1" style="margin-bottom:14px">${card('n_cum','NG สะสม: เป้า vs จริง',(hasNgP?'เป้า NG = ชีต Plan NG · ':'เป้า NG = แผนผลิต × '+nfT+'% · ')+'สะสมตั้งแต่ต้นช่วง รวม NG ของทุก Process (รวม Screening)',380,cumNote)}</div>
    <div class="grid g1">${card('n_day','NG รายวัน','ชิ้น',340)}</div>
    <div class="grid g2" style="margin-top:14px">${card('n_proc','% NG รายเครื่อง','',Math.max(460,gp.length*26+60))}${card('n_type','ประเภท NG ที่พบมากที่สุด','ชิ้น',Math.max(460,gp.length*26+60))}</div>`;
   bindCards(); $('#ngInd').onchange=e=>{S.ngInduction=e.target.checked;render();};
+  const hexA=(c,a)=>{ const m=/^#([0-9a-f]{6})$/i.exec(String(c).trim()); if(!m) return c; const n=parseInt(m[1],16); return 'rgba('+(n>>16)+','+((n>>8)&255)+','+(n&255)+','+a+')'; };
+  const areaFill=col=>ctx=>{ const ch=ctx.chart, ca=ch.chartArea; if(!ca) return hexA(col,.15); const g=ch.ctx.createLinearGradient(0,ca.top,0,ca.bottom); g.addColorStop(0,hexA(col,.28)); g.addColorStop(1,hexA(col,0)); return g; };
+  const cRed=cv('--neg'), cOrg='#f39a4a';
+  const lineDs=(label,data,col,ord)=>({type:'line',label,data,borderColor:col,backgroundColor:areaFill(col),fill:'origin',pointRadius:3,pointHoverRadius:5,pointBackgroundColor:col,pointBorderColor:cv('--surface'),pointBorderWidth:1.5,borderWidth:2.5,tension:0,spanGaps:false,order:ord});
+  const co=baseOpts({fmt:v=>nf(v),legend:true}); co.plugins.legend.position='top'; co.plugins.legend.align='start';
+  co.plugins.tooltip.callbacks.afterBody=items=>{ const i=items[0].dataIndex; if (cumA[i]==null||cumT[i]==null) return ''; const df=cumA[i]-cumT[i]; return (df>0?'▲ '+trl('เกินเป้า'):'▼ '+trl('ต่ำกว่าเป้า'))+' '+nf(Math.abs(df)); };
+  const cSeries=[{name:trl('NG จริง (สะสม)'),values:cumA}]; if (planOK) cSeries.push({name:trl('เป้า NG (สะสม)'),values:cumT});
+  mk('n_cum',{type:'line',data:{labels:cDates.map(x=>fmtD(x)),datasets:[lineDs(trl('เป้า NG (สะสม)'),cumT,cOrg,2),lineDs(trl('NG จริง (สะสม)'),cumA,cRed,1)].filter(d=>planOK||d.borderColor===cRed)},options:co},
+    {first:'วันที่',labels:cDates.map(x=>fmtD(x)),series:cSeries});
+  xfBind('n_cum','date',cDates);
   const nd=dates.map(d=>(byD.get(d)||[]).reduce((s,r)=>s+r.ng,0));
   mk('n_day',{type:'bar',data:{labels:dates.map(d=>fmtD(d)),datasets:[{label:'NG',data:nd,backgroundColor:cv('--s2'),borderRadius:4,borderSkipped:false,barPercentage:.7}]},options:baseOpts({fmt:v=>nf(v),legend:false})},{first:'วันที่',labels:dates.map(d=>fmtD(d)),series:[{name:'NG',values:nd}]});
   const po=baseOpts({horiz:true,fmt:v=>v+'%',legend:false}); po.plugins.barLabels={on:true,text:i=>(gp[i].ngp*100).toFixed(2)+'%'};
@@ -1671,7 +1737,7 @@ function pageData(){
   $('#view').innerHTML=titleHTML('ข้อมูลและเป้าหมาย').replace(/<span>.*<\/span>/,'')+`
    <div class="grid g2" style="margin-bottom:14px">
    <section class="card"><h3>เป้าหมาย (%)</h3>
-     <div class="form-row">${[['oee','OEE'],['a','Availability'],['p','Performance'],['q','Quality']].map(([k,t])=>`<label class="fld">${t}<input type="number" min="0" max="100" step="0.5" data-t="${k}" value="${T[k]}" style="min-width:90px"></label>`).join('')}</div></section>
+     <div class="form-row">${[['oee','OEE'],['a','Availability'],['p','Performance'],['q','Quality'],['ng','NG %']].map(([k,t])=>`<label class="fld">${t}<input type="number" min="0" max="100" step="0.5" data-t="${k}" value="${T[k]}" style="min-width:90px"></label>`).join('')}</div></section>
    <section class="card"><h3>การเชื่อมต่อข้อมูล</h3>
      <div class="form-row"><label class="fld" style="flex:1">Apps Script URL<input type="url" data-surl="1" value="${esc(scriptUrlOf())}" placeholder="https://script.google.com/macros/s/…/exec" style="width:100%" autocomplete="off"></label></div>
      <div class="form-row"><label class="fld" style="flex:1">รหัสผ่านเข้าถึง<input type="password" data-stoken="1" value="${esc(scriptTokenOf())}" style="width:100%" autocomplete="off"></label></div>
