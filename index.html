@@ -1611,7 +1611,7 @@ function pageNG(){
    Process ที่ไม่ตรงกติกาไหนจะแสดงเป็นคอลัมน์ชื่อเดิม · Screening ไม่แสดงในเมทริกซ์ */
 const SOP_G2='Grinding 1,2 + Milling + M8,M9';   // SOP: Grinding SOP Set5 / Set6
 const PLAN_COLS = {
-  SOP:[['Cutting'],['Cold Forging'],['Lathe 1,2,3'],['Induction'],['Grinding 1,2'],[SOP_G2]],   // SOP ใช้ SOP_LINES (ด้านล่าง) แทน regex
+  SOP:[['Cutting'],['Cold Forging'],['Lathe 1,2,3'],['Rolling'],['Induction'],['Grinding 1,2'],[SOP_G2]],   // SOP ใช้ SOP_LINES (ด้านล่าง) แทน regex
   SWP:[[/^milling/i,'Milling'],[/^deburring/i,'Deburring'],[/^grinding small/i,'Grinding Small'],[/^grinding 1/i,'Grinding 1'],[/^lathe/i,'Lathe 1,2 + Gr 2']],
   VBA:[[/^lathe op1/i,'Lathe OP1'],[/^lathe op2/i,'Lathe OP2']],
   VOP:[[/^lathe/i,'Lathe'],[/^drilling/i,'Drilling'],[/^deburring/i,'Deburring'],[/^grinding [12]/i,'Grinding 1,2'],[/^grinding 3/i,'Grinding 3']]
@@ -1629,6 +1629,7 @@ const SOP_LINES = [
   [/^lathe sop \(set ?2\)/i,     'Lathe 1,2,3','11110 11040 11120'],
   [/^lathe sop \(set ?6\)/i,     'Lathe 1,2,3','11320 11120 11040 11051'],
   [/^lathe sop \(set ?7\)/i,     'Lathe 1,2,3','11110 11320 11090 11070 11051'],
+  [/^roll/i,                     'Rolling','11070 11090'],      // Roll Slit SOP (Rolling 11070 / 11090)
   [/^induction/i,                'Induction','11120 11040'],
   [/^grinding sop \(set ?3\)/i,  'Grinding 1,2','11040 11320 11120 11110'],
   [/^grinding sop \(set ?4\)/i,  'Grinding 1,2','11110 11120 11051 11040'],
