@@ -354,7 +354,6 @@ body.app-master .main{box-shadow:inset 0 3px 0 #F5841F}
   .prodbar.collapsed .pb-head{flex-wrap:wrap}
   .prodbar.collapsed .pb-cur{flex:1 0 100%;order:5}
 }
-}
 .rail .brand{display:flex;align-items:center;gap:10px}
 .rail .brand .logo{width:34px;height:34px;flex:none}
 body.rail-mini .rail:not(:hover) .brand{padding:4px 0 10px;justify-content:center}
@@ -414,8 +413,8 @@ body.rail-mini .rail:not(:hover) .brand{padding:4px 0 10px;justify-content:cente
    index.html?app=master → Master Cylinder (หน้าแยก ใช้ระบบหน้าจอ/สไตล์เดียวกัน แต่ตั้งค่าและผลิตภัณฑ์ของตัวเอง) */
 const APP = (new URLSearchParams(location.search).get('app')||'').toLowerCase()==='master' ? 'master' : 'main';
 const APP_LINKS = [
-  {id:'main',   href:'./',          title:'แดชบอร์ดหลัก',   sub:'SOP · SWP · VBA · VOP',       color:'#7FB2F0'},
-  {id:'master', href:'?app=master', title:'Master Cylinder', sub:'ผลิตภัณฑ์ Master Cylinder', color:'#F5841F'}
+  {id:'main',   href:'./',          title:'Shaft & Valve',   sub:'SOP · SWP · VBA · VOP',       color:'#7FB2F0'},
+  {id:'master', href:'?app=master', title:'Master Cylinder', sub:'ผลิตภัณฑ์ Master Cylinder', color:'#7FB2F0'}
 ];
 const DSW = {open:false};   // เมนูสลับแดชบอร์ดเปิดอยู่หรือไม่ (จำไว้ข้ามการวาดเมนูใหม่)
 const CONFIG = {
@@ -490,7 +489,6 @@ const I18N_EXACT = {
   'หน้า':['Pages','ページ'],
   'แดชบอร์ด':['Dashboards','ダッシュボード'],
   'แดชบอร์ดที่เปิดอยู่':['Current dashboard','表示中のダッシュボード'],
-  'แดชบอร์ดหลัก':['Main dashboard','メインダッシュボード'],
   'ผลิตภัณฑ์ Master Cylinder':['Master Cylinder product','Master Cylinder製品'],
   'สลับแดชบอร์ด':['Switch dashboard','ダッシュボード切替'],
   'เมนูหลัก':['Main menu','メインメニュー'],
@@ -1319,8 +1317,8 @@ function renderRail(){
   $('#rail').innerHTML = `<div class="rail-top"><div class="brand"><svg class="logo" viewBox="0 0 64 64" role="img" aria-label="Logo"><g fill="#fff"><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(0 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(45 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(90 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(135 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(180 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(225 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(270 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(315 32 32)"/></g><circle cx="32" cy="32" r="19.5" fill="none" stroke="#fff" stroke-width="7"/><rect x="22" y="35" width="5" height="7" rx="1.5" fill="#7FB2F0"/><rect x="29" y="29" width="5" height="13" rx="1.5" fill="#7FB2F0"/><rect x="36" y="23" width="5" height="19" rx="1.5" fill="#F5841F"/></svg><span class="bt">แผงติดตามการผลิต</span></div><button class="rail-tgl" id="railToggle" aria-expanded="${!mini}" aria-controls="rail" aria-label="${mini?'ขยายเมนู':'ย่อเมนู'}" title="${mini?'ขยายเมนู':'ย่อเมนู'}">${mini?'›':'‹'}</button></div>
   ${(()=>{ const cur=APP_LINKS.find(x=>x.id===APP);
     return `<div class="dsw${DSW.open?' open':''}">
-    <button type="button" class="dsw-cur" id="dswBtn" aria-haspopup="true" aria-expanded="${DSW.open}" title="สลับแดชบอร์ด"><span class="dsw-dot" style="--dc:${cur.color}"></span><span class="dsw-txt nl"><small>แดชบอร์ดที่เปิดอยู่</small><b>${cur.title}</b></span><span class="dsw-chev nl" aria-hidden="true">▾</span></button>
-    <div class="dsw-menu" role="menu" aria-label="สลับแดชบอร์ด"${DSW.open?'':' hidden'}>${APP_LINKS.map(x=>`<a role="menuitem" href="${x.href}" aria-current="${x.id===APP}"><span class="dsw-dot" style="--dc:${x.color}"></span><span class="dsw-txt"><b>${x.title}</b><small>${x.sub}</small></span>${x.id===APP?'<span class="dsw-ck" aria-hidden="true">✓</span>':''}</a>`).join('')}</div>
+    <button type="button" class="dsw-cur" id="dswBtn" aria-haspopup="true" aria-expanded="${DSW.open}" title="สลับแดชบอร์ด"><span class="dsw-dot" style="--dc:${cur.color}"></span><span class="dsw-txt nl"><small>แดชบอร์ดที่เปิดอยู่</small><b>${esc(cur.title)}</b></span><span class="dsw-chev nl" aria-hidden="true">▾</span></button>
+    <div class="dsw-menu" role="menu" aria-label="สลับแดชบอร์ด"${DSW.open?'':' hidden'}>${APP_LINKS.map(x=>`<a role="menuitem" href="${x.href}" aria-current="${x.id===APP}"><span class="dsw-dot" style="--dc:${x.color}"></span><span class="dsw-txt"><b>${esc(x.title)}</b><small>${x.sub}</small></span>${x.id===APP?'<span class="dsw-ck" aria-hidden="true">✓</span>':''}</a>`).join('')}</div>
   </div>`; })()}
   <h2>หน้า</h2>
   <div class="nav">${PAGES.filter(p=>p[0]!=='data').map(([k,t,i])=>`<button data-page="${k}" title="${t}" aria-current="${k===S.page}"><span class="ic" aria-hidden="true">${i}</span><span class="nl">${t}</span></button>`).join('')}</div>
