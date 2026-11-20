@@ -274,19 +274,29 @@ tbody tr:hover{background:var(--wash)}
 .rail .rail-tgl{width:34px;height:34px;flex:none;padding:0;align-items:center;justify-content:center;font-size:18px;line-height:1;border:1px solid rgba(255,255,255,.18);border-radius:9px;display:flex}
 .rail .nav button .ic,.rail #refreshBtn .ic,.rail #themeBtn .ic{width:20px;text-align:center;flex:none}
 .rail #refreshBtn,.rail #themeBtn{flex-direction:row;align-items:center;gap:8px}
-/* ปุ่มสลับแดชบอร์ด (หน้าหลัก ⇄ Master Cylinder) — เป็นลิงก์จริง กดเปิดในแท็บ/หน้าต่างใหม่ได้ */
-.rail .appsw{display:flex;flex-direction:column;gap:4px}
-.rail .appsw a{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;color:var(--rail-ink);text-decoration:none;font-weight:500;cursor:pointer;transition:background .15s ease,transform .12s ease}
-.rail .appsw a:hover{background:rgba(255,255,255,.08);transform:translateX(2px)}
-.rail .appsw a[aria-current="true"]{background:var(--rail-hi);font-weight:700;cursor:default}
-.rail .appsw a:focus-visible{outline:2px solid var(--s4);outline-offset:2px}
-.rail .appsw a:active{transform:scale(.97)}
-.rail .appsw .ic{width:20px;text-align:center;flex:none}
+/* ตัวสลับแดชบอร์ด (หน้าหลัก ⇄ Master Cylinder): การ์ดแสดงหน้าที่เปิดอยู่ กดแล้วเลือกหน้าอื่นจากรายการ */
+.rail .dsw{margin:6px 0 2px}
+.rail .dsw-cur{flex-direction:row;align-items:center;gap:10px;padding:9px 12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);border-radius:12px}
+.rail .dsw-cur:hover,.rail .dsw.open .dsw-cur{background:rgba(255,255,255,.13);transform:none}
+.rail .dsw-dot{width:10px;height:10px;border-radius:50%;background:var(--dc);flex:none;box-shadow:0 0 0 3px rgba(255,255,255,.12)}
+.rail .dsw-txt{display:flex;flex-direction:column;min-width:0;flex:1;line-height:1.25;text-align:left}
+.rail .dsw-txt small{font-size:11px;color:var(--rail-dim);font-weight:400}
+.rail .dsw-txt b{font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rail .dsw-chev{color:var(--rail-dim);font-size:14px;flex:none;transition:transform .2s ease}
+.rail .dsw.open .dsw-chev{transform:rotate(180deg)}
+.rail .dsw-menu{display:flex;flex-direction:column;gap:4px;margin-top:6px;padding:6px;border-radius:12px;background:rgba(0,0,0,.22)}
+.rail .dsw-menu[hidden]{display:none}
+.rail .dsw-menu a{display:flex;align-items:center;gap:10px;padding:10px;border-radius:9px;color:var(--rail-ink);text-decoration:none}
+.rail .dsw-menu a:hover{background:rgba(255,255,255,.09)}
+.rail .dsw-menu a[aria-current="true"]{background:var(--rail-hi);cursor:default}
+.rail .dsw-menu a:focus-visible,.rail .dsw-cur:focus-visible{outline:2px solid var(--s4);outline-offset:2px}
+.rail .dsw-ck{margin-left:auto;font-weight:700}
+body.app-master .main{box-shadow:inset 0 3px 0 #F5841F}
 @media (min-width:901px){
-  body.rail-mini .rail:not(:hover) .appsw a{justify-content:center;padding:10px 6px;gap:0}
-  body.rail-mini .rail:not(:hover) .appsw a:hover{transform:none}
+  body.rail-mini .rail:not(:hover) .dsw-cur{justify-content:center;padding:10px 6px}
+  body.rail-mini .rail:not(:hover) .dsw-menu{display:none}
 }
-@media(prefers-reduced-motion:reduce){.rail .appsw a{transition:none}.rail .appsw a:hover{transform:none}}
+@media(prefers-reduced-motion:reduce){.rail .dsw-chev{transition:none}}
 .scrim{position:fixed;inset:0;background:rgba(8,16,30,.5);z-index:55;opacity:0;pointer-events:none;transition:opacity .25s ease}
 .drawer-fab{display:none;position:fixed;top:10px;left:10px;z-index:50;width:40px;height:40px;align-items:center;justify-content:center;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-size:20px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.12)}
 .drawer-fab:focus-visible{outline:2px solid var(--s4);outline-offset:2px}
@@ -404,9 +414,10 @@ body.rail-mini .rail:not(:hover) .brand{padding:4px 0 10px;justify-content:cente
    index.html?app=master → Master Cylinder (หน้าแยก ใช้ระบบหน้าจอ/สไตล์เดียวกัน แต่ตั้งค่าและผลิตภัณฑ์ของตัวเอง) */
 const APP = (new URLSearchParams(location.search).get('app')||'').toLowerCase()==='master' ? 'master' : 'main';
 const APP_LINKS = [
-  {id:'main',   href:'./',            label:'SOP · SWP · VBA · VOP', ic:'▣'},
-  {id:'master', href:'?app=master',   label:'Master Cylinder',       ic:'◎'}
+  {id:'main',   href:'./',          title:'แดชบอร์ดหลัก',   sub:'SOP · SWP · VBA · VOP',       color:'#7FB2F0'},
+  {id:'master', href:'?app=master', title:'Master Cylinder', sub:'ผลิตภัณฑ์ Master Cylinder', color:'#F5841F'}
 ];
+const DSW = {open:false};   // เมนูสลับแดชบอร์ดเปิดอยู่หรือไม่ (จำไว้ข้ามการวาดเมนูใหม่)
 const CONFIG = {
   scriptUrl: 'https://script.google.com/macros/s/AKfycbzhRcRvc6z2Ka779ElFeNyUn6M3J-UJ6FhFy05N8LL32XnjQOrdm6b2xDhiUmXGwQi45Q/exec',              // ลิงก์เว็บแอป Apps Script (ลงท้าย /exec) — ไม่ต้องใช้ API Key และไม่ต้องแชร์ชีตเป็นสาธารณะ ถ้าใส่ช่องนี้จะใช้ช่องทางนี้ก่อน
   scriptToken: 'mironu-oee-dashboard-3009',            // รหัสผ่านที่ตั้งไว้ใน Script properties (DASH_TOKEN) ของ Apps Script
@@ -434,6 +445,7 @@ if (APP==='master'){
     MC: { name: 'Master Cylinder', sheetId: '', combinedUrl: '', planUrl: '' }
   };
   CONFIG.planMap = { MC: {} };
+  document.body.classList.add('app-master');   // แถบสีส้มบางๆ ด้านบนของหน้า ให้รู้ทันทีว่าอยู่หน้า Master
   document.title = 'Master Cylinder · แผงติดตามการผลิต OEE';
 }
 
@@ -477,6 +489,9 @@ const I18N_EXACT = {
   'ข้อมูลและเป้าหมาย':['Data & Targets','データと目標'],
   'หน้า':['Pages','ページ'],
   'แดชบอร์ด':['Dashboards','ダッシュボード'],
+  'แดชบอร์ดที่เปิดอยู่':['Current dashboard','表示中のダッシュボード'],
+  'แดชบอร์ดหลัก':['Main dashboard','メインダッシュボード'],
+  'ผลิตภัณฑ์ Master Cylinder':['Master Cylinder product','Master Cylinder製品'],
   'สลับแดชบอร์ด':['Switch dashboard','ダッシュボード切替'],
   'เมนูหลัก':['Main menu','メインメニュー'],
   'เปิดเมนู':['Open menu','メニューを開く'],
@@ -1302,8 +1317,11 @@ const PAGES=[['overview','ภาพรวม','▦'],['oee','OEE รายเค
 function renderRail(){
   const mini=document.body.classList.contains('rail-mini');
   $('#rail').innerHTML = `<div class="rail-top"><div class="brand"><svg class="logo" viewBox="0 0 64 64" role="img" aria-label="Logo"><g fill="#fff"><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(0 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(45 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(90 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(135 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(180 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(225 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(270 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(315 32 32)"/></g><circle cx="32" cy="32" r="19.5" fill="none" stroke="#fff" stroke-width="7"/><rect x="22" y="35" width="5" height="7" rx="1.5" fill="#7FB2F0"/><rect x="29" y="29" width="5" height="13" rx="1.5" fill="#7FB2F0"/><rect x="36" y="23" width="5" height="19" rx="1.5" fill="#F5841F"/></svg><span class="bt">แผงติดตามการผลิต</span></div><button class="rail-tgl" id="railToggle" aria-expanded="${!mini}" aria-controls="rail" aria-label="${mini?'ขยายเมนู':'ย่อเมนู'}" title="${mini?'ขยายเมนู':'ย่อเมนู'}">${mini?'›':'‹'}</button></div>
-  <h2>แดชบอร์ด</h2>
-  <div class="appsw" role="group" aria-label="สลับแดชบอร์ด">${APP_LINKS.map(a=>`<a href="${a.href}" class="as" title="${a.label}" aria-current="${a.id===APP}"><span class="ic" aria-hidden="true">${a.ic}</span><span class="nl" translate="no">${a.label}</span></a>`).join('')}</div>
+  ${(()=>{ const cur=APP_LINKS.find(x=>x.id===APP);
+    return `<div class="dsw${DSW.open?' open':''}">
+    <button type="button" class="dsw-cur" id="dswBtn" aria-haspopup="true" aria-expanded="${DSW.open}" title="สลับแดชบอร์ด"><span class="dsw-dot" style="--dc:${cur.color}"></span><span class="dsw-txt nl"><small>แดชบอร์ดที่เปิดอยู่</small><b>${cur.title}</b></span><span class="dsw-chev nl" aria-hidden="true">▾</span></button>
+    <div class="dsw-menu" role="menu" aria-label="สลับแดชบอร์ด"${DSW.open?'':' hidden'}>${APP_LINKS.map(x=>`<a role="menuitem" href="${x.href}" aria-current="${x.id===APP}"><span class="dsw-dot" style="--dc:${x.color}"></span><span class="dsw-txt"><b>${x.title}</b><small>${x.sub}</small></span>${x.id===APP?'<span class="dsw-ck" aria-hidden="true">✓</span>':''}</a>`).join('')}</div>
+  </div>`; })()}
   <h2>หน้า</h2>
   <div class="nav">${PAGES.filter(p=>p[0]!=='data').map(([k,t,i])=>`<button data-page="${k}" title="${t}" aria-current="${k===S.page}"><span class="ic" aria-hidden="true">${i}</span><span class="nl">${t}</span></button>`).join('')}</div>
   <div class="spacer"></div>
@@ -1311,11 +1329,19 @@ function renderRail(){
   <button id="themeBtn" title="เปลี่ยนธีม"><span class="ic code" aria-hidden="true">◐</span><span class="code tx">ธีม: ${({auto:'ตามเครื่อง',light:'สว่าง',dark:'มืด'})[themePref()]}</span></button>
   <div class="rail-foot"><div class="live" id="liveInd">${liveHTML()}</div><button id="dataBtn" data-page="data" class="gear" title="${(PAGES.find(p=>p[0]==='data')||[,'ข้อมูลและเป้าหมาย'])[1]}" aria-label="${(PAGES.find(p=>p[0]==='data')||[,'ข้อมูลและเป้าหมาย'])[1]}" aria-current="${S.page==='data'}"><span class="ic" aria-hidden="true">⚙</span></button></div>`;
   $('#railToggle').onclick=()=>setRailMini(!document.body.classList.contains('rail-mini'));
+  $('#dswBtn').onclick=e=>{ e.stopPropagation(); setDsw(!DSW.open); };
   renderProdBar();
   $$('[data-page]').forEach(b=>b.onclick=()=>{S.page=b.dataset.page; render();});
   $('#themeBtn').onclick=()=>{ const order=['auto','light','dark']; const n=order[(order.indexOf(themePref())+1)%3]; store.set('oee.theme',n); applyTheme(); render(); };
   $('#refreshBtn').onclick=async()=>{ if (!sourceOf(S.product)){ S.page='data'; render(); return; } await liveTick(false); if (S.data[S.product]&&!S.data[S.product].error) { LIVE.dirty=true; tryRender(); } };
 }
+function setDsw(on){
+  DSW.open=on; const w=$('.dsw'); if (!w) return;
+  w.classList.toggle('open',on); const m=$('.dsw-menu',w); if (m) m.hidden=!on;
+  const b=$('#dswBtn'); if (b) b.setAttribute('aria-expanded',String(on));
+}
+document.addEventListener('click',e=>{ if (DSW.open && !e.target.closest('.dsw')) setDsw(false); });
+document.addEventListener('keydown',e=>{ if (e.key==='Escape' && DSW.open){ setDsw(false); const b=$('#dswBtn'); if (b) b.focus(); } });
 /* ---- แถบเลือกผลิตภัณฑ์ด้านบนสุด (ย่อ/ขยายได้ · จำสถานะไว้ในเบราว์เซอร์) ---- */
 const pbCollapsed=()=>!!store.get('oee.prodBarCollapsed',false);   // ย่อ/ขยายด้วยปุ่มเท่านั้น (ไม่อัตโนมัติ)
 function selectProduct(p){
