@@ -274,6 +274,19 @@ tbody tr:hover{background:var(--wash)}
 .rail .rail-tgl{width:34px;height:34px;flex:none;padding:0;align-items:center;justify-content:center;font-size:18px;line-height:1;border:1px solid rgba(255,255,255,.18);border-radius:9px;display:flex}
 .rail .nav button .ic,.rail #refreshBtn .ic,.rail #themeBtn .ic{width:20px;text-align:center;flex:none}
 .rail #refreshBtn,.rail #themeBtn{flex-direction:row;align-items:center;gap:8px}
+/* ปุ่มสลับแดชบอร์ด (หน้าหลัก ⇄ Master Cylinder) — เป็นลิงก์จริง กดเปิดในแท็บ/หน้าต่างใหม่ได้ */
+.rail .appsw{display:flex;flex-direction:column;gap:4px}
+.rail .appsw a{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;color:var(--rail-ink);text-decoration:none;font-weight:500;cursor:pointer;transition:background .15s ease,transform .12s ease}
+.rail .appsw a:hover{background:rgba(255,255,255,.08);transform:translateX(2px)}
+.rail .appsw a[aria-current="true"]{background:var(--rail-hi);font-weight:700;cursor:default}
+.rail .appsw a:focus-visible{outline:2px solid var(--s4);outline-offset:2px}
+.rail .appsw a:active{transform:scale(.97)}
+.rail .appsw .ic{width:20px;text-align:center;flex:none}
+@media (min-width:901px){
+  body.rail-mini .rail:not(:hover) .appsw a{justify-content:center;padding:10px 6px;gap:0}
+  body.rail-mini .rail:not(:hover) .appsw a:hover{transform:none}
+}
+@media(prefers-reduced-motion:reduce){.rail .appsw a{transition:none}.rail .appsw a:hover{transform:none}}
 .scrim{position:fixed;inset:0;background:rgba(8,16,30,.5);z-index:55;opacity:0;pointer-events:none;transition:opacity .25s ease}
 .drawer-fab{display:none;position:fixed;top:10px;left:10px;z-index:50;width:40px;height:40px;align-items:center;justify-content:center;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-size:20px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.12)}
 .drawer-fab:focus-visible{outline:2px solid var(--s4);outline-offset:2px}
@@ -386,6 +399,14 @@ body.rail-mini .rail:not(:hover) .brand{padding:4px 0 10px;justify-content:cente
 
    ทางเลือกเดิม: Publish to web เป็น CSV แล้ววางลิงก์ในหน้า "ข้อมูลและเป้าหมาย" (ช้ากว่า ~5 นาที)
    ===================================================================== */
+/* ===== สลับแดชบอร์ด: ไฟล์เดียว แต่แยกเป็น 2 หน้า (2 ลิงก์) =====
+   index.html            → SOP · SWP · VBA · VOP (ของเดิม)
+   index.html?app=master → Master Cylinder (หน้าแยก ใช้ระบบหน้าจอ/สไตล์เดียวกัน แต่ตั้งค่าและผลิตภัณฑ์ของตัวเอง) */
+const APP = (new URLSearchParams(location.search).get('app')||'').toLowerCase()==='master' ? 'master' : 'main';
+const APP_LINKS = [
+  {id:'main',   href:'./',            label:'SOP · SWP · VBA · VOP', ic:'▣'},
+  {id:'master', href:'?app=master',   label:'Master Cylinder',       ic:'◎'}
+];
 const CONFIG = {
   scriptUrl: 'https://script.google.com/macros/s/AKfycbzhRcRvc6z2Ka779ElFeNyUn6M3J-UJ6FhFy05N8LL32XnjQOrdm6b2xDhiUmXGwQi45Q/exec',              // ลิงก์เว็บแอป Apps Script (ลงท้าย /exec) — ไม่ต้องใช้ API Key และไม่ต้องแชร์ชีตเป็นสาธารณะ ถ้าใส่ช่องนี้จะใช้ช่องทางนี้ก่อน
   scriptToken: 'mironu-oee-dashboard-3009',            // รหัสผ่านที่ตั้งไว้ใน Script properties (DASH_TOKEN) ของ Apps Script
@@ -404,6 +425,17 @@ const CONFIG = {
      ถ้ามี Process ใหม่ ให้เพิ่มบรรทัดที่นี่ */
   planMap: {"SOP":{"Lathe 1 Auto (B08-0001)":["Lathe Auto (B08-01)"],"Lathe 1 Auto (B12-0028)":["Lathe Auto (B12-28)"],"Lathe 1 Auto (B1200028)":["Lathe Auto (B12-28)"],"Lathe 1 Auto (B12-0024)":["Lathe Auto (B12-24)"],"Lathe 1 Auto (B12-0013)":["Lathe Auto (B12-13)"],"Cold Forging":["Cold Forging (SOP)"],"Lathe 1,2 SOP Set1":["Lathe SOP (Set 1)"],"Lathe 1,2 SOP Set2":["Lathe SOP (Set 2)"],"Lathe 1,2,3 SOP Set6":["Lathe SOP (Set 6)"],"Lathe 2,3 SOP Set7":["Lathe SOP (Set 7)"],"Rolling":["Roll Slit SOP"],"Screening 1":["Screening 1 SOP"],"Grinding 1,2 SOP Set3":["Grinding SOP (Set 3)"],"Grinding 1,2 SOP Set4":["Grinding SOP (Set 4)"],"Grinding 1,2 SOP Set5":["Grinding SOP (Set 5)"],"Grinding 1,2 SOP Set6":["Grinding SOP (Set 6)"],"Grinding 1,2 SOP Set7":["Grinding SOP (Set 7)"],"Grinding 1":["Gr 1 11070 11090"],"Grinding 2":["Gr 2 11070 11090"],"Screening 100":["Screening 100 SOP"],"KRT Induction \"S\"":["Induction"],"KRT Induction \"L\"":["Induction"]},"SWP":{"Milling":["Milling Small SWP"],"Duburring":["Deburring Small SWP"],"Grinding":["Grinding Small SWP"],"Grinding (Set1)":["Grinding 1 SWP (Set 1)"],"Grinding (Set2)":["Grinding 1 SWP (Set 2)"],"Lathe 1,2 + Gr 2 (Set 1)":["Lathe 1,2 + Gr 2 (Set 1)"],"Lathe 1,2 + Gr 2 (Set 2)":["Lathe 1,2 + Gr 2 (Set 2)"],"Lathe 1,2 + Gr 2 (Set 3)":["Lathe 1,2 + Gr 2 (Set 3)"],"Lathe 1,2 + Gr 2 (Set 4)":["Lathe 1,2 + Gr 2 (Set 4)"],"Screening 100 SWP":["Screening 100 SWP","Screening 100 SWP (Change Box)"]},"VBA":{"B13-0011":["Lathe OP1 (B13-11)"],"B15-0002":["Lathe OP1 (B15-02)"],"B12-0001":["Lathe OP1 (B12-01)"],"B23-0016":["Lathe OP1 (B23-16)"],"B23-0017":["Lathe OP1 (B23-17)"],"B15-0003":["Lathe OP1 (B15-03)"],"B10-0015":["Lathe OP1 (B10-15)"],"B11-0032":["Lathe OP2 (B11-32)"],"B07-0004":["Lathe OP2 (B07-04)"],"B12-0023":["Lathe OP2 (B12-23)"],"B12-0029":["Lathe OP2 (B12-29)"],"B07-0007":["Lathe OP2 (B07-07)"],"B05-0007":["Lathe OP2 (B05-07)"],"Screen 1":["Screening 1 VBA","Screening 1 VBA (Plunger)"],"Screen 100":["Screening 100 VBA"]},"VOP":{"B22-0001":["Lathe Auto (B22-01)"],"B23-0001":["Lathe Auto (B23-01)"],"B17-0016":["Lathe Auto (B17-16)"],"B13-0010":["Lathe 1,2 (10230)"],"B13-0006":["Lathe Auto (B13-06)"],"Drilling":["Drilling (10290)"],"Deburring":["Deburring (10290)"],"Grinding 1,2":["Grinding 1","Grinding 2"],"Grinding 3":["Grinding 3"],"Screening 100":["Screening 100 VOP"]}}
 };
+/* หน้า Master Cylinder: ใช้ค่าตั้งค่าชุดนี้แทน (ผลิตภัณฑ์/แท็บ/แผนที่ Process แยกจากหน้าหลัก)
+   - ใส่ sheetId ของไฟล์ Master Cylinder ตรงนี้ หรือกรอกในหน้า "ข้อมูลและเป้าหมาย" ก็ได้
+   - ถ้ามีหลายผลิตภัณฑ์ใน Master ให้เพิ่มบรรทัดใน products (และ planMap ที่ชื่อ key เดียวกัน)
+   - ถ้าใช้ Apps Script ต้องเพิ่ม key เดียวกัน (MC) ในตาราง product → Spreadsheet ID ของ DashboardAPI.gs ด้วย */
+if (APP==='master'){
+  CONFIG.products = {
+    MC: { name: 'Master Cylinder', sheetId: '', combinedUrl: '', planUrl: '' }
+  };
+  CONFIG.planMap = { MC: {} };
+  document.title = 'Master Cylinder · แผงติดตามการผลิต OEE';
+}
 
 /* ---------------------------------------------------------------- helpers */
 const $ = (s, r=document) => r.querySelector(s);
@@ -421,6 +453,7 @@ const store = {
   get(k, d){ try{ const v=localStorage.getItem(k); return v==null? d : JSON.parse(v);}catch(e){return d;} },
   set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
 };
+const PRODKEY = APP==='master' ? 'oee.product.master' : 'oee.product';   // ผลิตภัณฑ์ที่เลือกค้างไว้ แยกกันระหว่าง 2 หน้า
 /*I18N-START*/
 /* ---------------- ภาษา: ไทย (ต้นฉบับ) · English · 日本語 ----------------
    แปลเฉพาะข้อความที่เป็นส่วนติดต่อผู้ใช้ (เมนู ปุ่ม หัวข้อ ป้ายกำกับ ข้อความแจ้งเตือน)
@@ -439,6 +472,8 @@ const I18N_EXACT = {
   'แผน vs ผลิตจริง':['Plan vs Actual','計画 vs 実績'],
   'ข้อมูลและเป้าหมาย':['Data & Targets','データと目標'],
   'หน้า':['Pages','ページ'],
+  'แดชบอร์ด':['Dashboards','ダッシュボード'],
+  'สลับแดชบอร์ด':['Switch dashboard','ダッシュボード切替'],
   'เมนูหลัก':['Main menu','メインメニュー'],
   'เปิดเมนู':['Open menu','メニューを開く'],
   'ขยายเมนู':['Expand menu','メニューを展開'],
@@ -851,7 +886,7 @@ function lossOf(r,cat){
 
 /* ---------------------------------------------------------------- state */
 const S = {
-  product: store.get('oee.product','SOP'),
+  product: (p=>CONFIG.products[p]?p:Object.keys(CONFIG.products)[0])(store.get(PRODKEY,Object.keys(CONFIG.products)[0])),   // จำผลิตภัณฑ์ล่าสุดแยกตามหน้า (หลัก / Master)
   page: 'overview',
   data: {},          // product -> {rows, plan:{rows,unmapped}, loaded, source, error}
   filt: {},          // product -> {from,to,shift,dn,procs[]}
@@ -1263,6 +1298,8 @@ const PAGES=[['overview','ภาพรวม','▦'],['oee','OEE รายเค
 function renderRail(){
   const mini=document.body.classList.contains('rail-mini');
   $('#rail').innerHTML = `<div class="rail-top"><div class="brand"><svg class="logo" viewBox="0 0 64 64" role="img" aria-label="Logo"><g fill="#fff"><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(0 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(45 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(90 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(135 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(180 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(225 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(270 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(315 32 32)"/></g><circle cx="32" cy="32" r="19.5" fill="none" stroke="#fff" stroke-width="7"/><rect x="22" y="35" width="5" height="7" rx="1.5" fill="#7FB2F0"/><rect x="29" y="29" width="5" height="13" rx="1.5" fill="#7FB2F0"/><rect x="36" y="23" width="5" height="19" rx="1.5" fill="#F5841F"/></svg><span class="bt">แผงติดตามการผลิต</span></div><button class="rail-tgl" id="railToggle" aria-expanded="${!mini}" aria-controls="rail" aria-label="${mini?'ขยายเมนู':'ย่อเมนู'}" title="${mini?'ขยายเมนู':'ย่อเมนู'}">${mini?'›':'‹'}</button></div>
+  <h2>แดชบอร์ด</h2>
+  <div class="appsw" role="group" aria-label="สลับแดชบอร์ด">${APP_LINKS.map(a=>`<a href="${a.href}" class="as" title="${a.label}" aria-current="${a.id===APP}"><span class="ic" aria-hidden="true">${a.ic}</span><span class="nl" translate="no">${a.label}</span></a>`).join('')}</div>
   <h2>หน้า</h2>
   <div class="nav">${PAGES.filter(p=>p[0]!=='data').map(([k,t,i])=>`<button data-page="${k}" title="${t}" aria-current="${k===S.page}"><span class="ic" aria-hidden="true">${i}</span><span class="nl">${t}</span></button>`).join('')}</div>
   <div class="spacer"></div>
@@ -1280,7 +1317,7 @@ const pbCollapsed=()=>!!store.get('oee.prodBarCollapsed',false);   // ย่อ/
 function selectProduct(p){
   if (!CONFIG.products[p]) return;
   const changed = p!==S.product;
-  S.product=p; store.set('oee.product',S.product);
+  S.product=p; store.set(PRODKEY,S.product);
   if (changed){ S.xf.dates.clear(); S.xf.procs.clear(); S.xf.reasons.clear(); NOTE_DIMS.forEach(k=>S.xf[k].clear()); S.lossCat='all'; }
   render(); if (changed) liveTick(false);
 }
@@ -1814,7 +1851,7 @@ function render(){
   $('#banner').innerHTML = typeof Chart==='undefined' ? `<div class="warn">โหลดไลบรารีกราฟ (Chart.js) ไม่สำเร็จ ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต</div>` : '';
   renderRail(); renderFilters(); renderXF();
   if (S.page!=='data' && !hasData()) pageEmpty(); else PAGEFN[S.page]();
-  document.title = S.product+' · '+trl('แผงติดตามการผลิต')+' OEE';
+  document.title = (APP==='master' && CONFIG.products[S.product] ? CONFIG.products[S.product].name : S.product)+' · '+trl('แผงติดตามการผลิต')+' OEE';
   LIVE.dirty=false;
 }
 
