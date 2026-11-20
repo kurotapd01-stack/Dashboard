@@ -454,6 +454,10 @@ const store = {
   set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
 };
 const PRODKEY = APP==='master' ? 'oee.product.master' : 'oee.product';   // ผลิตภัณฑ์ที่เลือกค้างไว้ แยกกันระหว่าง 2 หน้า
+/* ค่าตั้งค่าในหน้า "ข้อมูลและเป้าหมาย" (Apps Script URL / Token / API Key / Sheet ID / ลิงก์ CSV / เป้าหมาย) แยกเก็บตามหน้า — หน้าหลักใช้คีย์เดิม ค่าที่เคยตั้งไว้จึงไม่หาย */
+const KEY_API = APP==='master' ? 'oee.api.master' : 'oee.api';
+const KEY_URLS = APP==='master' ? 'oee.urls.master' : 'oee.urls';
+const KEY_TARGETS = APP==='master' ? 'oee.targets.master' : 'oee.targets';
 /*I18N-START*/
 /* ---------------- ภาษา: ไทย (ต้นฉบับ) · English · 日本語 ----------------
    แปลเฉพาะข้อความที่เป็นส่วนติดต่อผู้ใช้ (เมนู ปุ่ม หัวข้อ ป้ายกำกับ ข้อความแจ้งเตือน)
@@ -890,9 +894,9 @@ const S = {
   page: 'overview',
   data: {},          // product -> {rows, plan:{rows,unmapped}, loaded, source, error}
   filt: {},          // product -> {from,to,shift,dn,procs[]}
-  urls: store.get('oee.urls',{}),
-  api: Object.assign({ids:{}}, store.get('oee.api',{})),   // {key, ids:{SOP:'..'}} กรอกจากหน้าข้อมูล
-  targets: Object.assign({}, CONFIG.targets, store.get('oee.targets',{})),
+  urls: store.get(KEY_URLS,{}),
+  api: Object.assign({ids:{}}, store.get(KEY_API,{})),   // {key, ids:{SOP:'..'}} กรอกจากหน้าข้อมูล
+  targets: Object.assign({}, CONFIG.targets, store.get(KEY_TARGETS,{})),
   lossPlan: false, lossCat: 'all', ngInduction: false, planHideZero: true, procOpen: false, partOpen: false,
   sort: {col:'oee', dir:1},
   xf: {dates:new Set(), procs:new Set(), reasons:new Set(), issue:new Set(), ngNote:new Set(), ltNote:new Set()}     // ตัวกรองข้ามกราฟ (คลิกที่กราฟ) ; หมวด Loss ใช้ S.lossCat
@@ -1821,12 +1825,12 @@ function pageData(){
    <section class="card" id="pwaCard" style="margin-bottom:14px">${pwaCardHTML()}</section>
    <div class="grid g2">${blocks}</div>`;
   pwaBind();
-  $$('[data-t]').forEach(i=>i.onchange=()=>{S.targets[i.dataset.t]=+i.value||0; store.set('oee.targets',S.targets);});
-  $$('[data-u]').forEach(i=>i.onchange=()=>{const [p,k]=i.dataset.u.split(':'); S.urls[p]=Object.assign({},S.urls[p],{[k]:i.value.trim()}); store.set('oee.urls',S.urls);});
-  $$('[data-surl]').forEach(i=>i.onchange=()=>{S.api.scriptUrl=i.value.trim(); store.set('oee.api',S.api);});
-  $$('[data-stoken]').forEach(i=>i.onchange=()=>{S.api.token=i.value.trim(); store.set('oee.api',S.api);});
-  $$('[data-key]').forEach(i=>i.onchange=()=>{S.api.key=i.value.trim(); store.set('oee.api',S.api);});
-  $$('[data-sid]').forEach(i=>i.onchange=()=>{S.api.ids=S.api.ids||{}; S.api.ids[i.dataset.sid]=i.value.trim(); store.set('oee.api',S.api);});
+  $$('[data-t]').forEach(i=>i.onchange=()=>{S.targets[i.dataset.t]=+i.value||0; store.set(KEY_TARGETS,S.targets);});
+  $$('[data-u]').forEach(i=>i.onchange=()=>{const [p,k]=i.dataset.u.split(':'); S.urls[p]=Object.assign({},S.urls[p],{[k]:i.value.trim()}); store.set(KEY_URLS,S.urls);});
+  $$('[data-surl]').forEach(i=>i.onchange=()=>{S.api.scriptUrl=i.value.trim(); store.set(KEY_API,S.api);});
+  $$('[data-stoken]').forEach(i=>i.onchange=()=>{S.api.token=i.value.trim(); store.set(KEY_API,S.api);});
+  $$('[data-key]').forEach(i=>i.onchange=()=>{S.api.key=i.value.trim(); store.set(KEY_API,S.api);});
+  $$('[data-sid]').forEach(i=>i.onchange=()=>{S.api.ids=S.api.ids||{}; S.api.ids[i.dataset.sid]=i.value.trim(); store.set(KEY_API,S.api);});
   const ca=$('#connectAll'); if (ca) ca.onclick=async()=>{ ca.textContent='กำลังโหลด…'; await Promise.all(Object.keys(CONFIG.products).map(p=>loadProduct(p))); render(); };
   $$('[data-load]').forEach(b=>b.onclick=async()=>{const p=b.dataset.load; b.textContent='กำลังโหลด…'; await loadProduct(p); render();});
   $$('[data-file]').forEach(i=>i.onchange=async()=>{ if(i.files[0]){ await loadFile(i.dataset.file,i.files[0]); render(); }});
