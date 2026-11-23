@@ -118,6 +118,38 @@ td.num{font-variant-numeric:tabular-nums}
 .pvm td.na{background:#595959}
 .pvm tr.sum th,.pvm tr.sum td{border-top:2px solid var(--ink2)}
 .pvm .corner{background:transparent!important;border:0!important}
+/* ===== แผนที่ต้องผลิต (วันถัดไป + ทั้งเดือน) ===== */
+.btn[disabled]{opacity:.45;cursor:default}
+.upc-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0 10px}
+.upc-bar input[type=date]{background:var(--plane);border:1px solid var(--axis);border-radius:8px;padding:4px 8px;color:var(--ink)}
+.upc-day{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin:2px 0 4px}
+.upc-day b{font-size:18px}
+.upc-tag{font-size:12px;border:1px solid var(--axis);border-radius:999px;padding:1px 10px;color:var(--ink2)}
+.upc-sep{height:1px;background:var(--grid);margin:18px 0 12px}
+.updt{border-collapse:collapse;width:100%;max-width:640px;font-size:13px}
+.updt th,.updt td{padding:6px 8px;border-bottom:1px solid var(--grid);text-align:right;font-variant-numeric:tabular-nums}
+.updt th:first-child,.updt td:first-child{text-align:left}
+.updt th{color:var(--ink2);font-size:12px;font-weight:600}
+.updt tr.sum td{font-weight:700;border-top:2px solid var(--ink2)}
+.plmwrap{overflow:auto;max-height:640px;border:1px solid var(--grid);border-radius:8px}
+.plm{border-collapse:separate;border-spacing:0;font-size:12px;width:max-content;min-width:100%}
+.plm th,.plm td{padding:5px 7px;border-bottom:1px solid var(--grid);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;background:var(--surface)}
+.plm thead th{position:sticky;top:0;z-index:3;color:var(--ink2);font-weight:600;line-height:1.2}
+.plm thead th .wd{font-weight:400;font-size:11px}
+.plm .c1,.plm .c2{position:sticky;z-index:2;text-align:left;background:var(--surface)}
+.plm thead .c1,.plm thead .c2{z-index:4}
+.plm .c1{left:0;width:178px;min-width:178px;max-width:178px;overflow:hidden;text-overflow:ellipsis}
+.plm .c2{left:178px;min-width:66px;border-right:1px solid var(--axis)}
+.plm td.zero{color:var(--axis)}
+.plm .wk{background:var(--wash)}
+.plm .past{opacity:.5}
+.plm .sel{background:color-mix(in srgb,var(--s1) 16%,var(--surface))}
+.plm .today{box-shadow:inset 2px 0 0 var(--s4),inset -2px 0 0 var(--s4)}
+.plm thead .today{background:color-mix(in srgb,var(--s4) 28%,var(--surface));color:var(--ink)}
+.plm .tot{font-weight:700;border-left:1px solid var(--axis)}
+.plm tr.sum td{font-weight:700;border-top:2px solid var(--ink2)}
+.plm tr.gs td{border-top:1px solid var(--axis)}
+.updt td.rep,.plm td.rep{color:var(--muted)}
 .scroll{overflow:auto;max-height:560px}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 10px}
 .chip{display:inline-flex;gap:6px;align-items:center;font-size:12px;color:var(--ink2);border:1px solid var(--axis);border-radius:999px;padding:2px 10px;background:var(--plane);cursor:pointer}
@@ -589,6 +621,18 @@ const I18N_EXACT = {
   'ผลต่างรวม':['Total Variance','差異合計'],
   'ผลต่างรายวัน (ผลิตจริง − แผน)':['Daily Variance (Actual − Plan)','日別差異 (実績 − 計画)'],
   'ผลต่างแยกตาม Process และ Part':['Variance by Process and Part','工程・品番別差異'],
+  'แผนที่ต้องผลิต':['Production Plan Ahead','生産予定'],
+  'ไลน์ / Process':['Line / Process','ライン／工程'],
+  'แผน (ชิ้น)':['Plan (pcs)','計画（個）'],
+  'รวม':['Total','合計'],
+  'รวมทุกไลน์':['All lines','全ライン合計'],
+  'วันถัดไปจากวันนี้':['Next day from today','今日の翌日'],
+  '◀ วันที่มีแผนก่อนหน้า':['◀ Previous plan day','◀ 前の計画日'],
+  'วันที่มีแผนถัดไป ▶':['Next plan day ▶','次の計画日 ▶'],
+  '◀ เดือนก่อน':['◀ Previous month','◀ 前月'],
+  'เดือนถัดไป ▶':['Next month ▶','翌月 ▶'],
+  'วันนี้':['Today','今日'],
+  'พรุ่งนี้':['Tomorrow','明日'],
   'ซ่อนแถวที่เป็น 0':['Hide rows with 0','0の行を非表示'],
   'ผลต่าง':['Variance','差異'],
   '% ตามแผน':['% of Plan','計画比'],
@@ -1731,6 +1775,98 @@ function planCol(prod,g){
   for (const a of (PLAN_COLS[prod]||[])) if (a.length>1 && a[0].test(g)) return a[1];
   return g;
 }
+/* ===== แผนที่ต้องผลิต: แผนวันถัดไป + แผนทั้งเดือน (อยู่ใต้ตารางผลต่าง) =====
+   อ่านจาก Input plan โดยตรง ไม่ขึ้นกับช่วงวันที่ด้านบน (ยังใช้ตัวกรอง Process / Part) */
+const UP_WD=['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
+const UP_MON=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+const upPad=n=>String(n).padStart(2,'0');
+const upToday=()=>{ const t=new Date(); return `${t.getFullYear()}-${upPad(t.getMonth()+1)}-${upPad(t.getDate())}`; };
+const upWd=iso=>new Date(iso+'T00:00:00Z').getUTCDay();
+const upDiff=(a,b)=>Math.round((Date.parse(a+'T00:00:00Z')-Date.parse(b+'T00:00:00Z'))/864e5);
+const upLabel=iso=>{ const [y,m,d]=iso.split('-').map(Number); return `${UP_WD[upWd(iso)]} ${d} ${UP_MON[m-1]} ${y}`; };
+function upRows(){
+  const d=D(), f=F(); if (!d||!d.plan) return [];
+  const ps=(f&&f.procs)||[];
+  return d.plan.rows.filter(p=>p.qty>0 && (!ps.length||p.procs.some(q=>ps.includes(q))) && partPass(p.part));
+}
+function upGroup(rows){
+  const m=new Map();
+  for (const r of rows){ const k=r.group+'||'+r.part; if(!m.has(k)) m.set(k,{group:r.group,part:r.part,qty:0,by:{}}); const o=m.get(k); o.qty+=r.qty; o.by[r.date]=(o.by[r.date]||0)+r.qty; }
+  return [...m.values()].sort((a,b)=>a.group.localeCompare(b.group,'en',{numeric:true})||a.part.localeCompare(b.part,'en',{numeric:true}));
+}
+function planUpcoming(){
+  const rows=upRows(); const today=upToday();
+  const wrap=inner=>`<section class="card" id="upc">${inner}</section>`;
+  if (!rows.length) return wrap(`<div class="head"><div><h3>แผนที่ต้องผลิต</h3></div></div><div class="empty"><p>ไม่มีแผนในตัวกรองที่เลือก</p></div>`);
+  const dates=[...new Set(rows.map(r=>r.date))].sort();
+  const auto=dates.find(x=>x>today)||dates[dates.length-1];
+  const day=(S.upDay&&dates.includes(S.upDay))?S.upDay:auto;
+  const idx=dates.indexOf(day), dd=upDiff(day,today);
+  const rel=dd===0?'วันนี้':dd===1?'พรุ่งนี้':dd>1?`อีก ${dd} วัน`:`ผ่านมา ${-dd} วัน`;
+  const dayList=upGroup(rows.filter(r=>r.date===day));
+  const dayTotal=dayList.reduce((s,x)=>s+x.qty,0);
+  const months=[...new Set(dates.map(x=>x.slice(0,7)))];
+  const ym=(S.upMonth&&months.includes(S.upMonth))?S.upMonth:day.slice(0,7);
+  const mi=months.indexOf(ym);
+  const [Y,M]=ym.split('-').map(Number); const nd=new Date(Y,M,0).getDate();
+  const days=Array.from({length:nd},(_,i)=>`${ym}-${upPad(i+1)}`);
+  const mlist=upGroup(rows.filter(r=>r.date.startsWith(ym)));
+  const dsum=days.map(x=>mlist.reduce((s,r)=>s+(r.by[x]||0),0));
+  const mtotal=dsum.reduce((a,b)=>a+b,0);
+  const before=days.reduce((s,x,i)=>x<today?s+dsum[i]:s,0);
+  const cls=x=>(x===today?' today':'')+(x===day?' sel':'')+(x<today?' past':'')+([0,6].includes(upWd(x))?' wk':'');
+  const dayRows=dayList.map((r,i)=>`<tr><td class="${i>0&&dayList[i-1].group===r.group?'rep':''}">${esc(r.group)}</td><td>${esc(r.part)}</td><td>${nf(r.qty)}</td></tr>`).join('');
+  const monRows=mlist.map((r,i)=>{ const first=i===0||mlist[i-1].group!==r.group;
+    return `<tr class="${first&&i?'gs':''}"><td class="c1${first?'':' rep'}" title="${esc(r.group)}">${esc(r.group)}</td><td class="c2">${esc(r.part)}</td>${days.map(x=>{ const v=r.by[x]; return `<td class="${cls(x).trim()}${v?'':' zero'}">${v?nf(v):'·'}</td>`; }).join('')}<td class="tot">${nf(r.qty)}</td></tr>`; }).join('');
+  return wrap(`
+    <div class="head"><div><h3>แผนที่ต้องผลิต</h3><div class="sub">อ่านจาก Input plan · ไม่ขึ้นกับช่วงวันที่ด้านบน (ยังใช้ตัวกรอง Process / Part)</div></div></div>
+    <div class="upc-bar">
+      <button class="btn sm" data-up="prev" ${idx<=0?'disabled':''}>◀ วันที่มีแผนก่อนหน้า</button>
+      <input type="date" id="upDate" value="${day}" min="${dates[0]}" max="${dates[dates.length-1]}" aria-label="เลือกวันที่">
+      <button class="btn sm" data-up="next" ${idx>=dates.length-1?'disabled':''}>วันที่มีแผนถัดไป ▶</button>
+      <button class="btn sm" data-up="auto">วันถัดไปจากวันนี้</button>
+    </div>
+    <div class="upc-day"><b>${upLabel(day)}</b><span class="upc-tag">${rel}</span><span class="status">แผนรวม ${nf(dayTotal)} ชิ้น · ${dayList.length} รายการ</span></div>
+    <table class="updt"><thead><tr><th>ไลน์ / Process</th><th>Part</th><th>แผน (ชิ้น)</th></tr></thead><tbody>${dayRows}<tr class="sum"><td>รวม</td><td></td><td>${nf(dayTotal)}</td></tr></tbody></table>
+    <div class="upc-sep"></div>
+    <div class="head"><div><h3>แผนทั้งเดือน · ${UP_MON[M-1]} ${Y}</h3><div class="sub">รวม ${nf(mtotal)} ชิ้น · ก่อนวันนี้ ${nf(before)} · วันนี้เป็นต้นไป ${nf(mtotal-before)}</div></div>
+      <div class="upc-bar" style="margin:0"><button class="btn sm" data-upmon="-1" ${mi<=0?'disabled':''}>◀ เดือนก่อน</button><button class="btn sm" data-upmon="1" ${mi>=months.length-1?'disabled':''}>เดือนถัดไป ▶</button></div></div>
+    <div class="plmwrap"><table class="plm"><thead><tr><th class="c1">ไลน์ / Process</th><th class="c2">Part</th>${days.map((x,i)=>`<th class="${cls(x).trim()}">${i+1}<br><span class="wd">${UP_WD[upWd(x)]}</span></th>`).join('')}<th class="tot">รวม</th></tr></thead>
+      <tbody>${monRows}<tr class="sum"><td class="c1">รวมทุกไลน์</td><td class="c2"></td>${dsum.map((v,i)=>`<td class="${cls(days[i]).trim()}${v?'':' zero'}">${v?nf(v):'·'}</td>`).join('')}<td class="tot">${nf(mtotal)}</td></tr></tbody></table></div>
+    <p class="note">ตัวเลข = แผนที่ต้องผลิต (ชิ้น) · กรอบเหลือง = วันนี้ · แถบฟ้า = วันที่เลือกด้านบน · จาง = วันที่ผ่านมาแล้ว · แรเงา = เสาร์/อาทิตย์ · รวมทุกไลน์ รวม Screening ด้วย</p>`);
+}
+function upFocus(){
+  const w=$('#upc .plmwrap'); if (!w) return;
+  const th=w.querySelector('thead th.sel')||w.querySelector('thead th.today');
+  if (th) w.scrollLeft=Math.max(0,th.offsetLeft-178-66-24);
+}
+function renderUpcoming(){
+  const el=$('#upc'); if (!el) return;
+  el.outerHTML=planUpcoming(); bindUpcoming();
+}
+function bindUpcoming(){
+  const el=$('#upc'); if (!el) return;
+  upFocus();
+  const dates=[...new Set(upRows().map(r=>r.date))].sort(); if (!dates.length) return;
+  const today=upToday();
+  const cur=()=>(S.upDay&&dates.includes(S.upDay))?S.upDay:(dates.find(x=>x>today)||dates[dates.length-1]);
+  $$('[data-up]',el).forEach(b=>b.onclick=()=>{
+    const i=dates.indexOf(cur());
+    if (b.dataset.up==='prev') S.upDay=dates[Math.max(0,i-1)];
+    else if (b.dataset.up==='next') S.upDay=dates[Math.min(dates.length-1,i+1)];
+    else S.upDay=null;
+    S.upMonth=null; renderUpcoming();
+  });
+  const di=$('#upDate',el);
+  if (di) di.onchange=()=>{ const v=di.value; if(!v) return; S.upDay=dates.find(x=>x>=v)||dates[dates.length-1]; S.upMonth=null; renderUpcoming(); };
+  $$('[data-upmon]',el).forEach(b=>b.onclick=()=>{
+    const months=[...new Set(dates.map(x=>x.slice(0,7)))];
+    const ym=(S.upMonth&&months.includes(S.upMonth))?S.upMonth:cur().slice(0,7);
+    const i=months.indexOf(ym)+(+b.dataset.upmon);
+    if (i>=0&&i<months.length){ S.upMonth=months[i]; renderUpcoming(); }
+  });
+}
+
 function pagePlan(){
   const f=F(), d=D(); const noCmp=shiftFiltered();
   if (!d.plan){ $('#view').innerHTML=titleHTML('แผน vs ผลิตจริง')+`<div class="card empty"><h2>ยังไม่มีข้อมูลแผน</h2></div>`; return; }
@@ -1783,11 +1919,12 @@ function pagePlan(){
    `<div class="grid g3 kpis">${kpiHTML('Plan รวม',nf(tp),'')}${kpiHTML('Actual รวม',nf(ta),'')}${kpiHTML('ผลต่างรวม',(ta-tp>=0?'+':'')+nf(ta-tp),tp?pct(ta/tp,1)+' ของแผน':'–',ta-tp>=0?'up':'down')}</div>
    ${card('p_day','ผลต่างรายวัน (ผลิตจริง − แผน)','ชิ้น',260)}
    <div style="height:14px"></div>
-   <section class="card"><div class="head"><div><h3>ผลต่างแยกตาม Process และ Part</h3></div></div>${matrix}</section>`;
+   <section class="card"><div class="head"><div><h3>ผลต่างแยกตาม Process และ Part</h3></div></div>${matrix}</section>
+   <div style="height:14px"></div>${planUpcoming()}`;
   bindCards();
   const o=baseOpts({fmt:v=>nf(v),legend:false}); o.scales.y.beginAtZero=false; o.plugins.autoLabels={fmt:v=>(v>0?'+':'')+nf(v)};
   mk('p_day',{type:'bar',data:{labels:dates.map(x=>fmtD(x)),datasets:[{label:trl('ผลต่าง'),data:dd,backgroundColor:dd.map(v=>v>=0?cv('--pos'):cv('--neg')),borderRadius:4,borderSkipped:false,barPercentage:.7}]},options:o},{first:'วันที่',labels:dates.map(x=>fmtD(x)),series:[{name:'ผลต่าง',values:dd}]});
-  xfBind('p_day','date',dates);
+  xfBind('p_day','date',dates); bindUpcoming();
 }
 
 /* ---------------- ติดตั้งเว็บแอป (PWA) ---------------- */
