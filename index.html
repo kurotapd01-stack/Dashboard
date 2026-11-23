@@ -150,6 +150,14 @@ td.num{font-variant-numeric:tabular-nums}
 .plm tr.sum td{font-weight:700;border-top:2px solid var(--ink2)}
 .plm tr.gs td{border-top:1px solid var(--axis)}
 .updt td.rep,.plm td.rep{color:var(--muted)}
+/* ไอคอนเมนู SVG */
+.svgi{display:block;flex:none}
+.rail .ic{display:inline-flex;align-items:center;justify-content:center;height:20px}
+.rail .rail-foot .gear .svgi{width:19px;height:19px}
+#railToggle{display:inline-flex;align-items:center;justify-content:center}
+#railToggle .svgi,.dsw-chev .svgi{width:16px;height:16px}
+.dsw-chev{display:inline-flex}
+.dsw-ck{display:inline-flex}
 .scroll{overflow:auto;max-height:560px}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 10px}
 .chip{display:inline-flex;gap:6px;align-items:center;font-size:12px;color:var(--ink2);border:1px solid var(--axis);border-radius:999px;padding:2px 10px;background:var(--plane);cursor:pointer}
@@ -297,7 +305,7 @@ tbody tr:hover{background:var(--wash)}
 .rail .rail-foot .live{padding:6px 8px}
 .rail .rail-foot .gear{width:34px;height:34px;flex:none;padding:0;align-items:center;justify-content:center;flex-direction:row;font-size:17px;color:var(--rail-dim)}
 .rail .rail-foot .gear:hover{color:var(--rail-ink)}
-.rail .rail-foot .gear:hover .ic{transform:rotate(60deg)}
+.rail .rail-foot .gear:hover .ic{transform:scale(1.12)}
 @media (min-width:901px){ body.rail-mini .rail:not(:hover) .rail-foot{flex-direction:column;gap:2px} }
 /* ===== Drawer (side bar ย่อ/ขยายได้) ===== */
 .app{transition:grid-template-columns .25s ease}
@@ -409,7 +417,7 @@ body.rail-mini .rail:not(:hover) .brand{padding:4px 0 10px;justify-content:cente
 </style>
 </head>
 <body>
-<button class="drawer-fab" id="drawerOpen" aria-label="เปิดเมนู" aria-controls="rail" aria-expanded="false">☰</button>
+<button class="drawer-fab" id="drawerOpen" aria-label="เปิดเมนู" aria-controls="rail" aria-expanded="false"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
 <div class="scrim" id="scrim"></div>
 <div class="app">
   <aside class="rail" id="rail" aria-label="เมนูหลัก"></aside>
@@ -1355,21 +1363,39 @@ function planStatusOf(ratio){ if(ratio==null||!isFinite(ratio)) return ''; const
 function gapOf(v,target){ if (v==null) return {t:'–',c:''}; const d=(v*100-target); return {t:`${d>=0?'▲ +':'▼ '}${d.toFixed(2)} จุด จากเป้า ${target}%`, c:d>=0?'up':'down'}; }
 
 /* ---------------------------------------------------------------- shell: rail + filters */
-const PAGES=[['overview','ภาพรวม','▦'],['oee','OEE รายเครื่อง','◧'],['loss','เวลาสูญเสีย','▤'],['ng','งานเสีย (NG)','◇'],['plan','แผน vs ผลิตจริง','☰'],['data','ข้อมูลและเป้าหมาย','⚙']];
+/* ===== ไอคอนเมนู: ชุดเส้นเดียวกันทั้งหมด (เส้น 1.75 ปลายมน ขนาด 24 กริด) · สีตามตัวอักษรของปุ่ม ===== */
+const ICON_PATHS = {
+  overview: '<rect x="3.5" y="3.5" width="7" height="9" rx="1.8"/><rect x="13.5" y="3.5" width="7" height="5.5" rx="1.8"/><rect x="13.5" y="12.5" width="7" height="8" rx="1.8"/><rect x="3.5" y="16" width="7" height="4.5" rx="1.8"/>',
+  oee:      '<path d="M3.8 17a8.6 8.6 0 1 1 16.4 0"/><path d="M12 15.2l3.6-5.2"/><circle cx="12" cy="15.4" r="1.1"/><path d="M6.2 17h1.6M16.2 17h1.6"/>',
+  loss:     '<circle cx="12" cy="13.2" r="7.6"/><path d="M12 9v4.4l2.8 1.8"/><path d="M9.6 2.8h4.8"/><path d="M12 2.8v2.8"/>',
+  ng:       '<circle cx="12" cy="12" r="8.6"/><path d="M8.9 8.9l6.2 6.2M15.1 8.9l-6.2 6.2"/>',
+  plan:     '<rect x="3.5" y="5" width="17" height="15.5" rx="2.6"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M9 15.2l2.1 2.1 3.9-4"/>',
+  data:     '<path d="M4 7.5h9M17 7.5h3M4 16.5h3M11 16.5h9"/><circle cx="15" cy="7.5" r="2.2"/><circle cx="9" cy="16.5" r="2.2"/>',
+  refresh:  '<path d="M19.6 10.5A8 8 0 0 0 5.6 7.2L4 9"/><path d="M4 4.6V9h4.4"/><path d="M4.4 13.5a8 8 0 0 0 14 3.3L20 15"/><path d="M20 19.4V15h-4.4"/>',
+  themeAuto:'<circle cx="12" cy="12" r="8.6"/><path d="M12 3.4a8.6 8.6 0 0 1 0 17.2z" fill="currentColor" stroke="none"/>',
+  sun:      '<circle cx="12" cy="12" r="3.8"/><path d="M12 2.8v2.2M12 19v2.2M2.8 12H5M19 12h2.2M5.5 5.5l1.5 1.5M17 17l1.5 1.5M18.5 5.5L17 7M7 17l-1.5 1.5"/>',
+  moon:     '<path d="M20 14.2A8.4 8.4 0 0 1 9.8 4 8.4 8.4 0 1 0 20 14.2z"/>',
+  chevL:    '<path d="M14.5 6l-6 6 6 6"/>',
+  chevR:    '<path d="M9.5 6l6 6-6 6"/>',
+  chevD:    '<path d="M6 9.5l6 6 6-6"/>',
+  check:    '<path d="M5 12.6l4.6 4.6L19 7.8"/>'
+};
+const ICON = (k,sz=20) => `<svg class="svgi" viewBox="0 0 24 24" width="${sz}" height="${sz}" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICON_PATHS[k]||''}</svg>`;
+const PAGES=[['overview','ภาพรวม','overview'],['oee','OEE รายเครื่อง','oee'],['loss','เวลาสูญเสีย','loss'],['ng','งานเสีย (NG)','ng'],['plan','แผน vs ผลิตจริง','plan'],['data','ข้อมูลและเป้าหมาย','data']];
 function renderRail(){
   const mini=document.body.classList.contains('rail-mini');
-  $('#rail').innerHTML = `<div class="rail-top"><div class="brand"><svg class="logo" viewBox="0 0 64 64" role="img" aria-label="Logo"><g fill="#fff"><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(0 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(45 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(90 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(135 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(180 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(225 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(270 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(315 32 32)"/></g><circle cx="32" cy="32" r="19.5" fill="none" stroke="#fff" stroke-width="7"/><rect x="22" y="35" width="5" height="7" rx="1.5" fill="#7FB2F0"/><rect x="29" y="29" width="5" height="13" rx="1.5" fill="#7FB2F0"/><rect x="36" y="23" width="5" height="19" rx="1.5" fill="#F5841F"/></svg><span class="bt">แผงติดตามการผลิต</span></div><button class="rail-tgl" id="railToggle" aria-expanded="${!mini}" aria-controls="rail" aria-label="${mini?'ขยายเมนู':'ย่อเมนู'}" title="${mini?'ขยายเมนู':'ย่อเมนู'}">${mini?'›':'‹'}</button></div>
+  $('#rail').innerHTML = `<div class="rail-top"><div class="brand"><svg class="logo" viewBox="0 0 64 64" role="img" aria-label="Logo"><g fill="#fff"><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(0 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(45 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(90 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(135 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(180 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(225 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(270 32 32)"/><rect x="29" y="4" width="6" height="10" rx="2" transform="rotate(315 32 32)"/></g><circle cx="32" cy="32" r="19.5" fill="none" stroke="#fff" stroke-width="7"/><rect x="22" y="35" width="5" height="7" rx="1.5" fill="#7FB2F0"/><rect x="29" y="29" width="5" height="13" rx="1.5" fill="#7FB2F0"/><rect x="36" y="23" width="5" height="19" rx="1.5" fill="#F5841F"/></svg><span class="bt">แผงติดตามการผลิต</span></div><button class="rail-tgl" id="railToggle" aria-expanded="${!mini}" aria-controls="rail" aria-label="${mini?'ขยายเมนู':'ย่อเมนู'}" title="${mini?'ขยายเมนู':'ย่อเมนู'}">${ICON(mini?'chevR':'chevL',16)}</button></div>
   ${(()=>{ const cur=APP_LINKS.find(x=>x.id===APP);
     return `<div class="dsw${DSW.open?' open':''}">
-    <button type="button" class="dsw-cur" id="dswBtn" aria-haspopup="true" aria-expanded="${DSW.open}" title="สลับแดชบอร์ด"><span class="dsw-dot" style="--dc:${cur.color}"></span><span class="dsw-txt nl"><small>แดชบอร์ดที่เปิดอยู่</small><b>${esc(cur.title)}</b></span><span class="dsw-chev nl" aria-hidden="true">▾</span></button>
-    <div class="dsw-menu" role="menu" aria-label="สลับแดชบอร์ด"${DSW.open?'':' hidden'}>${APP_LINKS.map(x=>`<a role="menuitem" href="${x.href}" aria-current="${x.id===APP}"><span class="dsw-dot" style="--dc:${x.color}"></span><span class="dsw-txt"><b>${esc(x.title)}</b><small>${x.sub}</small></span>${x.id===APP?'<span class="dsw-ck" aria-hidden="true">✓</span>':''}</a>`).join('')}</div>
+    <button type="button" class="dsw-cur" id="dswBtn" aria-haspopup="true" aria-expanded="${DSW.open}" title="สลับแดชบอร์ด"><span class="dsw-dot" style="--dc:${cur.color}"></span><span class="dsw-txt nl"><small>แดชบอร์ดที่เปิดอยู่</small><b>${esc(cur.title)}</b></span><span class="dsw-chev nl" aria-hidden="true">${ICON('chevD',16)}</span></button>
+    <div class="dsw-menu" role="menu" aria-label="สลับแดชบอร์ด"${DSW.open?'':' hidden'}>${APP_LINKS.map(x=>`<a role="menuitem" href="${x.href}" aria-current="${x.id===APP}"><span class="dsw-dot" style="--dc:${x.color}"></span><span class="dsw-txt"><b>${esc(x.title)}</b><small>${x.sub}</small></span>${x.id===APP?'<span class="dsw-ck" aria-hidden="true">'+ICON('check',16)+'</span>':''}</a>`).join('')}</div>
   </div>`; })()}
   <h2>หน้า</h2>
-  <div class="nav">${PAGES.filter(p=>p[0]!=='data').map(([k,t,i])=>`<button data-page="${k}" title="${t}" aria-current="${k===S.page}"><span class="ic" aria-hidden="true">${i}</span><span class="nl">${t}</span></button>`).join('')}</div>
+  <div class="nav">${PAGES.filter(p=>p[0]!=='data').map(([k,t,i])=>`<button data-page="${k}" title="${t}" aria-current="${k===S.page}"><span class="ic" aria-hidden="true">${ICON(i)}</span><span class="nl">${t}</span></button>`).join('')}</div>
   <div class="spacer"></div>
-  <button id="refreshBtn" title="รีเฟรชตอนนี้"><span class="ic code" aria-hidden="true">↻</span><span class="code tx">รีเฟรชตอนนี้</span></button>
-  <button id="themeBtn" title="เปลี่ยนธีม"><span class="ic code" aria-hidden="true">◐</span><span class="code tx">ธีม: ${({auto:'ตามเครื่อง',light:'สว่าง',dark:'มืด'})[themePref()]}</span></button>
-  <div class="rail-foot"><div class="live" id="liveInd">${liveHTML()}</div><button id="dataBtn" data-page="data" class="gear" title="${(PAGES.find(p=>p[0]==='data')||[,'ข้อมูลและเป้าหมาย'])[1]}" aria-label="${(PAGES.find(p=>p[0]==='data')||[,'ข้อมูลและเป้าหมาย'])[1]}" aria-current="${S.page==='data'}"><span class="ic" aria-hidden="true">⚙</span></button></div>`;
+  <button id="refreshBtn" title="รีเฟรชตอนนี้"><span class="ic code" aria-hidden="true">${ICON('refresh')}</span><span class="code tx">รีเฟรชตอนนี้</span></button>
+  <button id="themeBtn" title="เปลี่ยนธีม"><span class="ic code" aria-hidden="true">${ICON(({auto:'themeAuto',light:'sun',dark:'moon'})[themePref()])}</span><span class="code tx">ธีม: ${({auto:'ตามเครื่อง',light:'สว่าง',dark:'มืด'})[themePref()]}</span></button>
+  <div class="rail-foot"><div class="live" id="liveInd">${liveHTML()}</div><button id="dataBtn" data-page="data" class="gear" title="${(PAGES.find(p=>p[0]==='data')||[,'ข้อมูลและเป้าหมาย'])[1]}" aria-label="${(PAGES.find(p=>p[0]==='data')||[,'ข้อมูลและเป้าหมาย'])[1]}" aria-current="${S.page==='data'}"><span class="ic" aria-hidden="true">${ICON('data')}</span></button></div>`;
   $('#railToggle').onclick=()=>setRailMini(!document.body.classList.contains('rail-mini'));
   $('#dswBtn').onclick=e=>{ e.stopPropagation(); setDsw(!DSW.open); };
   renderProdBar();
@@ -2093,7 +2119,7 @@ function render(){
 /* ---------------- Drawer: ย่อ/ขยาย (จอใหญ่) · เลื่อนเข้า-ออก (จอเล็ก) ---------------- */
 function setRailMini(on){
   document.body.classList.toggle('rail-mini',on); store.set('oee.railMini',on);
-  const t=$('#railToggle'); if (t){ t.textContent=on?'›':'‹'; t.setAttribute('aria-expanded',String(!on)); const l=on?'ขยายเมนู':'ย่อเมนู'; t.setAttribute('aria-label',l); t.title=l; }
+  const t=$('#railToggle'); if (t){ t.innerHTML=ICON(on?'chevR':'chevL',16); t.setAttribute('aria-expanded',String(!on)); const l=on?'ขยายเมนู':'ย่อเมนู'; t.setAttribute('aria-label',l); t.title=l; }
 }
 function setDrawer(open){
   document.body.classList.toggle('drawer-open',open);
