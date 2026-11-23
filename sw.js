@@ -1,7 +1,7 @@
 /* Service worker — ทำให้เบราว์เซอร์ถือว่าเป็นเว็บแอปที่ติดตั้งได้ และเปิดหน้าแอปได้แม้ออฟไลน์ (ข้อมูลจริงยังดึงจากเน็ตตามเดิม)
    ใช้ "เน็ตก่อน แคชทีหลัง" เฉพาะไฟล์ในโดเมนเดียวกัน และสั่งให้ถามเซิร์ฟเวอร์ทุกครั้ง (cache:'no-cache')
    เพื่อไม่ให้เบราว์เซอร์ใช้ index.html เวอร์ชันเก่าค้างจากแคช HTTP ของโฮสต์ (เช่น GitHub Pages) หลังอัปเดตไฟล์ */
-const CACHE = 'oee-shell-v2';
+const CACHE = 'oee-shell-v3';
 const SHELL = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
