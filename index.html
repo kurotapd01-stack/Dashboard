@@ -121,7 +121,8 @@ td.num{font-variant-numeric:tabular-nums}
 /* ===== แผนที่ต้องผลิต (วันถัดไป + ทั้งเดือน) ===== */
 .btn[disabled]{opacity:.45;cursor:default}
 .upc-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0 10px}
-.upc-bar input[type=date]{background:var(--plane);border:1px solid var(--axis);border-radius:8px;padding:4px 8px;color:var(--ink)}
+.upc-bar input[type=date],.upc-bar input[type=text]{background:var(--plane);border:1px solid var(--axis);border-radius:8px;padding:4px 8px;color:var(--ink)}
+.upc-bar .dwrap input[type=text]{width:112px}
 .upc-day{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin:2px 0 4px}
 .upc-day b{font-size:18px}
 .upc-tag{font-size:12px;border:1px solid var(--axis);border-radius:999px;padding:1px 10px;color:var(--ink2)}
@@ -1848,7 +1849,7 @@ function planUpcoming(){
     <div class="head"><div><h3>แผนที่ต้องผลิต</h3><div class="sub">อ่านจาก Input plan · ไม่ขึ้นกับช่วงวันที่ด้านบน (ยังใช้ตัวกรอง Process / Part)</div></div></div>
     <div class="upc-bar">
       <button class="btn sm" data-up="prev" ${idx<=0?'disabled':''}>◀ วันที่มีแผนก่อนหน้า</button>
-      <input type="date" id="upDate" value="${day}" min="${dates[0]}" max="${dates[dates.length-1]}" aria-label="เลือกวันที่">
+      <div class="dwrap"><input type="text" id="upDateT" inputmode="numeric" maxlength="10" placeholder="dd/mm/yyyy" value="${isoToDMY(day)}" autocomplete="off" aria-label="วันที่ (วัน/เดือน/ปี)"><button type="button" class="btn dcal" id="upDateB" aria-label="เลือกวันที่">📅</button><input type="date" class="dhid" id="upDate" tabindex="-1" value="${day}" min="${dates[0]}" max="${dates[dates.length-1]}"></div>
       <button class="btn sm" data-up="next" ${idx>=dates.length-1?'disabled':''}>วันที่มีแผนถัดไป ▶</button>
       <button class="btn sm" data-up="auto">วันถัดไปจากวันนี้</button>
     </div>
@@ -1884,7 +1885,12 @@ function bindUpcoming(){
     S.upMonth=null; renderUpcoming();
   });
   const di=$('#upDate',el);
-  if (di) di.onchange=()=>{ const v=di.value; if(!v) return; S.upDay=dates.find(x=>x>=v)||dates[dates.length-1]; S.upMonth=null; renderUpcoming(); };
+  const goDate=v=>{ if(!v) return; S.upDay=dates.find(x=>x>=v)||dates[dates.length-1]; S.upMonth=null; renderUpcoming(); };
+  if (di) di.onchange=()=>goDate(di.value);
+  const dt=$('#upDateT',el);
+  if (dt) dt.onchange=()=>{ const v=dmyToISO(dt.value); if(v) goDate(v); else dt.value=isoToDMY(cur()); };
+  const db=$('#upDateB',el);
+  if (db&&di) db.onclick=()=>{ try{ di.showPicker(); }catch(_){ di.focus(); di.click(); } };
   $$('[data-upmon]',el).forEach(b=>b.onclick=()=>{
     const months=[...new Set(dates.map(x=>x.slice(0,7)))];
     const ym=(S.upMonth&&months.includes(S.upMonth))?S.upMonth:cur().slice(0,7);
