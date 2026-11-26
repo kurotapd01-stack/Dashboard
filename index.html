@@ -1732,8 +1732,8 @@ function pageNG(){
   $('#view').innerHTML=titleHTML('งานเสีย (NG)')+`<div class="chips"><label class="chip"><input type="checkbox" id="ngInd" ${S.ngInduction?'checked':''}> ไม่นับ NG ของ Induction</label></div>
    <div class="grid g3 kpis">${kpiHTML('NG (ชิ้น)',nf(a.ng),`จากยอดผลิต ${nf(a.total)} ชิ้น`)}${kpiHTML('% NG',pct(a.ngp,2),'')}${kpiHTML('Quality',pct(a.Q,2),gapOf(a.Q,S.targets.q).t,gapOf(a.Q,S.targets.q).c,statusOf(a.Q,S.targets.q))}</div>
    <div class="grid g1" style="margin-bottom:14px">${card('n_cum','NG สะสม: เป้า vs จริง',(hasNgP?'เป้า NG = ชีต Plan NG · ':'เป้า NG = แผนผลิต × '+nfT+'% · ')+'สะสมตั้งแต่ต้นช่วง รวม NG ของทุก Process (รวม Screening)',380,cumNote)}</div>
+   <div class="grid g1" style="margin-bottom:14px">${card('n_day','NG รายวัน','ชิ้น',340)}</div>
    <div class="grid g2" style="margin-bottom:14px">${card('n_part','NG ตาม Part No.',trl('คลิกเพื่อกรองข้ามกราฟ'),hBar)}${card('n_proc','% NG รายเครื่อง',trl('คลิกเพื่อกรองข้ามกราฟ'),hBar)}</div>
-   <div class="grid g1">${card('n_day','NG รายวัน','ชิ้น',340)}</div>
    <div class="grid g1" style="margin-top:14px">${card('n_type','ประเภท NG ที่พบมากที่สุด','ชิ้น',Math.max(340,tt.length*30+60))}</div>`;
   bindCards(); $('#ngInd').onchange=e=>{S.ngInduction=e.target.checked;render();};
   const hexA=(c,a)=>{ const m=/^#([0-9a-f]{6})$/i.exec(String(c).trim()); if(!m) return c; const n=parseInt(m[1],16); return 'rgba('+(n>>16)+','+((n>>8)&255)+','+(n&255)+','+a+')'; };
