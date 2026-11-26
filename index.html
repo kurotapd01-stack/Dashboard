@@ -621,6 +621,10 @@ const I18N_EXACT = {
   'ไม่มีข้อมูลเป้า (ชีต Plan NG / Input plan) จึงแสดงเฉพาะเส้น NG จริง':['No target data (Plan NG / Input plan sheet), so only the actual NG line is shown.','目標データ(Plan NG / Input planシート)がないため、実績NGの線のみ表示しています。'],
   '% NG รายเครื่อง':['% NG by Machine','設備別NG率'],
   'ประเภท NG ที่พบมากที่สุด':['Most Common NG Types','主なNG種別'],
+  'NG ตาม Part No.':['NG by Part No.','品番別NG'],
+  'ยอดผลิต':['Produced','生産数'],
+  '(ไม่ระบุ)':['(unspecified)','(未指定)'],
+  'เป้า NG จากชีต Plan NG ไม่แยก Part No. เส้นเป้าจึงไม่ถูกกรองตาม Part':['The target from the Plan NG sheet is not split by Part No., so the target line is not filtered by part.','Plan NGシートの目標は品番別ではないため、目標線は品番で絞り込まれません。'],
   'ประเภท':['Type','種別'],
   /* แผน vs ผลิตจริง */
   'ยังไม่มีข้อมูลแผน':['No plan data yet','計画データがまだありません'],
@@ -965,7 +969,7 @@ const S = {
   targets: Object.assign({}, CONFIG.targets, store.get(KEY_TARGETS,{})),
   lossPlan: false, lossCat: 'all', ngInduction: false, planHideZero: true, procOpen: false, partOpen: false,
   sort: {col:'oee', dir:1},
-  xf: {dates:new Set(), procs:new Set(), reasons:new Set(), issue:new Set(), ngNote:new Set(), ltNote:new Set()}     // ตัวกรองข้ามกราฟ (คลิกที่กราฟ) ; หมวด Loss ใช้ S.lossCat
+  xf: {dates:new Set(), procs:new Set(), parts:new Set(), reasons:new Set(), issue:new Set(), ngNote:new Set(), ltNote:new Set()}     // ตัวกรองข้ามกราฟ (คลิกที่กราฟ) ; หมวด Loss ใช้ S.lossCat
 };
 const D = () => S.data[S.product];
 const F = () => S.filt[S.product];
@@ -1284,6 +1288,7 @@ function xfPass(r, ignore){
   const x=S.xf;
   if (ignore!=='date' && x.dates.size && !x.dates.has(r.date)) return false;
   if (ignore!=='proc' && x.procs.size && !x.procs.has(r.proc)) return false;
+  if (ignore!=='part' && x.parts.size && !x.parts.has(partKey(r.part))) return false;
   if (ignore!=='reason' && x.reasons.size && ![...x.reasons].some(k=>(r.reasons[k]||0)>0)) return false;
   for (const k of NOTE_DIMS) if (ignore!==k && x[k].size && !x[k].has(r[k]||'')) return false;
   return true;
@@ -1292,10 +1297,11 @@ function xfPlanPass(p, ignore){
   const x=S.xf;
   if (ignore!=='date' && x.dates.size && !x.dates.has(p.date)) return false;
   if (ignore!=='proc' && x.procs.size && !p.procs.some(q=>x.procs.has(q))) return false;
+  if (ignore!=='part' && x.parts.size && p.part!=null && p.part!=='' && !x.parts.has(partKey(p.part))) return false;   // เป้า NG จากชีต Plan NG ไม่มี Part จึงไม่ถูกกรอง
   return true;
 }
-const xfActive = () => S.xf.dates.size>0 || S.xf.procs.size>0 || S.xf.reasons.size>0 || NOTE_DIMS.some(k=>S.xf[k].size>0) || S.lossCat!=='all';
-function xfSel(dim,v){ return dim==='date' ? S.xf.dates.has(v) : dim==='proc' ? S.xf.procs.has(v) : dim==='reason' ? S.xf.reasons.has(v) : NOTE_DIMS.includes(dim) ? S.xf[dim].has(v) : S.lossCat===v; }
+const xfActive = () => S.xf.dates.size>0 || S.xf.procs.size>0 || S.xf.parts.size>0 || S.xf.reasons.size>0 || NOTE_DIMS.some(k=>S.xf[k].size>0) || S.lossCat!=='all';
+function xfSel(dim,v){ return dim==='date' ? S.xf.dates.has(v) : dim==='proc' ? S.xf.procs.has(v) : dim==='part' ? S.xf.parts.has(v) : dim==='reason' ? S.xf.reasons.has(v) : NOTE_DIMS.includes(dim) ? S.xf[dim].has(v) : S.lossCat===v; }
 function dimHex(c){
   const m=/^#([0-9a-f]{6})$/i.exec(String(c||'').trim()); if (!m) return c;
   const n=parseInt(m[1],16); return 'rgba('+(n>>16)+','+((n>>8)&255)+','+(n&255)+',.28)';
@@ -1304,7 +1310,7 @@ function toggleXF(dim,v){
   setTimeout(()=>{                                  // รอให้ Chart.js จัดการคลิกเสร็จก่อนค่อยวาดใหม่
     const x=S.xf;
     if (dim==='cat') S.lossCat = S.lossCat===v ? 'all' : v;
-    else { const set=dim==='date'?x.dates:dim==='reason'?x.reasons:NOTE_DIMS.includes(dim)?x[dim]:x.procs; if (set.has(v)) set.delete(v); else set.add(v); }
+    else { const set=dim==='date'?x.dates:dim==='reason'?x.reasons:dim==='part'?x.parts:NOTE_DIMS.includes(dim)?x[dim]:x.procs; if (set.has(v)) set.delete(v); else set.add(v); }
     const y=window.scrollY; render(); window.scrollTo(0,y);
   },0);
 }
@@ -1329,6 +1335,7 @@ function renderXF(){
   const x=S.xf, chips=[];
   if (x.dates.size){ const ds=[...x.dates].sort(); chips.push(['date','วันที่ ',ds.length<=3?ds.map(d=>fmtD(d)).join(', '):ds.length+' วัน']); }
   if (x.procs.size){ const ps=[...x.procs]; chips.push(['proc','Process ',ps.length<=2?ps.join(', '):ps.length+' รายการ']); }
+  if (x.parts.size){ const ps=[...x.parts].map(k=>k||'(ไม่ระบุ)'); chips.push(['part','Part No ',ps.length<=3?ps.join(', '):ps.length+' รายการ']); }
   if (x.reasons.size){ const rs=[...x.reasons].map(k=>k.split('|').slice(1).join('|')); chips.push(['reason','เหตุผล ',rs.length<=1?rs[0]:rs.length+' รายการ']); }
   [['issue','Machine issue '],['ngNote','NG note '],['ltNote','Loss note ']].forEach(([k,l])=>{ if (x[k].size){ const v=[...x[k]]; chips.push([k,l,v.length<=1?v[0]:v.length+' รายการ']); } });
   if (S.lossCat!=='all') chips.push(['cat','หมวด Loss ',S.lossCat]);
@@ -1336,8 +1343,8 @@ function renderXF(){
     ? `<div class="xf"><span class="xf-l">กรองจากกราฟ</span>${chips.map(([k,l,t])=>`<button class="chip" data-xfclear="${k}" title="คลิกเพื่อยกเลิก">${l}<b>${esc(t)}</b> ✕</button>`).join('')}<button class="btn sm" id="xfAll">ล้างทั้งหมด</button></div>`
     : '';
   const redraw=()=>{ const y=window.scrollY; render(); window.scrollTo(0,y); };
-  $$('[data-xfclear]').forEach(b=>b.onclick=()=>{ const k=b.dataset.xfclear; if (k==='date') x.dates.clear(); else if (k==='proc') x.procs.clear(); else if (k==='reason') x.reasons.clear(); else if (NOTE_DIMS.includes(k)) x[k].clear(); else S.lossCat='all'; redraw(); });
-  const all=$('#xfAll'); if (all) all.onclick=()=>{ x.dates.clear(); x.procs.clear(); x.reasons.clear(); NOTE_DIMS.forEach(k=>x[k].clear()); S.lossCat='all'; redraw(); };
+  $$('[data-xfclear]').forEach(b=>b.onclick=()=>{ const k=b.dataset.xfclear; if (k==='date') x.dates.clear(); else if (k==='proc') x.procs.clear(); else if (k==='part') x.parts.clear(); else if (k==='reason') x.reasons.clear(); else if (NOTE_DIMS.includes(k)) x[k].clear(); else S.lossCat='all'; redraw(); });
+  const all=$('#xfAll'); if (all) all.onclick=()=>{ x.dates.clear(); x.procs.clear(); x.parts.clear(); x.reasons.clear(); NOTE_DIMS.forEach(k=>x[k].clear()); S.lossCat='all'; redraw(); };
 }
 
 function mk(id,cfg,tbl){
@@ -1417,7 +1424,7 @@ function selectProduct(p){
   if (!CONFIG.products[p]) return;
   const changed = p!==S.product;
   S.product=p; store.set(PRODKEY,S.product);
-  if (changed){ S.xf.dates.clear(); S.xf.procs.clear(); S.xf.reasons.clear(); NOTE_DIMS.forEach(k=>S.xf[k].clear()); S.lossCat='all'; }
+  if (changed){ S.xf.dates.clear(); S.xf.procs.clear(); S.xf.parts.clear(); S.xf.reasons.clear(); NOTE_DIMS.forEach(k=>S.xf[k].clear()); S.lossCat='all'; }
   render(); if (changed) liveTick(false);
 }
 function renderProdBar(){
@@ -1714,14 +1721,20 @@ function pageNG(){
     sa+=(byD.get(x)||[]).reduce((s,r)=>s+r.ng,0); st+=(pq.get(x)||0);
     cumA.push(x>f.max?null:sa); cumT.push(planOK?Math.round(st):null);
   }
-  const cumNote = !planOK ? '<p class="note">ไม่มีข้อมูลเป้า (ชีต Plan NG / Input plan) จึงแสดงเฉพาะเส้น NG จริง</p>'
+  const cumNote0 = !planOK ? '<p class="note">ไม่มีข้อมูลเป้า (ชีต Plan NG / Input plan) จึงแสดงเฉพาะเส้น NG จริง</p>'
     : (shiftFiltered()&&!hasNgP) ? '<p class="note">ตัวกรองกะ หรือ กลางวัน/กลางคืน ทำให้ NG จริงน้อยลง แต่แผนไม่แยกกะ เส้นเป้า NG จึงไม่ตรงความจริง</p>' : '';
+  const partNote = (hasNgP && (S.xf.parts.size || (f.parts||[]).length)) ? '<p class="note">เป้า NG จากชีต Plan NG ไม่แยก Part No. เส้นเป้าจึงไม่ถูกกรองตาม Part</p>' : '';
+  const cumNote = cumNote0 + partNote;
   const gp=[...groupBy(ngF({ignoreX:'proc'}),r=>r.proc).entries()].map(([p,x])=>({p,...agg(x)})).filter(x=>x.total>0).sort((a,b)=>(b.ngp||0)-(a.ngp||0));
+  /* NG ตาม Part No. — ignoreX:'part' เพื่อให้ Part อื่นยังแสดง (จาง) เมื่อมีการเลือก Part อยู่ */
+  const pm=[...groupBy(ngF({ignoreX:'part'}),r=>partKey(r.part)).entries()].map(([k,x])=>({k,lbl:k||trl('(ไม่ระบุ)'),...agg(x)})).filter(x=>x.total>0||x.ng>0).sort((a,b)=>(b.ng-a.ng)||a.k.localeCompare(b.k,undefined,{numeric:true}));
+  const hBar=Math.max(460,Math.max(gp.length,pm.length)*26+60);
   $('#view').innerHTML=titleHTML('งานเสีย (NG)')+`<div class="chips"><label class="chip"><input type="checkbox" id="ngInd" ${S.ngInduction?'checked':''}> ไม่นับ NG ของ Induction</label></div>
    <div class="grid g3 kpis">${kpiHTML('NG (ชิ้น)',nf(a.ng),`จากยอดผลิต ${nf(a.total)} ชิ้น`)}${kpiHTML('% NG',pct(a.ngp,2),'')}${kpiHTML('Quality',pct(a.Q,2),gapOf(a.Q,S.targets.q).t,gapOf(a.Q,S.targets.q).c,statusOf(a.Q,S.targets.q))}</div>
    <div class="grid g1" style="margin-bottom:14px">${card('n_cum','NG สะสม: เป้า vs จริง',(hasNgP?'เป้า NG = ชีต Plan NG · ':'เป้า NG = แผนผลิต × '+nfT+'% · ')+'สะสมตั้งแต่ต้นช่วง รวม NG ของทุก Process (รวม Screening)',380,cumNote)}</div>
+   <div class="grid g2" style="margin-bottom:14px">${card('n_part','NG ตาม Part No.',trl('คลิกเพื่อกรองข้ามกราฟ'),hBar)}${card('n_proc','% NG รายเครื่อง',trl('คลิกเพื่อกรองข้ามกราฟ'),hBar)}</div>
    <div class="grid g1">${card('n_day','NG รายวัน','ชิ้น',340)}</div>
-   <div class="grid g2" style="margin-top:14px">${card('n_proc','% NG รายเครื่อง','',Math.max(460,gp.length*26+60))}${card('n_type','ประเภท NG ที่พบมากที่สุด','ชิ้น',Math.max(460,gp.length*26+60))}</div>`;
+   <div class="grid g1" style="margin-top:14px">${card('n_type','ประเภท NG ที่พบมากที่สุด','ชิ้น',Math.max(340,tt.length*30+60))}</div>`;
   bindCards(); $('#ngInd').onchange=e=>{S.ngInduction=e.target.checked;render();};
   const hexA=(c,a)=>{ const m=/^#([0-9a-f]{6})$/i.exec(String(c).trim()); if(!m) return c; const n=parseInt(m[1],16); return 'rgba('+(n>>16)+','+((n>>8)&255)+','+(n&255)+','+a+')'; };
   const areaFill=col=>ctx=>{ const ch=ctx.chart, ca=ch.chartArea; if(!ca) return hexA(col,.15); const g=ch.ctx.createLinearGradient(0,ca.top,0,ca.bottom); g.addColorStop(0,hexA(col,.28)); g.addColorStop(1,hexA(col,0)); return g; };
@@ -1740,6 +1753,14 @@ function pageNG(){
   const to=baseOpts({horiz:true,fmt:v=>nf(v),legend:false}); to.plugins.barLabels={on:true,text:i=>nf(tt[i][1])};
   to.plugins.tooltip.callbacks.title=items=>tt[items[0].dataIndex][0];
   mk('n_type',{type:'bar',data:{labels:tt.map(x=>wrapLabel(x[0],28)),datasets:[{data:tt.map(x=>x[1]),backgroundColor:cv('--s2'),borderRadius:4,borderSkipped:false,barPercentage:.7}]},options:to,plugins:[labelPlugin]},{first:'ประเภท',labels:tt.map(x=>x[0]),series:[{name:'ชิ้น',values:tt.map(x=>x[1])}]});
+  const pto=baseOpts({horiz:true,fmt:v=>nf(v),legend:false}); pto.layout.padding.right=104;
+  pto.plugins.barLabels={on:true,text:i=>nf(pm[i].ng)+' · '+pct(pm[i].ngp,2)};
+  pto.plugins.tooltip.callbacks.title=items=>pm[items[0].dataIndex].lbl;
+  pto.plugins.tooltip.callbacks.label=c=>' NG: '+nf(pm[c.dataIndex].ng)+' '+trl('ชิ้น');
+  pto.plugins.tooltip.callbacks.afterBody=items=>{ const x=pm[items[0].dataIndex]; return trl('ยอดผลิต')+' '+nf(x.total)+' · % NG '+pct(x.ngp,2); };
+  mk('n_part',{type:'bar',data:{labels:pm.map(x=>x.lbl),datasets:[{data:pm.map(x=>x.ng),backgroundColor:cv('--s2'),borderRadius:4,borderSkipped:false,barPercentage:.7}]},options:pto,plugins:[labelPlugin]},
+    {first:'Part No',labels:pm.map(x=>x.lbl),series:[{name:'NG (ชิ้น)',values:pm.map(x=>x.ng)},{name:'% NG',values:pm.map(x=>x.ngp==null?null:x.ngp*100),fmt:v=>v.toFixed(2)+'%'},{name:trl('ยอดผลิต')+' (ชิ้น)',values:pm.map(x=>x.total)}]});
+  xfBind('n_part','part',pm.map(x=>x.k));
   xfBind('n_day','date',dates); xfBind('n_proc','proc',gp.map(x=>x.p));
 }
 
