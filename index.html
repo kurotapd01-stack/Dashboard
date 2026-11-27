@@ -98,6 +98,8 @@ button,input,select{font:inherit;color:inherit}
 .kpi .val.st-red{color:var(--crit)} .kpi .val.st-green{color:var(--good)} .kpi .val.st-yellow{color:var(--yel)}
 .kpi .gap.st-red{color:var(--crit);font-weight:600} .kpi .gap.st-green{color:var(--good);font-weight:600} .kpi .gap.st-yellow{color:var(--yel);font-weight:600}
 .up{color:var(--good);font-weight:600}
+#proctbl tfoot td{font-weight:700;border-top:2px solid var(--ink2);border-bottom:0;background:var(--surface);position:sticky;bottom:0}
+#proctbl tfoot td:first-child{text-align:left}
 .down{color:var(--crit);font-weight:600}
 .kpis{margin-bottom:14px}
 table{border-collapse:collapse;width:100%;font-size:13px}
@@ -590,6 +592,7 @@ const I18N_EXACT = {
   /* OEE รายเครื่อง */
   'Pcs/Hr ต่อ Process':['Pcs/Hr by Process','工程別 Pcs/Hr'],
   'ตารางรายเครื่อง':['Machine Table','設備別テーブル'],
+  'รวม / เฉลี่ย':['Total / Avg','合計 / 平均'],
   'เวลาแผน (นาที)':['Planned time (min)','計画時間 (分)'],
   'เดินเครื่อง (นาที)':['Run time (min)','稼働時間 (分)'],
   'ผลิต (ชิ้น)':['Produced (pcs)','生産数 (個)'],
@@ -1628,7 +1631,17 @@ function pageOEE(){
   const draw=()=>{
     const {col,dir}=S.sort; const rows=(S.xf.procs.size?st.filter(x=>S.xf.procs.has(x.proc)):[...st]).sort((a,b)=>{const x=a[col],y=b[col]; if(typeof x==='string'||typeof y==='string') return String(x).localeCompare(String(y))*dir; return ((x??-1)-(y??-1))*dir;});
     const cell=(k,x)=>{ if(['A','P','Q'].includes(k)) return pct(x[k],1); if(k==='oee'){ if(x.oee==null) return '–'; const up=x.oee*100>=T.oee; return `<span class="${up?'up':'down'}">${up?'▲':'▼'} ${pct(x.oee,1)}</span>`;} if(k==='pph') return nf(x.pph,1); if(k==='proc') return esc(x.proc); return nf(x[k]); };
-    $('#proctbl').innerHTML=`<table><thead><tr>${cols.map(([k,t])=>`<th><button data-sort="${k}">${t}${S.sort.col===k?(S.sort.dir>0?' ↑':' ↓'):''}</button></th>`).join('')}</tr></thead><tbody>${rows.map(x=>`<tr>${cols.map(([k])=>`<td class="num">${cell(k,x)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+    /* แถวรวม/เฉลี่ย: เวลา/ชิ้น/NG = ผลรวม · A,P,Q,OEE,Pcs/Hr = ค่าเฉลี่ยถ่วงน้ำหนัก (คิดจากยอดรวมทุกเครื่องที่แสดง ไม่ใช่เฉลี่ยตรงๆ) */
+    const foot=rows=>{
+      if(!rows.length) return '';
+      const sum=k=>rows.reduce((a,x)=>a+(x[k]||0),0);
+      const planned=sum('planned'),run=sum('run'),ideal=sum('ideal'),total=sum('total'),good=sum('good'),ng=sum('ng');
+      const A=planned?run/planned:null, P=run?ideal/run:null, Q=total?good/total:null;
+      const oee=(A!=null&&P!=null&&Q!=null)?A*P*Q:null; const pph=run?total/(run/60):null;
+      const t={proc:'รวม / เฉลี่ย',planned,run,total,ng,A,P,Q,oee,pph};
+      return `<tfoot><tr>${cols.map(([k])=>`<td class="num">${k==='proc'?'รวม / เฉลี่ย':cell(k,t)}</td>`).join('')}</tr></tfoot>`;
+    };
+    $('#proctbl').innerHTML=`<table><thead><tr>${cols.map(([k,t])=>`<th><button data-sort="${k}">${t}${S.sort.col===k?(S.sort.dir>0?' ↑':' ↓'):''}</button></th>`).join('')}</tr></thead><tbody>${rows.map(x=>`<tr>${cols.map(([k])=>`<td class="num">${cell(k,x)}</td>`).join('')}</tr>`).join('')}</tbody>${foot(rows)}</table>`;
     $$('[data-sort]').forEach(b=>b.onclick=()=>{const k=b.dataset.sort; S.sort = S.sort.col===k? {col:k,dir:-S.sort.dir}:{col:k,dir:k==='proc'?1:-1}; draw();});
   };
   draw();
