@@ -33,20 +33,20 @@ window.addEventListener('appinstalled',function(){PWA.ev=null;PWA.done=true;wind
 @media (prefers-color-scheme: dark){
   :root:where(:not([data-theme="light"])){
     color-scheme: dark;
-    --plane:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
-    --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10); --wash:rgba(255,255,255,.06);
-    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --plan:#5d5c57;
-    --good:#0ca30c; --crit:#e66767; --yel:#f0b429; --pos:#3987e5; --neg:#e66767;
-    --rail:#11161c; --rail-hi:#1f2a38;
+    --plane:#0c111b; --surface:#161e2e; --ink:#f4f6fa; --ink2:#bcc5d6; --muted:#8c97ad;
+    --grid:#2a3550; --axis:#3d4a68; --border:rgba(255,255,255,.13); --wash:rgba(255,255,255,.07);
+    --s1:#60a5fa; --s2:#fb923c; --s3:#34d399; --s4:#fbbf24; --plan:#6f7a90; --on-s1:#0b1220;
+    --good:#4ade80; --crit:#ff7b7b; --yel:#fbbf24; --pos:#60a5fa; --neg:#ff7b7b;
+    --rail:#0a0f19; --rail-hi:#22314f;
   }
 }
 :root[data-theme="dark"]{
   color-scheme: dark;
-  --plane:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
-  --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10); --wash:rgba(255,255,255,.06);
-  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --plan:#5d5c57;
-  --good:#0ca30c; --crit:#e66767; --yel:#f0b429; --pos:#3987e5; --neg:#e66767;
-  --rail:#11161c; --rail-hi:#1f2a38;
+  --plane:#0c111b; --surface:#161e2e; --ink:#f4f6fa; --ink2:#bcc5d6; --muted:#8c97ad;
+  --grid:#2a3550; --axis:#3d4a68; --border:rgba(255,255,255,.13); --wash:rgba(255,255,255,.07);
+  --s1:#60a5fa; --s2:#fb923c; --s3:#34d399; --s4:#fbbf24; --plan:#6f7a90; --on-s1:#0b1220;
+  --good:#4ade80; --crit:#ff7b7b; --yel:#fbbf24; --pos:#60a5fa; --neg:#ff7b7b;
+  --rail:#0a0f19; --rail-hi:#22314f;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -73,7 +73,7 @@ button,input,select{font:inherit;color:inherit}
 .presets{display:flex;gap:6px;flex-wrap:wrap}
 .btn{background:var(--plane);border:1px solid var(--axis);border-radius:8px;padding:6px 10px;cursor:pointer;color:var(--ink)}
 .btn:hover{background:var(--wash)}
-.btn.primary{background:var(--s1);border-color:var(--s1);color:#fff}
+.btn.primary{background:var(--s1);border-color:var(--s1);color:var(--on-s1,#fff)}
 .btn.sm{padding:3px 8px;font-size:12px}
 .page-title{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:0 0 12px}
 .page-title h1{font-size:20px;margin:0;font-weight:700}
