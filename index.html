@@ -1631,14 +1631,12 @@ function pageOEE(){
   const draw=()=>{
     const {col,dir}=S.sort; const rows=(S.xf.procs.size?st.filter(x=>S.xf.procs.has(x.proc)):[...st]).sort((a,b)=>{const x=a[col],y=b[col]; if(typeof x==='string'||typeof y==='string') return String(x).localeCompare(String(y))*dir; return ((x??-1)-(y??-1))*dir;});
     const cell=(k,x)=>{ if(['A','P','Q'].includes(k)) return pct(x[k],1); if(k==='oee'){ if(x.oee==null) return '–'; const up=x.oee*100>=T.oee; return `<span class="${up?'up':'down'}">${up?'▲':'▼'} ${pct(x.oee,1)}</span>`;} if(k==='pph') return nf(x.pph,1); if(k==='proc') return esc(x.proc); return nf(x[k]); };
-    /* แถวรวม/เฉลี่ย: เวลา/ชิ้น/NG = ผลรวม · A,P,Q,OEE,Pcs/Hr = ค่าเฉลี่ยถ่วงน้ำหนัก (คิดจากยอดรวมทุกเครื่องที่แสดง ไม่ใช่เฉลี่ยตรงๆ) */
+    /* แถวรวม/เฉลี่ย: เวลา/ชิ้น/NG = ผลรวม · A,P,Q,OEE,Pcs/Hr = ค่าเฉลี่ยตรงๆ ของตัวเลขในแต่ละแถวที่แสดง */
     const foot=rows=>{
       if(!rows.length) return '';
       const sum=k=>rows.reduce((a,x)=>a+(x[k]||0),0);
-      const planned=sum('planned'),run=sum('run'),ideal=sum('ideal'),total=sum('total'),good=sum('good'),ng=sum('ng');
-      const A=planned?run/planned:null, P=run?ideal/run:null, Q=total?good/total:null;
-      const oee=(A!=null&&P!=null&&Q!=null)?A*P*Q:null; const pph=run?total/(run/60):null;
-      const t={proc:'รวม / เฉลี่ย',planned,run,total,ng,A,P,Q,oee,pph};
+      const avg=k=>{ const v=rows.map(x=>x[k]).filter(z=>z!=null); return v.length?v.reduce((a,b)=>a+b,0)/v.length:null; };
+      const t={planned:sum('planned'),run:sum('run'),total:sum('total'),ng:sum('ng'),A:avg('A'),P:avg('P'),Q:avg('Q'),oee:avg('oee'),pph:avg('pph')};
       return `<tfoot><tr>${cols.map(([k])=>`<td class="num">${k==='proc'?'รวม / เฉลี่ย':cell(k,t)}</td>`).join('')}</tr></tfoot>`;
     };
     $('#proctbl').innerHTML=`<table><thead><tr>${cols.map(([k,t])=>`<th><button data-sort="${k}">${t}${S.sort.col===k?(S.sort.dir>0?' ↑':' ↓'):''}</button></th>`).join('')}</tr></thead><tbody>${rows.map(x=>`<tr>${cols.map(([k])=>`<td class="num">${cell(k,x)}</td>`).join('')}</tr>`).join('')}</tbody>${foot(rows)}</table>`;
