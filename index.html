@@ -1623,9 +1623,10 @@ function pageOEE(){
   mkBar('o_oee','oee','--s1',T.oee,0); mkBar('o_a','A','--s3',T.a,0); mkBar('o_p','P','--s2',T.p,0);
   const qmin=Math.max(0,Math.floor(Math.min(...order.map(x=>x.Q==null?100:x.Q*100),T.q)/5)*5-5);
   mkBar('o_q','Q','--s4',T.q,qmin);
-  const pp=[...order].sort((a,b)=>(b.pph||0)-(a.pph||0)); const po=baseOpts({horiz:true,fmt:v=>nf(v,0),legend:false});
-  po.plugins.barLabels={on:true,text:i=>nf(pp[i].pph,1)};
-  mk('o_pph',{type:'bar',data:{labels:pp.map(x=>x.proc),datasets:[{data:pp.map(x=>x.pph),backgroundColor:cv('--s2'),borderRadius:4,borderSkipped:false,barPercentage:.7}]},options:po,plugins:[labelPlugin]},{first:'Process',labels:pp.map(x=>x.proc),series:[{name:'Pcs/Hr',values:pp.map(x=>x.pph),fmt:v=>v.toFixed(1)}]});
+  const ce=v=>v==null?null:Math.ceil(v); /* Pcs/Hr เป็นชิ้น → ปัดเศษขึ้นเสมอ (0.1 หรือ 0.9 ก็ขึ้น) */
+  const pp=[...order].sort((a,b)=>(b.pph||0)-(a.pph||0)); const po=baseOpts({horiz:true,fmt:v=>nf(ce(v),0),legend:false});
+  po.plugins.barLabels={on:true,text:i=>nf(ce(pp[i].pph),0)};
+  mk('o_pph',{type:'bar',data:{labels:pp.map(x=>x.proc),datasets:[{data:pp.map(x=>ce(x.pph)),backgroundColor:cv('--s2'),borderRadius:4,borderSkipped:false,barPercentage:.7}]},options:po,plugins:[labelPlugin]},{first:'Process',labels:pp.map(x=>x.proc),series:[{name:'Pcs/Hr',values:pp.map(x=>ce(x.pph)),fmt:v=>nf(v,0)}]});
   // sortable table
   const cols=[['proc','Process'],['planned','เวลาแผน (นาที)'],['run','เดินเครื่อง (นาที)'],['A','Avail.'],['P','Perf.'],['Q','Qual.'],['oee','OEE'],['total','ผลิต (ชิ้น)'],['ng','NG'],['pph','Pcs/Hr']];
   const draw=()=>{
